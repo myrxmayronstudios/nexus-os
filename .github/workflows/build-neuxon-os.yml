@@ -1,0 +1,104 @@
+name: Build Neuxon OS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Neuxon OS Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install QEMU user-static
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            qemu-user-static \
+            binfmt-support
+
+      - name: Register binfmt for arm64
+        run: |
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          if [ -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]; then
+            echo "qemu-aarch64 binfmt registered"
+            cat /proc/sys/fs/binfmt_misc/qemu-aarch64
+          fi
+
+      - name: Install host build dependencies
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            debootstrap \
+            xz-utils \
+            dosfstools \
+            e2fsprogs \
+            parted \
+            kpartx \
+            xorriso \
+            mtools \
+            git \
+            curl \
+            wget \
+            ca-certificates \
+            rsync
+
+      - name: Make scripts executable
+        run: |
+          find . -name '*.sh' -exec chmod +x {} +
+
+      - name: Build Neuxon OS
+        run: |
+          sudo ./build.sh
+
+      - name: Upload Neuxon OS image (xz)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Neuxon-OS-rpi3bplus-arm64.img.xz
+          path: output/Neuxon-OS-rpi3bplus-arm64.img.xz
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Neuxon OS ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: Neuxon-OS-rpi3bplus-arm64.iso
+          path: output/Neuxon-OS-rpi3bplus-arm64.iso
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksums
+          path: output/checksums.txt
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Build summary
+        run: |
+          echo "## Neuxon OS Build Complete :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact | Size |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          if [ -f output/Neuxon-OS-rpi3bplus-arm64.img.xz ]; then
+            SIZE=$(du -h output/Neuxon-OS-rpi3bplus-arm64.img.xz | cut -f1)
+            echo "| \`Neuxon-OS-rpi3bplus-arm64.img.xz\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f output/Neuxon-OS-rpi3bplus-arm64.iso ]; then
+            SIZE=$(du -h output/Neuxon-OS-rpi3bplus-arm64.iso | cut -f1)
+            echo "| \`Neuxon-OS-rpi3bplus-arm64.iso\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Checksums" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat output/checksums.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
