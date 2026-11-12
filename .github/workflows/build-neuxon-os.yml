@@ -56,13 +56,18 @@ jobs:
 
       - name: Build Neuxon OS
         run: |
+          if [ -d "neuxon-os" ]; then
+            cd neuxon-os
+          fi
           sudo ./build.sh
 
       - name: Upload Neuxon OS image (xz)
         uses: actions/upload-artifact@v4
         with:
           name: Neuxon-OS-rpi3bplus-arm64.img.xz
-          path: output/Neuxon-OS-rpi3bplus-arm64.img.xz
+          path: |
+            neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.img.xz
+            output/Neuxon-OS-rpi3bplus-arm64.img.xz
           retention-days: 30
           if-no-files-found: error
 
@@ -70,7 +75,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Neuxon-OS-rpi3bplus-arm64.iso
-          path: output/Neuxon-OS-rpi3bplus-arm64.iso
+          path: |
+            neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.iso
+            output/Neuxon-OS-rpi3bplus-arm64.iso
           retention-days: 30
           if-no-files-found: error
 
@@ -78,7 +85,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: checksums
-          path: output/checksums.txt
+          path: |
+            neuxon-os/output/checksums.txt
+            output/checksums.txt
           retention-days: 30
           if-no-files-found: error
 
@@ -88,16 +97,27 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Artifact | Size |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          if [ -f output/Neuxon-OS-rpi3bplus-arm64.img.xz ]; then
-            SIZE=$(du -h output/Neuxon-OS-rpi3bplus-arm64.img.xz | cut -f1)
-            echo "| \`Neuxon-OS-rpi3bplus-arm64.img.xz\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
-          fi
-          if [ -f output/Neuxon-OS-rpi3bplus-arm64.iso ]; then
-            SIZE=$(du -h output/Neuxon-OS-rpi3bplus-arm64.iso | cut -f1)
-            echo "| \`Neuxon-OS-rpi3bplus-arm64.iso\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
-          fi
+          for f in neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.img.xz output/Neuxon-OS-rpi3bplus-arm64.img.xz; do
+            if [ -f "$f" ]; then
+              SIZE=$(du -h "$f" | cut -f1)
+              echo "| \`Neuxon-OS-rpi3bplus-arm64.img.xz\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
+              break
+            fi
+          done
+          for f in neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.iso output/Neuxon-OS-rpi3bplus-arm64.iso; do
+            if [ -f "$f" ]; then
+              SIZE=$(du -h "$f" | cut -f1)
+              echo "| \`Neuxon-OS-rpi3bplus-arm64.iso\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
+              break
+            fi
+          done
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Checksums" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          cat output/checksums.txt >> $GITHUB_STEP_SUMMARY
+          for f in neuxon-os/output/checksums.txt output/checksums.txt; do
+            if [ -f "$f" ]; then
+              cat "$f" >> $GITHUB_STEP_SUMMARY
+              break
+            fi
+          done
           echo '```' >> $GITHUB_STEP_SUMMARY
