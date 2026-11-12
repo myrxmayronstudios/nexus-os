@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS - Labwc Autostart
+# ============================================================================
+# Launched automatically by labwc on session start.
+# All processes are backgrounded to avoid blocking the compositor.
+# ============================================================================
+
+# --- Ensure seatd is running (required for unprivileged Wayland sessions) ---
+if ! pgrep -x seatd > /dev/null 2>&1; then
+    sudo seatd -g video &
+    sleep 0.5
+fi
+
+# --- Set cursor theme and size ---
+export XCURSOR_THEME=Adwaita
+export XCURSOR_SIZE=16
+
+# --- Apply display settings (RPi 3B+ HDMI defaults) ---
+# Adjust resolution/refresh if needed for your display
+# wlr-randr --output HDMI-A-1 --mode 1920x1080@60Hz &
+
+# --- Set desktop background to primary background color ---
+swaybg -c '#080808' &
+
+# --- Start Waybar (status bar) ---
+waybar &
+
+# --- Start Mako (notification daemon) ---
+mako \
+    --font "Hack 10" \
+    --background-color "#121212" \
+    --text-color "#F2F2F2" \
+    --border-color "#262626" \
+    --border-size 1 \
+    --border-radius 0 \
+    --default-timeout 5000 \
+    --width 320 \
+    --height 100 \
+    --margin 4 \
+    --padding 8 \
+    --icons 0 \
+    --max-visible 3 \
+    --layer overlay &
+
+# --- Import environment into systemd/dbus (for portals, etc.) ---
+dbus-update-activation-environment --systemd \
+    WAYLAND_DISPLAY \
+    XDG_CURRENT_DESKTOP \
+    XDG_SESSION_TYPE \
+    XDG_SESSION_DESKTOP 2>/dev/null &

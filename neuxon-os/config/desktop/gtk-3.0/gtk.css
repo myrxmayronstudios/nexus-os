@@ -1,0 +1,196 @@
+/* ============================================================================
+ * Neuxon OS - GTK 3.0 Custom Monochrome Stylesheet
+ * Strict Dark Monochrome Visual Identity
+ * ============================================================================ */
+
+/* Global Colors */
+@define-color neuxon_bg #080808;
+@define-color neuxon_surface #121212;
+@define-color neuxon_surface_hover #1c1c1c;
+@define-color neuxon_border #262626;
+@define-color neuxon_fg #F2F2F2;
+@define-color neuxon_fg_muted #888888;
+@define-color neuxon_highlight #FFFFFF;
+@define-color neuxon_highlight_fg #000000;
+
+/* Base Window */
+window,
+.background {
+    background-color: @neuxon_bg;
+    color: @neuxon_fg;
+    font-family: "Hack", "DejaVu Sans Mono", monospace;
+    font-size: 10pt;
+}
+
+/* Headerbars and Titlebars */
+headerbar,
+.titlebar {
+    background-color: @neuxon_surface;
+    border-bottom: 1px solid @neuxon_border;
+    color: @neuxon_fg;
+    min-height: 28px;
+    padding: 0 6px;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+headerbar .title {
+    font-weight: bold;
+    color: @neuxon_fg;
+}
+
+headerbar .subtitle {
+    font-size: 8.5pt;
+    color: @neuxon_fg_muted;
+}
+
+/* Buttons */
+button {
+    background-color: @neuxon_surface;
+    color: @neuxon_fg;
+    border: 1px solid @neuxon_border;
+    border-radius: 0;
+    padding: 4px 10px;
+    transition: none;
+    box-shadow: none;
+}
+
+button:hover {
+    background-color: @neuxon_surface_hover;
+    border-color: @neuxon_fg_muted;
+    color: @neuxon_highlight;
+}
+
+button:active,
+button:checked {
+    background-color: @neuxon_highlight;
+    color: @neuxon_highlight_fg;
+    border-color: @neuxon_highlight;
+}
+
+button:disabled {
+    background-color: @neuxon_bg;
+    color: @neuxon_fg_muted;
+    border-color: @neuxon_border;
+}
+
+/* Text Entries and Inputs */
+entry {
+    background-color: @neuxon_surface;
+    color: @neuxon_fg;
+    border: 1px solid @neuxon_border;
+    border-radius: 0;
+    padding: 4px 8px;
+    box-shadow: none;
+}
+
+entry:focus {
+    border-color: @neuxon_highlight;
+    color: @neuxon_highlight;
+    box-shadow: none;
+}
+
+entry selection {
+    background-color: @neuxon_highlight;
+    color: @neuxon_highlight_fg;
+}
+
+/* Menus and Popovers */
+menu,
+popover,
+.menu {
+    background-color: @neuxon_surface;
+    color: @neuxon_fg;
+    border: 1px solid @neuxon_border;
+    border-radius: 0;
+    padding: 2px 0;
+    box-shadow: none;
+}
+
+menuitem {
+    padding: 4px 12px;
+    color: @neuxon_fg;
+}
+
+menuitem:hover {
+    background-color: @neuxon_highlight;
+    color: @neuxon_highlight_fg;
+}
+
+/* TreeView, ListView, and ScrolledWindows */
+treeview,
+list,
+row {
+    background-color: @neuxon_bg;
+    color: @neuxon_fg;
+    border-radius: 0;
+}
+
+row:hover {
+    background-color: @neuxon_surface;
+    color: @neuxon_fg;
+}
+
+row:selected {
+    background-color: @neuxon_highlight;
+    color: @neuxon_highlight_fg;
+}
+
+treeview:selected {
+    background-color: @neuxon_highlight;
+    color: @neuxon_highlight_fg;
+}
+
+/* Scrollbars */
+scrollbar {
+    background-color: @neuxon_bg;
+    border-left: 1px solid @neuxon_border;
+}
+
+scrollbar slider {
+    background-color: @neuxon_border;
+    min-width: 6px;
+    min-height: 6px;
+    border-radius: 0;
+}
+
+scrollbar slider:hover {
+    background-color: @neuxon_fg_muted;
+}
+
+scrollbar slider:active {
+    background-color: @neuxon_highlight;
+}
+
+/* Notebook tabs */
+notebook {
+    background-color: @neuxon_bg;
+}
+
+notebook tab {
+    background-color: @neuxon_surface;
+    color: @neuxon_fg_muted;
+    border: 1px solid @neuxon_border;
+    border-radius: 0;
+    padding: 4px 12px;
+}
+
+notebook tab:checked {
+    background-color: @neuxon_bg;
+    color: @neuxon_fg;
+    border-bottom: 1px solid @neuxon_bg;
+    font-weight: bold;
+}
+
+notebook tab:hover {
+    color: @neuxon_fg;
+}
+
+/* Tooltips */
+tooltip {
+    background-color: @neuxon_surface;
+    color: @neuxon_fg;
+    border: 1px solid @neuxon_border;
+    border-radius: 0;
+    padding: 4px 8px;
+}

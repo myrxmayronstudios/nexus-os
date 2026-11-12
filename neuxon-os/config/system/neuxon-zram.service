@@ -1,0 +1,14 @@
+[Unit]
+Description=Neuxon OS ZRAM Swap Configuration
+Documentation=https://www.kernel.org/doc/html/latest/admin-guide/blockdev/zram.html
+After=local-fs.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/zram-setup.sh
+ExecStop=/bin/bash -c 'for d in /dev/zram*; do [ -b "$d" ] && swapoff "$d" 2>/dev/null; done; modprobe -r zram 2>/dev/null || true; echo "[OK] ZRAM devices stopped and reset"'
+
+[Install]
+WantedBy=multi-user.target

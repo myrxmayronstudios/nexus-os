@@ -1,0 +1,212 @@
+/* ============================================================================
+ * Neuxon OS - Waybar Stylesheet
+ * Strict monochrome theme for ultra-minimal status bar
+ * ============================================================================ */
+
+/* --- Global Bar --- */
+* {
+    font-family: "Hack", "DejaVu Sans Mono", monospace;
+    font-size: 10px;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    color: #F2F2F2;
+}
+
+window#waybar {
+    background-color: #080808;
+    border-bottom: 1px solid #262626;
+    color: #F2F2F2;
+}
+
+/* --- Tooltips --- */
+tooltip {
+    background-color: #121212;
+    border: 1px solid #262626;
+    border-radius: 0;
+    color: #F2F2F2;
+}
+
+tooltip label {
+    color: #F2F2F2;
+    padding: 4px 8px;
+}
+
+/* --- Custom Logo --- */
+#custom-logo {
+    color: #F2F2F2;
+    font-weight: bold;
+    padding: 0 12px 0 8px;
+    letter-spacing: 1px;
+    background-color: #080808;
+}
+
+#custom-logo:hover {
+    background-color: #262626;
+}
+
+/* --- Workspaces --- */
+#workspaces {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+#workspaces button {
+    color: #888888;
+    background-color: transparent;
+    padding: 0 6px;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    min-width: 20px;
+    transition: none;
+}
+
+#workspaces button:hover {
+    background-color: #262626;
+    color: #F2F2F2;
+}
+
+#workspaces button.active {
+    background-color: #FFFFFF;
+    color: #080808;
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    background-color: #FFFFFF;
+    color: #080808;
+}
+
+/* --- Clock --- */
+#clock {
+    color: #F2F2F2;
+    padding: 0 8px;
+    background-color: transparent;
+}
+
+/* --- CPU --- */
+#cpu {
+    color: #F2F2F2;
+    padding: 0 8px;
+    background-color: transparent;
+}
+
+#cpu:hover {
+    background-color: #262626;
+}
+
+/* --- Memory --- */
+#memory {
+    color: #F2F2F2;
+    padding: 0 8px;
+    background-color: transparent;
+}
+
+#memory:hover {
+    background-color: #262626;
+}
+
+/* --- Temperature --- */
+#temperature {
+    color: #F2F2F2;
+    padding: 0 8px;
+    background-color: transparent;
+}
+
+#temperature.critical {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+/* --- Network --- */
+#network {
+    color: #F2F2F2;
+    padding: 0 8px;
+    background-color: transparent;
+}
+
+#network.disconnected {
+    color: #888888;
+}
+
+#network:hover {
+    background-color: #262626;
+}
+
+/* --- PulseAudio --- */
+#pulseaudio {
+    color: #F2F2F2;
+    padding: 0 8px;
+    background-color: transparent;
+}
+
+#pulseaudio.muted {
+    color: #888888;
+}
+
+#pulseaudio:hover {
+    background-color: #262626;
+}
+
+/* --- Battery --- */
+#battery {
+    color: #F2F2F2;
+    padding: 0 8px;
+    background-color: transparent;
+}
+
+#battery.warning {
+    color: #F2F2F2;
+    font-weight: bold;
+}
+
+#battery.critical {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#battery.charging {
+    color: #F2F2F2;
+}
+
+/* --- Tray --- */
+#tray {
+    padding: 0 4px;
+    background-color: transparent;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+#tray menu {
+    background-color: #121212;
+    border: 1px solid #262626;
+    color: #F2F2F2;
+}
+
+#tray menu menuitem {
+    padding: 2px 8px;
+}
+
+#tray menu menuitem:hover {
+    background-color: #262626;
+}
+
+/* --- Module separator styling (implicit between right modules) --- */
+#cpu,
+#memory,
+#temperature,
+#network,
+#pulseaudio,
+#battery {
+    border-left: 1px solid #262626;
+}

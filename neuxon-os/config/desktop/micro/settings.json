@@ -1,0 +1,14 @@
+{
+    "colorscheme": "simple",
+    "cursorline": true,
+    "scrollbar": false,
+    "tabsize": 4,
+    "tabstospaces": true,
+    "softwrap": true,
+    "ruler": false,
+    "statusline": true,
+    "saveundo": true,
+    "syntax": true,
+    "mouse": true,
+    "paste": true
+}

@@ -1,0 +1,1 @@
+console=serial0,115200 console=tty1 root=LABEL=NEUXON-ROOT rootfstype=ext4 rootwait fsck.repair=yes rootflags=noatime,commit=60 quiet loglevel=3 plymouth.enable=1 logo.nologo vt.global_cursor_default=0 net.ifnames=0 dwc_otg.lpm_enable=0 elevator=noop

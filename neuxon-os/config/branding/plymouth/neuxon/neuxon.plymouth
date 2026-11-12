@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Neuxon
+Description=Neuxon OS Monochrome Boot Theme for Raspberry Pi 3B+
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/neuxon
+ScriptFile=/usr/share/plymouth/themes/neuxon/neuxon.script

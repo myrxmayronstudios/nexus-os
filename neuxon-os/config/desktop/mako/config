@@ -1,0 +1,32 @@
+# ============================================================================
+# Neuxon OS - Mako Notification Daemon Configuration
+# Strict Dark Monochrome Visual Identity
+# ============================================================================
+
+font=Hack 10
+background-color=#080808ee
+text-color=#F2F2F2
+border-color=#262626
+border-size=1
+border-radius=0
+width=320
+height=120
+margin=12
+padding=10
+icons=0
+max-icon-size=32
+default-timeout=5000
+group-by=summary
+
+[urgency=low]
+border-color=#262626
+text-color=#888888
+
+[urgency=normal]
+border-color=#262626
+text-color=#F2F2F2
+
+[urgency=critical]
+border-color=#FFFFFF
+text-color=#FFFFFF
+default-timeout=0

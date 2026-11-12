@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<labwc_config>
+
+  <core>
+    <gap>1</gap>
+    <adaptiveSync>no</adaptiveSync>
+    <reuseOutputMode>no</reuseOutputMode>
+  </core>
+
+  <theme>
+    <name>Neuxon-Monochrome</name>
+    <cornerRadius>0</cornerRadius>
+    <font place="ActiveWindow">
+      <name>Hack</name>
+      <size>10</size>
+      <slant>normal</slant>
+      <weight>normal</weight>
+    </font>
+    <font place="InactiveWindow">
+      <name>Hack</name>
+      <size>10</size>
+      <slant>normal</slant>
+      <weight>normal</weight>
+    </font>
+    <font place="MenuItem">
+      <name>Hack</name>
+      <size>10</size>
+      <slant>normal</slant>
+      <weight>normal</weight>
+    </font>
+    <font place="OnScreenDisplay">
+      <name>Hack</name>
+      <size>10</size>
+      <slant>normal</slant>
+      <weight>normal</weight>
+    </font>
+  </theme>
+
+  <decoration>
+    <titlebar>
+      <height>22</height>
+    </titlebar>
+    <border>
+      <width>1</width>
+    </border>
+  </decoration>
+
+  <windowRules>
+    <windowRule identifier="*" type="*">
+      <serverDecoration>yes</serverDecoration>
+      <skipTaskbar>no</skipTaskbar>
+    </windowRule>
+  </windowRules>
+
+  <focus>
+    <followMouse>yes</followMouse>
+    <followMouseRequiresMovement>yes</followMouseRequiresMovement>
+    <raiseOnFocus>no</raiseOnFocus>
+  </focus>
+
+  <snapping>
+    <range>1</range>
+    <topMaximize>yes</topMaximize>
+    <notifyClient>always</notifyClient>
+  </snapping>
+
+  <desktops number="4">
+    <popupTime>0</popupTime>
+    <names>
+      <name>1</name>
+      <name>2</name>
+      <name>3</name>
+      <name>4</name>
+    </names>
+  </desktops>
+
+  <resize>
+    <popupShow>Never</popupShow>
+  </resize>
+
+  <keyboard>
+    <default />
+
+    <!-- Terminal -->
+    <keybind key="Super_L-Return">
+      <action name="Execute">
+        <command>foot</command>
+      </action>
+    </keybind>
+
+    <!-- Launcher -->
+    <keybind key="Super_L-d">
+      <action name="Execute">
+        <command>fuzzel</command>
+      </action>
+    </keybind>
+
+    <!-- Close window -->
+    <keybind key="Super_L-q">
+      <action name="Close" />
+    </keybind>
+
+    <!-- Toggle fullscreen -->
+    <keybind key="Super_L-f">
+      <action name="ToggleFullscreen" />
+    </keybind>
+
+    <!-- Exit compositor -->
+    <keybind key="Super_L-Shift_L-e">
+      <action name="Exit" />
+    </keybind>
+
+    <!-- Switch workspaces -->
+    <keybind key="Super_L-1">
+      <action name="GoToDesktop">
+        <to>1</to>
+      </action>
+    </keybind>
+    <keybind key="Super_L-2">
+      <action name="GoToDesktop">
+        <to>2</to>
+      </action>
+    </keybind>
+    <keybind key="Super_L-3">
+      <action name="GoToDesktop">
+        <to>3</to>
+      </action>
+    </keybind>
+    <keybind key="Super_L-4">
+      <action name="GoToDesktop">
+        <to>4</to>
+      </action>
+    </keybind>
+
+    <!-- Move window to workspace -->
+    <keybind key="Super_L-Shift_L-1">
+      <action name="SendToDesktop">
+        <to>1</to>
+        <follow>no</follow>
+      </action>
+    </keybind>
+    <keybind key="Super_L-Shift_L-2">
+      <action name="SendToDesktop">
+        <to>2</to>
+        <follow>no</follow>
+      </action>
+    </keybind>
+    <keybind key="Super_L-Shift_L-3">
+      <action name="SendToDesktop">
+        <to>3</to>
+        <follow>no</follow>
+      </action>
+    </keybind>
+    <keybind key="Super_L-Shift_L-4">
+      <action name="SendToDesktop">
+        <to>4</to>
+        <follow>no</follow>
+      </action>
+    </keybind>
+
+    <!-- Cycle windows -->
+    <keybind key="Alt_L-Tab">
+      <action name="NextWindow" />
+    </keybind>
+
+    <!-- Snap window left half -->
+    <keybind key="Super_L-Left">
+      <action name="MoveToEdge">
+        <direction>left</direction>
+      </action>
+      <action name="SnapToEdge">
+        <direction>left</direction>
+      </action>
+    </keybind>
+
+    <!-- Snap window right half -->
+    <keybind key="Super_L-Right">
+      <action name="MoveToEdge">
+        <direction>right</direction>
+      </action>
+      <action name="SnapToEdge">
+        <direction>right</direction>
+      </action>
+    </keybind>
+
+    <!-- Screenshot -->
+    <keybind key="Print">
+      <action name="Execute">
+        <command>grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png</command>
+      </action>
+    </keybind>
+  </keyboard>
+
+  <mouse>
+    <default />
+    <context name="Frame">
+      <mousebind button="Alt_L-Left" action="Press">
+        <action name="Focus" />
+        <action name="Raise" />
+      </mousebind>
+      <mousebind button="Alt_L-Left" action="Drag">
+        <action name="Move" />
+      </mousebind>
+      <mousebind button="Alt_L-Right" action="Drag">
+        <action name="Resize" />
+      </mousebind>
+    </context>
+    <context name="TitleBar">
+      <mousebind button="Left" action="Press">
+        <action name="Focus" />
+        <action name="Raise" />
+      </mousebind>
+      <mousebind button="Left" action="Drag">
+        <action name="Move" />
+      </mousebind>
+      <mousebind button="Left" action="DoubleClick">
+        <action name="ToggleMaximize" />
+      </mousebind>
+    </context>
+    <context name="Root">
+      <mousebind button="Right" action="Press">
+        <action name="ShowMenu">
+          <menu>root-menu</menu>
+        </action>
+      </mousebind>
+    </context>
+  </mouse>
+
+  <libinput>
+    <device category="default">
+      <naturalScroll>no</naturalScroll>
+      <tap>yes</tap>
+      <tapButtonMap>lrm</tapButtonMap>
+      <pointerSpeed>0.0</pointerSpeed>
+      <accelProfile>flat</accelProfile>
+    </device>
+  </libinput>
+
+</labwc_config>

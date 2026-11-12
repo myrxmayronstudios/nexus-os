@@ -1,0 +1,15 @@
+
+  ┌──────────────────────────────────────────────┐
+  │                                              │
+  │   NEUXON OS // RPi3B+ ARM64                  │
+  │   Precision-Engineered Linux                 │
+  │                                              │
+  │   CPU: Cortex-A53 x4 @ 1.4GHz               │
+  │   RAM: 1GB LPDDR2 + ZRAM (zstd)             │
+  │   GPU: VideoCore IV (vc4-kms-v3d)            │
+  │                                              │
+  │   Type 'fastfetch' for system information    │
+  │   Type 'btop' for system monitoring          │
+  │                                              │
+  └──────────────────────────────────────────────┘
+

@@ -1,0 +1,69 @@
+# ============================================================================
+# Neuxon OS - Yazi Dark Monochrome Theme
+# ============================================================================
+
+[manager]
+cwd = { fg = "#FFFFFF", bold = true }
+
+# Hovered
+hovered = { bg = "#262626", fg = "#FFFFFF" }
+preview_hovered = { bg = "#121212" }
+
+# Find
+find_keyword = { fg = "#000000", bg = "#FFFFFF", bold = true }
+find_position = { fg = "#888888", italic = true }
+
+# Marker
+marker_copied = { fg = "#FFFFFF", bg = "#262626" }
+marker_cut = { fg = "#888888", bg = "#262626" }
+marker_marked = { fg = "#FFFFFF", bold = true }
+marker_selected = { fg = "#FFFFFF", bold = true }
+
+# Tab
+tab_active = { fg = "#000000", bg = "#FFFFFF" }
+tab_inactive = { fg = "#888888", bg = "#121212" }
+tab_width = 1
+
+# Border
+border_symbol = "│"
+border_style = { fg = "#262626" }
+
+[status]
+separator_open = ""
+separator_close = ""
+separator_style = { fg = "#262626", bg = "#080808" }
+
+mode_normal = { fg = "#000000", bg = "#FFFFFF", bold = true }
+mode_select = { fg = "#000000", bg = "#AAAAAA", bold = true }
+mode_unset = { fg = "#000000", bg = "#666666", bold = true }
+
+progress_label = { fg = "#F2F2F2", bold = true }
+progress_normal = { fg = "#F2F2F2", bg = "#262626" }
+progress_error = { fg = "#FFFFFF", bg = "#555555" }
+
+permissions_t = { fg = "#888888" }
+permissions_r = { fg = "#F2F2F2" }
+permissions_w = { fg = "#888888" }
+permissions_x = { fg = "#FFFFFF" }
+permissions_s = { fg = "#555555" }
+
+[select]
+border = { fg = "#262626" }
+active = { fg = "#000000", bg = "#FFFFFF" }
+inactive = { fg = "#F2F2F2" }
+
+[input]
+border = { fg = "#262626" }
+title = { fg = "#FFFFFF" }
+value = { fg = "#F2F2F2" }
+selected = { fg = "#000000", bg = "#FFFFFF" }
+
+[completion]
+border = { fg = "#262626" }
+active = { fg = "#000000", bg = "#FFFFFF" }
+inactive = { fg = "#F2F2F2" }
+
+[tasks]
+border = { fg = "#262626" }
+title = { fg = "#FFFFFF" }
+hovered = { bg = "#262626" }

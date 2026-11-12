@@ -1,0 +1,38 @@
+# Neuxon OS - Raspberry Pi 3B+ Boot Configuration
+# BCM2837B0 - ARM Cortex-A53 aarch64
+
+# Force 64-bit mode
+arm_64bit=1
+
+# Boot optimization
+boot_delay=0
+disable_splash=1
+force_turbo=0
+
+# GPU/Display - VideoCore IV with KMS driver
+dtoverlay=vc4-kms-v3d
+gpu_mem=64
+max_framebuffers=2
+disable_overscan=1
+hdmi_force_hotplug=1
+
+# CPU frequency (RPi 3B+ max)
+arm_freq=1400
+over_voltage=0
+core_freq=400
+sdram_freq=450
+
+# Disable unused hardware to save power/memory
+dtparam=audio=on
+dtparam=i2c_arm=off
+dtparam=i2s=off
+dtparam=spi=off
+
+# Disable Bluetooth to save memory (can be re-enabled)
+dtoverlay=disable-bt
+
+# USB and ethernet
+dtoverlay=dwc2
+
+# Console
+enable_uart=1

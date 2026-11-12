@@ -1,0 +1,14 @@
+PRETTY_NAME="Neuxon OS 1.0 (Monochrome)"
+NAME="Neuxon OS"
+VERSION_ID="1.0"
+VERSION="1.0 (Monochrome)"
+VERSION_CODENAME=monochrome
+ID=neuxon
+ID_LIKE=debian
+HOME_URL="https://github.com/neuxon-os/neuxon-os"
+SUPPORT_URL="https://github.com/neuxon-os/neuxon-os/issues"
+BUG_REPORT_URL="https://github.com/neuxon-os/neuxon-os/issues"
+PRIVACY_POLICY_URL="https://github.com/neuxon-os/neuxon-os"
+BUILD_ID=rolling
+VARIANT="Raspberry Pi 3B+"
+VARIANT_ID=rpi3bplus

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openbox_menu xmlns="http://openbox.org/3.4/menu">
+
+  <menu id="root-menu" label="Neuxon">
+
+    <!-- Applications -->
+    <item label="Terminal">
+      <action name="Execute">
+        <command>foot</command>
+      </action>
+    </item>
+    <item label="File Manager">
+      <action name="Execute">
+        <command>foot -e yazi</command>
+      </action>
+    </item>
+    <item label="Text Editor">
+      <action name="Execute">
+        <command>foot -e micro</command>
+      </action>
+    </item>
+    <item label="System Monitor">
+      <action name="Execute">
+        <command>foot -e btop</command>
+      </action>
+    </item>
+    <item label="Git UI">
+      <action name="Execute">
+        <command>foot -e lazygit</command>
+      </action>
+    </item>
+
+    <separator />
+
+    <!-- System Info -->
+    <item label="System Info">
+      <action name="Execute">
+        <command>foot -e bash -c 'fastfetch; read -rp "Press Enter to close..."'</command>
+      </action>
+    </item>
+
+    <separator />
+
+    <!-- Settings Submenu -->
+    <menu id="settings-menu" label="Settings">
+      <item label="Network">
+        <action name="Execute">
+          <command>foot -e nmtui</command>
+        </action>
+      </item>
+      <item label="Display">
+        <action name="Execute">
+          <command>foot -e bash -c 'wlr-randr; read -rp "Press Enter to close..."'</command>
+        </action>
+      </item>
+    </menu>
+
+    <separator />
+
+    <!-- Session Actions -->
+    <item label="Lock Screen">
+      <action name="Execute">
+        <command>swaylock -c 080808</command>
+      </action>
+    </item>
+    <item label="Logout">
+      <action name="Exit" />
+    </item>
+    <item label="Reboot">
+      <action name="Execute">
+        <command>systemctl reboot</command>
+      </action>
+    </item>
+    <item label="Shutdown">
+      <action name="Execute">
+        <command>systemctl poweroff</command>
+      </action>
+    </item>
+
+  </menu>
+
+</openbox_menu>
