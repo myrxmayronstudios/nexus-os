@@ -68,7 +68,8 @@ apt-get install -y --no-install-recommends \
     wl-clipboard \
     libnotify-bin \
     mako-notifier \
-    polkit \
+    polkitd \
+    pkexec \
     dbus-x11 \
     xdg-utils \
     desktop-file-utils \
