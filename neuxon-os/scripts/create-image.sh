@@ -65,6 +65,10 @@ parted -s "${IMG_FILE}" -- \
     set 1 boot on \
     set 1 lba on
 
+# Set deterministic MBR disk signature 0x2ba4ee16 so PARTUUID is always 2ba4ee16-01 / 2ba4ee16-02
+log_info "Writing deterministic MBR disk signature (0x2ba4ee16)..."
+printf '\x16\xee\xa4\x2b' | dd of="${IMG_FILE}" bs=1 seek=440 count=4 conv=notrunc
+
 # ---------------------------------------------------------------------------
 # 3. Setup loopback with kpartx
 # ---------------------------------------------------------------------------
@@ -120,10 +124,12 @@ fi
 # ---------------------------------------------------------------------------
 log_info "Writing /etc/fstab..."
 cat > "${MNT_ROOT}/etc/fstab" <<'FSTAB'
-# <filesystem>           <mount>         <type>  <options>                    <dump> <pass>
-LABEL=NEUXON-ROOT        /               ext4    defaults,noatime             0      1
-LABEL=NEUXON-BOOT        /boot/firmware  vfat    defaults,flush               0      2
-tmpfs                    /tmp            tmpfs   defaults,nosuid,nodev        0      0
+# <filesystem>           <mount>         <type>  <options>                              <dump> <pass>
+PARTUUID=2ba4ee16-02     /               ext4    defaults,noatime,commit=60             0      1
+PARTUUID=2ba4ee16-01     /boot/firmware  vfat    defaults,flush                         0      2
+tmpfs                    /tmp            tmpfs   defaults,nosuid,nodev,size=128M        0      0
+tmpfs                    /var/log        tmpfs   defaults,nosuid,nodev,noexec,size=32M  0      0
+tmpfs                    /var/tmp        tmpfs   defaults,nosuid,nodev,size=64M         0      0
 FSTAB
 
 # ---------------------------------------------------------------------------
