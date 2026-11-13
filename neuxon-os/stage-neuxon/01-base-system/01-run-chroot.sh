@@ -193,13 +193,14 @@ echo "[STAGE-01] System configuration files installed"
 echo "[STAGE-01] Generating /etc/fstab ..."
 
 cat > /etc/fstab << 'EOF'
-# <file system>    <mount point>   <type>  <options>                           <dump>  <pass>
-LABEL=NEUXON-ROOT  /               ext4    defaults,noatime,commit=60          0       1
-LABEL=NEUXON-BOOT  /boot/firmware  vfat    defaults                            0       2
-tmpfs              /tmp            tmpfs   defaults,nosuid,nodev,size=128M     0       0
-tmpfs              /var/log        tmpfs   defaults,nosuid,nodev,noexec,size=32M 0     0
-EOF
+# <file system>       <mount point>   <type>  <options>                             <dump>  <pass>
+PARTUUID=2ba4ee16-02  /               ext4    defaults,noatime,commit=60            0       1
+PARTUUID=2ba4ee16-01  /boot/firmware  vfat    defaults,flush                        0       2
+tmpfs                 /tmp            tmpfs   defaults,nosuid,nodev,size=128M       0       0
+tmpfs                 /var/log        tmpfs   defaults,nosuid,nodev,noexec,size=32M 0       0
+tmpfs                 /var/tmp        tmpfs   defaults,nosuid,nodev,size=64M        0       0
 
+EOF
 echo "[STAGE-01] /etc/fstab generated"
 
 # --------------------------------------------------------------------------
