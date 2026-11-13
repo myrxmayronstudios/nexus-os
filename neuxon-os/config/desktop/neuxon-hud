@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+###############################################################################
+# neuxon-hud — Neuxon OS Monochrome Glass System HUD Overlay
+###############################################################################
+set -euo pipefail
+
+# If not running in a terminal, launch in a specialized floating foot window
+if [[ -z "${TERM:-}" ]] || [[ "${TERM:-}" == "dumb" ]] || [[ "${1:-}" != "--inner" ]]; then
+    exec foot --app-id=neuxon-hud -T "NEUXON // SYSTEM HUD" -w 500x420 bash -c "$0 --inner"
+fi
+
+# Visual HUD in monochrome
+CLR_BG="\033[48;5;232m"
+CLR_RESET="\033[0m"
+CLR_WHITE="\033[1;37m"
+CLR_GRAY="\033[38;5;245m"
+CLR_DARK="\033[38;5;238m"
+CLR_INVERT="\033[7m"
+
+clear
+printf "${CLR_WHITE}╔════════════════════════════════════════════════════════════════╗${CLR_RESET}\n"
+printf "${CLR_WHITE}║                    NEUXON // SYSTEM HUD                        ║${CLR_RESET}\n"
+printf "${CLR_WHITE}╚════════════════════════════════════════════════════════════════╝${CLR_RESET}\n\n"
+
+# 1. Host & Uptime
+UPTIME_STR=$(uptime -p 2>/dev/null || uptime | awk -F'( |,|:)+' '{print $6,$7",",$8,"hours,"}')
+KERNEL_VER=$(uname -r)
+printf "  ${CLR_GRAY}UPTIME       :${CLR_RESET} ${CLR_WHITE}%s${CLR_RESET}\n" "${UPTIME_STR}"
+printf "  ${CLR_GRAY}KERNEL       :${CLR_RESET} ${CLR_WHITE}%s (aarch64)${CLR_RESET}\n" "${KERNEL_VER}"
+
+# 2. Hardware Thermals & CPU Frequency
+TEMP_C="N/A"
+if command -v vcgencmd &>/dev/null; then
+    TEMP_C=$(vcgencmd measure_temp 2>/dev/null | cut -d= -f2 || echo "N/A")
+elif [[ -f /sys/class/thermal/thermal_zone0/temp ]]; then
+    RAW_T=$(cat /sys/class/thermal/thermal_zone0/temp)
+    TEMP_C="$((RAW_T / 1000))'C"
+fi
+CPU_FREQ="N/A"
+if [[ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq ]]; then
+    RAW_F=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)
+    CPU_FREQ="$((RAW_F / 1000)) MHz"
+fi
+GOVERNOR="ondemand"
+if [[ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]]; then
+    GOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+fi
+printf "  ${CLR_GRAY}THERMALS     :${CLR_RESET} ${CLR_WHITE}%s${CLR_RESET}  |  ${CLR_GRAY}CLOCK:${CLR_RESET} ${CLR_WHITE}%s (%s)${CLR_RESET}\n" "${TEMP_C}" "${CPU_FREQ}" "${GOVERNOR}"
+
+# 3. Memory & ZRAM
+MEM_INFO=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+SWAP_INFO=$(free -h | awk '/Swap:/ {print $3 "/" $2}')
+ZRAM_RATIO="1.0x"
+if command -v zramctl &>/dev/null; then
+    ZRAM_RATIO=$(zramctl --bytes 2>/dev/null | awk 'NR>1 {if ($4>0) printf "%.2fx", $3/$4; else print "1.0x"}')
+fi
+printf "  ${CLR_GRAY}MEMORY (RAM) :${CLR_RESET} ${CLR_WHITE}%s${CLR_RESET}\n" "${MEM_INFO}"
+printf "  ${CLR_GRAY}SWAP (ZRAM)  :${CLR_RESET} ${CLR_WHITE}%s (Compression: %s)${CLR_RESET}\n" "${SWAP_INFO}" "${ZRAM_RATIO}"
+
+# 4. Storage Usage
+ROOT_DF=$(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')
+BOOT_DF=$(df -h /boot/firmware 2>/dev/null | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}' || echo "N/A")
+printf "  ${CLR_GRAY}STORAGE (/)  :${CLR_RESET} ${CLR_WHITE}%s${CLR_RESET}\n" "${ROOT_DF}"
+printf "  ${CLR_GRAY}STORAGE (/boot):${CLR_RESET} ${CLR_WHITE}%s${CLR_RESET}\n" "${BOOT_DF}"
+
+printf "\n${CLR_DARK}────────────────────────────────────────────────────────────────${CLR_RESET}\n"
+printf "  ${CLR_WHITE}[1]${CLR_RESET} Neuxon Control Center   ${CLR_WHITE}[4]${CLR_RESET} Lock Session\n"
+printf "  ${CLR_WHITE}[2]${CLR_RESET} Terminal BTOP Monitor   ${CLR_WHITE}[5]${CLR_RESET} Reboot System\n"
+printf "  ${CLR_WHITE}[3]${CLR_RESET} Open File Manager (Yazi)${CLR_WHITE}[6]${CLR_RESET} Power Off\n"
+printf "  ${CLR_WHITE}[Q]${CLR_RESET} Close HUD\n"
+printf "${CLR_DARK}────────────────────────────────────────────────────────────────${CLR_RESET}\n\n"
+
+read -r -n 1 -p "  Select action: " ACTION || true
+echo ""
+case "${ACTION}" in
+    1) foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control & ;;
+    2) foot -e btop & ;;
+    3) foot -e yazi & ;;
+    4) swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5 ;;
+    5) systemctl reboot ;;
+    6) systemctl poweroff ;;
+    *) exit 0 ;;
+esac

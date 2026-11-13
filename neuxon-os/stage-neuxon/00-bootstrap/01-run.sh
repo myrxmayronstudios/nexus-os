@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+_stage00_cleanup() {
+    local exit_code=$?
+    if [[ ${exit_code} -ne 0 ]]; then
+        echo "[STAGE-00] ERROR: Bootstrap stage failed with exit code ${exit_code}."
+    fi
+}
+trap _stage00_cleanup EXIT ERR
+
 # ============================================================================
 # STAGE 00: Bootstrap - Debootstrap arm64 rootfs
 # Runs on HOST (not in chroot)

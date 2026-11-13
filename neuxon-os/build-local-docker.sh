@@ -89,6 +89,7 @@ _log "This will take a long time (ARM64 cross-compilation)..."
 docker run \
     --name "${CONTAINER_NAME}" \
     --privileged \
+    -e GITHUB_TOKEN="${GITHUB_TOKEN:-}" \
     -v "${OUTPUT_DIR}:/build/output" \
     "${DOCKER_IMAGE}"
 

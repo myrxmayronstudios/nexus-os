@@ -35,13 +35,14 @@ BOOT_SIZE="256M"
 # ---------------------------------------------------------------------------
 USERNAME="${USERNAME:-neuxon}"
 PASSWORD="${PASSWORD:-neuxon}"
+GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 
 # ---------------------------------------------------------------------------
 # Export variables for child scripts
 # ---------------------------------------------------------------------------
 export BUILD_DIR WORK_DIR ROOTFS_DIR BOOT_DIR OUTPUT_DIR
 export IMG_NAME IMG_SIZE BOOT_SIZE
-export USERNAME PASSWORD
+export USERNAME PASSWORD GITHUB_TOKEN
 export DEBIAN_FRONTEND=noninteractive
 
 # ---------------------------------------------------------------------------
@@ -50,9 +51,9 @@ export DEBIAN_FRONTEND=noninteractive
 source "${BUILD_DIR}/scripts/common.sh"
 
 # ---------------------------------------------------------------------------
-# Register the cleanup trap
+# Register the cleanup trap on EXIT and ERR
 # ---------------------------------------------------------------------------
-trap cleanup EXIT
+trap cleanup EXIT ERR
 
 # ---------------------------------------------------------------------------
 # Pre-flight checks
@@ -65,28 +66,16 @@ log_info "Size     : ${IMG_SIZE} (boot: ${BOOT_SIZE})"
 log_info "User     : ${USERNAME}"
 log_info "Work dir : ${WORK_DIR}"
 log_info "Output   : ${OUTPUT_DIR}"
+if [[ -n "${GITHUB_TOKEN}" ]]; then
+    log_info "GitHub API Token: Configured (authenticated)"
+else
+    log_warn "GitHub API Token: Unset (unauthenticated API calls may be rate-limited)"
+fi
 log_info "============================================================"
 
 check_root
 ensure_deps
-
-# Verify binfmt / QEMU arm64 support
-if [[ ! -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]] && \
-   [[ ! -f /proc/sys/fs/binfmt_misc/aarch64 ]]; then
-    log_warn "binfmt qemu-aarch64 not detected. Attempting to register..."
-    if command -v update-binfmts &>/dev/null; then
-        update-binfmts --enable qemu-aarch64 2>/dev/null || true
-    fi
-    # Final check
-    if [[ ! -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]] && \
-       [[ ! -f /proc/sys/fs/binfmt_misc/aarch64 ]]; then
-        log_error "ARM64 binfmt support is not available."
-        log_error "Install qemu-user-static and binfmt-support, then run:"
-        log_error "  docker run --rm --privileged multiarch/qemu-user-static --reset -p yes"
-        exit 1
-    fi
-fi
-log_info "ARM64 binfmt support: OK"
+verify_qemu_binfmt
 
 # ---------------------------------------------------------------------------
 # Prepare working directories
@@ -109,6 +98,9 @@ mount_chroot "${ROOTFS_DIR}"
 log_info "Staging Neuxon configurations into chroot..."
 mkdir -p "${ROOTFS_DIR}/tmp/neuxon-config"
 cp -r "${BUILD_DIR}/config"/* "${ROOTFS_DIR}/tmp/neuxon-config/"
+
+# Ensure /boot/firmware exists in rootfs
+mkdir -p "${ROOTFS_DIR}/boot/firmware"
 
 # ===== STAGE 01: Base System ===============================================
 log_info "============================================================"
@@ -147,9 +139,9 @@ log_info "============================================================"
 bash "${BUILD_DIR}/stage-neuxon/05-finalize/01-run.sh"
 
 # ---------------------------------------------------------------------------
-# Remove the cleanup trap — we completed successfully
+# Remove the cleanup trap — build completed successfully
 # ---------------------------------------------------------------------------
-trap - EXIT
+trap - EXIT ERR
 
 # ---------------------------------------------------------------------------
 # Summary
@@ -183,9 +175,5 @@ if [[ -f "${CHECKSUM_FILE}" ]]; then
 fi
 
 log_info ""
-log_info "Flash with:"
-log_info "  xz -dk ${IMG_XZ}"
-log_info "  sudo dd if=${OUTPUT_DIR}/${IMG_NAME}.img of=/dev/sdX bs=4M status=progress conv=fsync"
-log_info ""
-log_info "Default credentials:  ${USERNAME} / ${PASSWORD}"
+log_info "Default credentials: ${USERNAME} / ${PASSWORD}"
 log_info "============================================================"

@@ -3,7 +3,7 @@
 # scripts/create-image.sh — Create the final Neuxon OS disk image
 ###############################################################################
 # Called by stage-neuxon/05-finalize/01-run.sh after the rootfs is fully
-# assembled.  Produces a partitioned .img, compresses it to .img.xz, and
+# assembled. Produces a partitioned .img, compresses it to .img.xz, and
 # prints SHA-256 checksums.
 ###############################################################################
 set -euo pipefail
@@ -17,8 +17,7 @@ source "${SCRIPT_DIR}/common.sh"
 : "${ROOTFS_DIR:?create-image.sh: ROOTFS_DIR is required}"
 : "${OUTPUT_DIR:?create-image.sh: OUTPUT_DIR is required}"
 : "${IMG_NAME:?create-image.sh: IMG_NAME is required}"
-: "${IMG_SIZE:?create-image.sh: IMG_SIZE is required}"
-: "${BOOT_SIZE:?create-image.sh: BOOT_SIZE is required}"
+: "${BOOT_SIZE:=256M}"
 
 IMG_FILE="${OUTPUT_DIR}/${IMG_NAME}.img"
 IMG_XZ="${IMG_FILE}.xz"
@@ -31,33 +30,52 @@ MNT_BOOT="${OUTPUT_DIR}/mnt_boot"
 LOOP_DEV=""
 
 # ---------------------------------------------------------------------------
-# Cleanup helper — detach loop + unmount on error
+# Cleanup helper — detach loop + unmount on error or exit
 # ---------------------------------------------------------------------------
 _image_cleanup() {
-    log_warn "Image creation interrupted — cleaning up..."
-    umount "${MNT_BOOT}" 2>/dev/null || true
+    local exit_code=$?
+    if [[ ${exit_code} -ne 0 ]]; then
+        log_warn "Image creation interrupted or failed (code ${exit_code}) — cleaning up..."
+    fi
+    umount "${MNT_ROOT}/boot/firmware" 2>/dev/null || true
     umount "${MNT_ROOT}" 2>/dev/null || true
+    umount "${MNT_BOOT}" 2>/dev/null || true
     if [[ -n "${LOOP_DEV}" ]]; then
         kpartx -d "${LOOP_DEV}" 2>/dev/null || true
         losetup -d "${LOOP_DEV}" 2>/dev/null || true
+        LOOP_DEV=""
     fi
     rm -rf "${MNT_ROOT}" "${MNT_BOOT}" 2>/dev/null || true
 }
-trap _image_cleanup EXIT
+trap _image_cleanup EXIT ERR
 
 # ---------------------------------------------------------------------------
-# 1. Create sparse image file
+# 1. Calculate required image size dynamically
+#    Exact rootfs size + 25% safety buffer + 256MB boot partition + 32MB alignment
 # ---------------------------------------------------------------------------
-log_info "Creating sparse image file: ${IMG_FILE} (${IMG_SIZE})"
+log_info "Calculating required image size from assembled rootfs..."
 mkdir -p "${OUTPUT_DIR}"
-truncate -s "${IMG_SIZE}" "${IMG_FILE}"
+
+ROOTFS_BYTES=$(du -sb "${ROOTFS_DIR}" | cut -f1)
+BOOT_BYTES=$(( 256 * 1024 * 1024 ))
+SAFETY_BUFFER=$(( ROOTFS_BYTES * 25 / 100 ))
+TOTAL_BYTES=$(( ROOTFS_BYTES + SAFETY_BUFFER + BOOT_BYTES + (32 * 1024 * 1024) ))
+
+# Align to 128MB boundary
+ALIGN_128M=$(( 128 * 1024 * 1024 ))
+IMG_BYTES=$(( ((TOTAL_BYTES + ALIGN_128M - 1) / ALIGN_128M) * ALIGN_128M ))
+
+log_info "Rootfs size  : $((ROOTFS_BYTES / 1024 / 1024)) MB"
+log_info "Calculated   : $((IMG_BYTES / 1024 / 1024)) MB (with +25% safety + 256M boot)"
+log_info "Creating sparse image file: ${IMG_FILE}"
+truncate -s "${IMG_BYTES}" "${IMG_FILE}"
 
 # ---------------------------------------------------------------------------
 # 2. Partition the image (MBR / msdos label)
 #    Partition 1: FAT32 boot (256 MB)
 #    Partition 2: ext4  root (rest)
 # ---------------------------------------------------------------------------
-log_info "Partitioning image..."
+log_info "Partitioning image with MBR layout..."
 parted -s "${IMG_FILE}" -- \
     mklabel msdos \
     mkpart primary fat32 4MiB "${BOOT_SIZE}" \
@@ -122,7 +140,7 @@ fi
 # ---------------------------------------------------------------------------
 # 7. Write /etc/fstab inside the image
 # ---------------------------------------------------------------------------
-log_info "Writing /etc/fstab..."
+log_info "Writing /etc/fstab inside image..."
 cat > "${MNT_ROOT}/etc/fstab" <<'FSTAB'
 # <filesystem>           <mount>         <type>  <options>                              <dump> <pass>
 PARTUUID=2ba4ee16-02     /               ext4    defaults,noatime,commit=60             0      1
@@ -133,12 +151,17 @@ tmpfs                    /var/tmp        tmpfs   defaults,nosuid,nodev,size=64M 
 FSTAB
 
 # ---------------------------------------------------------------------------
-# 8. Sync and unmount
+# 8. Sync, unmount and optimize filesystem
 # ---------------------------------------------------------------------------
 log_info "Syncing and unmounting..."
 sync
 umount "${MNT_ROOT}/boot/firmware"
 umount "${MNT_ROOT}"
+
+# Run filesystem check and shrink to minimal size
+log_info "Optimizing ext4 filesystem with e2fsck and resize2fs..."
+e2fsck -f -y "${PART_ROOT}" || true
+resize2fs -M "${PART_ROOT}" || true
 
 # ---------------------------------------------------------------------------
 # 9. Detach loopback
@@ -151,9 +174,9 @@ LOOP_DEV=""  # prevent double-detach in trap
 rm -rf "${MNT_ROOT}" "${MNT_BOOT}"
 
 # ---------------------------------------------------------------------------
-# 10. Compress with xz (keep original .img with -k for ISO packaging)
+# 10. Compress with multi-threaded xz
 # ---------------------------------------------------------------------------
-log_info "Compressing image with xz (this may take a while)..."
+log_info "Compressing image with xz (multi-threaded -T0 -9)..."
 xz -T0 -9 -k --force "${IMG_FILE}"
 
 # ---------------------------------------------------------------------------
@@ -172,5 +195,5 @@ log_info "  Checksums  : ${CHECKSUM_FILE}"
 log_info "  Size       : $(du -h "${IMG_XZ}" | cut -f1)"
 log_info "============================================================"
 
-# Remove trap — clean exit
-trap - EXIT
+# Remove trap on clean exit
+trap - EXIT ERR

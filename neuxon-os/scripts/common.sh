@@ -2,11 +2,12 @@
 ###############################################################################
 # scripts/common.sh — Shared helper functions for the Neuxon OS build system
 ###############################################################################
-# Sourced by build.sh; not executed directly.
+# Sourced by build.sh and stage scripts; not executed directly.
 ###############################################################################
+set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Logging
+# Logging & Terminal Colors
 # ---------------------------------------------------------------------------
 _CLR_RESET="\033[0m"
 _CLR_GREEN="\033[1;32m"
@@ -46,7 +47,6 @@ check_root() {
 ensure_deps() {
     local -a deps=(
         debootstrap
-        qemu-user-static
         binfmt-support
         xz-utils
         dosfstools
@@ -60,6 +60,9 @@ ensure_deps() {
         wget
         ca-certificates
         rsync
+        jq
+        unzip
+        file
     )
 
     log_info "Checking host dependencies..."
@@ -70,13 +73,48 @@ ensure_deps() {
         fi
     done
 
+    # Check for QEMU arm64 static binary
+    if ! command -v qemu-aarch64-static &>/dev/null && [[ ! -f /usr/bin/qemu-aarch64-static ]]; then
+        if apt-cache show qemu-user-static &>/dev/null; then
+            missing+=("qemu-user-static")
+        else
+            missing+=("qemu-user-binfmt")
+        fi
+    fi
+
     if [[ ${#missing[@]} -gt 0 ]]; then
         log_info "Installing missing packages: ${missing[*]}"
         apt-get update -qq
-        DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${missing[@]}"
+        DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${missing[@]}" || {
+            apt-get install -y -qq qemu-user-binfmt 2>/dev/null || true
+        }
     else
         log_info "All host dependencies are satisfied."
     fi
+}
+
+# ---------------------------------------------------------------------------
+# verify_qemu_binfmt — Ensure aarch64 binfmt registration is active
+# ---------------------------------------------------------------------------
+verify_qemu_binfmt() {
+    log_info "Verifying QEMU aarch64 binfmt support..."
+    if [[ ! -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]] && [[ ! -f /proc/sys/fs/binfmt_misc/aarch64 ]]; then
+        log_warn "binfmt qemu-aarch64 not registered. Attempting to register..."
+        if command -v update-binfmts &>/dev/null; then
+            update-binfmts --enable qemu-aarch64 2>/dev/null || true
+        fi
+        if [[ ! -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]] && [[ ! -f /proc/sys/fs/binfmt_misc/aarch64 ]]; then
+            if command -v docker &>/dev/null; then
+                docker run --rm --privileged multiarch/qemu-user-static --reset -p yes 2>/dev/null || true
+            fi
+        fi
+    fi
+
+    if [[ ! -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]] && [[ ! -f /proc/sys/fs/binfmt_misc/aarch64 ]]; then
+        log_error "ARM64 binfmt support is unavailable. Please install qemu-user-static."
+        return 1
+    fi
+    log_info "QEMU aarch64 binfmt: OK"
 }
 
 # ---------------------------------------------------------------------------
@@ -87,17 +125,22 @@ mount_chroot() {
 
     log_info "Mounting chroot filesystems in ${rootfs}..."
 
-    mount --bind /dev          "${rootfs}/dev"
-    mount --bind /dev/pts      "${rootfs}/dev/pts"
-    mount -t proc proc         "${rootfs}/proc"
-    mount -t sysfs sysfs       "${rootfs}/sys"
-    mount -t tmpfs tmpfs       "${rootfs}/tmp"
+    mkdir -p "${rootfs}/dev" "${rootfs}/dev/pts" "${rootfs}/proc" "${rootfs}/sys" "${rootfs}/tmp"
+
+    mountpoint -q "${rootfs}/dev"     || mount --bind /dev "${rootfs}/dev"
+    mountpoint -q "${rootfs}/dev/pts" || mount --bind /dev/pts "${rootfs}/dev/pts"
+    mountpoint -q "${rootfs}/proc"    || mount -t proc proc "${rootfs}/proc"
+    mountpoint -q "${rootfs}/sys"     || mount -t sysfs sysfs "${rootfs}/sys"
+    mountpoint -q "${rootfs}/tmp"     || mount -t tmpfs tmpfs "${rootfs}/tmp"
 
     # Copy the host DNS resolver so packages can fetch from the network
     if [[ -e "${rootfs}/etc/resolv.conf" ]] || [[ -L "${rootfs}/etc/resolv.conf" ]]; then
         mv "${rootfs}/etc/resolv.conf" "${rootfs}/etc/resolv.conf.bak" 2>/dev/null || true
     fi
     cp -L /etc/resolv.conf "${rootfs}/etc/resolv.conf"
+
+    # Ensure /boot/firmware exists and is clean
+    mkdir -p "${rootfs}/boot/firmware"
 }
 
 # ---------------------------------------------------------------------------
@@ -129,6 +172,21 @@ unmount_chroot() {
 }
 
 # ---------------------------------------------------------------------------
+# cleanup_mounts — Emergency cleanup of chroot bind mounts and loop devices
+# ---------------------------------------------------------------------------
+cleanup_mounts() {
+    local rootfs="${1:-${ROOTFS_DIR:-}}"
+    if [[ -n "${rootfs}" ]] && [[ -d "${rootfs}" ]]; then
+        unmount_chroot "${rootfs}" 2>/dev/null || true
+    fi
+    if [[ -n "${LOOP_DEV:-}" ]]; then
+        kpartx -d "${LOOP_DEV}" 2>/dev/null || true
+        losetup -d "${LOOP_DEV}" 2>/dev/null || true
+        LOOP_DEV=""
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # run_in_chroot — Copy a script into the rootfs and execute it inside chroot
 # ---------------------------------------------------------------------------
 run_in_chroot() {
@@ -150,41 +208,37 @@ run_in_chroot() {
     cp "${script_path}" "${rootfs}${chroot_script}"
     chmod 755 "${rootfs}${chroot_script}"
 
-    # Export variables so they are available inside the chroot
+    # Copy host qemu static binary into chroot if needed
+    if [[ ! -f "${rootfs}/usr/bin/qemu-aarch64-static" ]] && command -v qemu-aarch64-static &>/dev/null; then
+        cp "$(command -v qemu-aarch64-static)" "${rootfs}/usr/bin/qemu-aarch64-static"
+    fi
+
+    # Forward GITHUB_TOKEN and core parameters into chroot
     chroot "${rootfs}" /usr/bin/env \
-        USERNAME="${USERNAME}" \
-        PASSWORD="${PASSWORD}" \
-        IMG_NAME="${IMG_NAME}" \
+        USERNAME="${USERNAME:-neuxon}" \
+        PASSWORD="${PASSWORD:-neuxon}" \
+        IMG_NAME="${IMG_NAME:-Neuxon-OS-rpi3bplus-arm64}" \
         BOOT_DIR="/boot/firmware" \
+        GITHUB_TOKEN="${GITHUB_TOKEN:-}" \
         DEBIAN_FRONTEND=noninteractive \
         bash -e "${chroot_script}"
 
-    # Clean up
+    # Clean up script inside chroot
     rm -f "${rootfs}${chroot_script}"
 }
 
 # ---------------------------------------------------------------------------
-# cleanup — Trap handler: unmount chroot + detach loops on error
+# cleanup — Main build error & exit trap
 # ---------------------------------------------------------------------------
 cleanup() {
     local exit_code=$?
     if [[ ${exit_code} -ne 0 ]]; then
-        log_error "Build failed with exit code ${exit_code}. Cleaning up..."
+        log_error "Build failed with exit code ${exit_code}. Performing cleanup..."
     fi
 
-    # Attempt to unmount chroot mounts
-    if [[ -n "${ROOTFS_DIR:-}" ]] && [[ -d "${ROOTFS_DIR}" ]]; then
-        unmount_chroot "${ROOTFS_DIR}" 2>/dev/null || true
-    fi
-
-    # Detach any lingering loopback devices created by kpartx
-    if [[ -n "${LOOP_DEV:-}" ]]; then
-        kpartx -d "${LOOP_DEV}" 2>/dev/null || true
-        losetup -d "${LOOP_DEV}" 2>/dev/null || true
-        log_info "Detached loopback device ${LOOP_DEV}"
-    fi
+    cleanup_mounts "${ROOTFS_DIR:-}"
 
     if [[ ${exit_code} -ne 0 ]]; then
-        log_error "Cleanup complete. Please investigate the error above."
+        log_error "Build terminated abnormally. Cleaned up mounts and loop devices."
     fi
 }

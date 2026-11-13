@@ -1,49 +1,44 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - Labwc Autostart
+# Neuxon OS - Stealth Monochrome Glass Labwc Autostart
 # ============================================================================
 # Launched automatically by labwc on session start.
 # All processes are backgrounded to avoid blocking the compositor.
 # ============================================================================
 
-# --- Ensure seatd is running (required for unprivileged Wayland sessions) ---
+# --- Ensure seatd is running (for unprivileged Wayland sessions) ---
 if ! pgrep -x seatd > /dev/null 2>&1; then
     sudo seatd -g video &
-    sleep 0.5
+    sleep 0.3
 fi
 
-# --- Set cursor theme and size ---
-export XCURSOR_THEME=Adwaita
-export XCURSOR_SIZE=16
+# --- Cursor theme and sizing ---
+export XCURSOR_THEME="Bibata-Modern-Classic"
+export XCURSOR_SIZE=18
 
-# --- Apply display settings (RPi 3B+ HDMI defaults) ---
-# Adjust resolution/refresh if needed for your display
-# wlr-randr --output HDMI-A-1 --mode 1920x1080@60Hz &
+# --- Set desktop wallpaper (Default: Neuxon Geometric 01) ---
+if [ -f /usr/share/backgrounds/neuxon/neuxon-geometric-01.png ]; then
+    swaybg -i /usr/share/backgrounds/neuxon/neuxon-geometric-01.png -m fill &
+elif [ -f /usr/share/backgrounds/neuxon/default.png ]; then
+    swaybg -i /usr/share/backgrounds/neuxon/default.png -m fill &
+else
+    swaybg -c '#050505' &
+fi
 
-# --- Set desktop background to primary background color ---
-swaybg -c '#080808' &
-
-# --- Start Waybar (status bar) ---
+# --- Start Waybar (floating monochrome HUD) ---
 waybar &
 
-# --- Start Mako (notification daemon) ---
-mako \
-    --font "Hack 10" \
-    --background-color "#121212" \
-    --text-color "#F2F2F2" \
-    --border-color "#262626" \
-    --border-size 1 \
-    --border-radius 0 \
-    --default-timeout 5000 \
-    --width 320 \
-    --height 100 \
-    --margin 4 \
-    --padding 8 \
-    --icons 0 \
-    --max-visible 3 \
-    --layer overlay &
+# --- Start Mako (monochrome toast notifications) ---
+mako &
 
-# --- Import environment into systemd/dbus (for portals, etc.) ---
+# --- Start PipeWire / WirePlumber audio subsystem if present ---
+if command -v pipewire &>/dev/null && ! pgrep -x pipewire >/dev/null 2>&1; then
+    pipewire &
+    sleep 0.2
+    wireplumber &
+fi
+
+# --- Import environment into systemd/dbus ---
 dbus-update-activation-environment --systemd \
     WAYLAND_DISPLAY \
     XDG_CURRENT_DESKTOP \

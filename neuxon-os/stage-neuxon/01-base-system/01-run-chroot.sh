@@ -131,6 +131,11 @@ apt-get install -y --no-install-recommends \
 
 echo "[STAGE-01] Essential packages installed"
 
+# Lock core raspberry pi kernel and firmware packages
+echo "[STAGE-01] Locking core raspberry pi kernel and firmware packages ..."
+apt-mark hold linux-image-rpi-v8 raspi-firmware firmware-brcm80211
+echo "[STAGE-01] Core packages locked"
+
 # --------------------------------------------------------------------------
 # ZRAM setup
 # --------------------------------------------------------------------------
@@ -168,8 +173,11 @@ else
     echo "[STAGE-01] WARNING: /tmp/neuxon-config/system/sysctl-neuxon.conf not found"
 fi
 
-# Boot configuration
+# Boot configuration & /boot vs /boot/firmware compatibility
 mkdir -p /boot/firmware
+if [ ! -e /boot/rpi-firmware ]; then
+    ln -sfn /boot/firmware /boot/rpi-firmware 2>/dev/null || true
+fi
 
 if [ -f /tmp/neuxon-config/boot/config.txt ]; then
     cp /tmp/neuxon-config/boot/config.txt /boot/firmware/config.txt
@@ -199,8 +207,8 @@ PARTUUID=2ba4ee16-01  /boot/firmware  vfat    defaults,flush                    
 tmpfs                 /tmp            tmpfs   defaults,nosuid,nodev,size=128M       0       0
 tmpfs                 /var/log        tmpfs   defaults,nosuid,nodev,noexec,size=32M 0       0
 tmpfs                 /var/tmp        tmpfs   defaults,nosuid,nodev,size=64M        0       0
-
 EOF
+
 echo "[STAGE-01] /etc/fstab generated"
 
 # --------------------------------------------------------------------------

@@ -6,6 +6,14 @@ set -euo pipefail
 # Runs on HOST (after chroot unmount)
 # ============================================================================
 
+_stage05_cleanup() {
+    local exit_code=$?
+    if [[ ${exit_code} -ne 0 ]]; then
+        echo "[STAGE-05] ERROR: Finalize stage failed with exit code ${exit_code}."
+    fi
+}
+trap _stage05_cleanup EXIT ERR
+
 echo "[STAGE-05] ============================================"
 echo "[STAGE-05] Cleaning rootfs and creating delivery images"
 echo "[STAGE-05] ============================================"
@@ -29,7 +37,7 @@ rm -rf "${ROOTFS_DIR}/var/lib/apt/lists"/*
 # Remove host qemu-aarch64-static binary from final image
 if [ -f "${ROOTFS_DIR}/usr/bin/qemu-aarch64-static" ]; then
     rm -f "${ROOTFS_DIR}/usr/bin/qemu-aarch64-static"
-    echo "[STAGE-05]   Removed qemu-aarch64-static from final rootfs"
+    echo "[STAGE-05] Removed qemu-aarch64-static from final rootfs"
 fi
 
 # Ensure DNS resolver is clean
@@ -52,3 +60,4 @@ bash "${BUILD_DIR}/scripts/create-iso.sh"
 echo "[STAGE-05] ============================================"
 echo "[STAGE-05] Finalize stage completed successfully"
 echo "[STAGE-05] ============================================"
+trap - EXIT ERR

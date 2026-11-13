@@ -2,43 +2,43 @@
 <labwc_config>
 
   <core>
-    <gap>1</gap>
+    <gap>4</gap>
     <adaptiveSync>no</adaptiveSync>
     <reuseOutputMode>no</reuseOutputMode>
   </core>
 
   <theme>
     <name>Neuxon-Monochrome</name>
-    <cornerRadius>0</cornerRadius>
+    <cornerRadius>6</cornerRadius>
     <font place="ActiveWindow">
-      <name>Hack</name>
+      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
       <size>10</size>
       <slant>normal</slant>
-      <weight>normal</weight>
+      <weight>bold</weight>
     </font>
     <font place="InactiveWindow">
-      <name>Hack</name>
+      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
       <size>10</size>
       <slant>normal</slant>
       <weight>normal</weight>
     </font>
     <font place="MenuItem">
-      <name>Hack</name>
+      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
       <size>10</size>
       <slant>normal</slant>
       <weight>normal</weight>
     </font>
     <font place="OnScreenDisplay">
-      <name>Hack</name>
+      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
       <size>10</size>
       <slant>normal</slant>
-      <weight>normal</weight>
+      <weight>bold</weight>
     </font>
   </theme>
 
   <decoration>
     <titlebar>
-      <height>22</height>
+      <height>24</height>
     </titlebar>
     <border>
       <width>1</width>
@@ -59,7 +59,7 @@
   </focus>
 
   <snapping>
-    <range>1</range>
+    <range>4</range>
     <topMaximize>yes</topMaximize>
     <notifyClient>always</notifyClient>
   </snapping>
@@ -88,10 +88,31 @@
       </action>
     </keybind>
 
-    <!-- Launcher -->
+    <!-- App Launcher -->
     <keybind key="Super_L-d">
       <action name="Execute">
         <command>fuzzel</command>
+      </action>
+    </keybind>
+
+    <!-- Neuxon Control Center -->
+    <keybind key="Super_L-c">
+      <action name="Execute">
+        <command>foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control</command>
+      </action>
+    </keybind>
+
+    <!-- Neuxon System HUD -->
+    <keybind key="Super_L-h">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-hud</command>
+      </action>
+    </keybind>
+
+    <!-- Lockscreen -->
+    <keybind key="Super_L-l">
+      <action name="Execute">
+        <command>swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5</command>
       </action>
     </keybind>
 
@@ -112,50 +133,30 @@
 
     <!-- Switch workspaces -->
     <keybind key="Super_L-1">
-      <action name="GoToDesktop">
-        <to>1</to>
-      </action>
+      <action name="GoToDesktop"><to>1</to></action>
     </keybind>
     <keybind key="Super_L-2">
-      <action name="GoToDesktop">
-        <to>2</to>
-      </action>
+      <action name="GoToDesktop"><to>2</to></action>
     </keybind>
     <keybind key="Super_L-3">
-      <action name="GoToDesktop">
-        <to>3</to>
-      </action>
+      <action name="GoToDesktop"><to>3</to></action>
     </keybind>
     <keybind key="Super_L-4">
-      <action name="GoToDesktop">
-        <to>4</to>
-      </action>
+      <action name="GoToDesktop"><to>4</to></action>
     </keybind>
 
     <!-- Move window to workspace -->
     <keybind key="Super_L-Shift_L-1">
-      <action name="SendToDesktop">
-        <to>1</to>
-        <follow>no</follow>
-      </action>
+      <action name="SendToDesktop"><to>1</to><follow>no</follow></action>
     </keybind>
     <keybind key="Super_L-Shift_L-2">
-      <action name="SendToDesktop">
-        <to>2</to>
-        <follow>no</follow>
-      </action>
+      <action name="SendToDesktop"><to>2</to><follow>no</follow></action>
     </keybind>
     <keybind key="Super_L-Shift_L-3">
-      <action name="SendToDesktop">
-        <to>3</to>
-        <follow>no</follow>
-      </action>
+      <action name="SendToDesktop"><to>3</to><follow>no</follow></action>
     </keybind>
     <keybind key="Super_L-Shift_L-4">
-      <action name="SendToDesktop">
-        <to>4</to>
-        <follow>no</follow>
-      </action>
+      <action name="SendToDesktop"><to>4</to><follow>no</follow></action>
     </keybind>
 
     <!-- Cycle windows -->
@@ -165,28 +166,20 @@
 
     <!-- Snap window left half -->
     <keybind key="Super_L-Left">
-      <action name="MoveToEdge">
-        <direction>left</direction>
-      </action>
-      <action name="SnapToEdge">
-        <direction>left</direction>
-      </action>
+      <action name="MoveToEdge"><direction>left</direction></action>
+      <action name="SnapToEdge"><direction>left</direction></action>
     </keybind>
 
     <!-- Snap window right half -->
     <keybind key="Super_L-Right">
-      <action name="MoveToEdge">
-        <direction>right</direction>
-      </action>
-      <action name="SnapToEdge">
-        <direction>right</direction>
-      </action>
+      <action name="MoveToEdge"><direction>right</direction></action>
+      <action name="SnapToEdge"><direction>right</direction></action>
     </keybind>
 
     <!-- Screenshot -->
     <keybind key="Print">
       <action name="Execute">
-        <command>grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png</command>
+        <command>bash -c 'mkdir -p ~/Pictures &amp;&amp; grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png &amp;&amp; notify-send "Screenshot Captured" "Saved to ~/Pictures"'</command>
       </action>
     </keybind>
   </keyboard>

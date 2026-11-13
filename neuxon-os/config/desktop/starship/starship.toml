@@ -1,0 +1,44 @@
+# ============================================================================
+# Neuxon OS - Stealth Monochrome Starship Prompt
+# Pure monochrome bracket / geometric glyph prompt
+# ============================================================================
+
+format = """
+[◆](bold white) [$username@$hostname](bold #A0A0A0) in [$directory](bold #FFFFFF) [$git_branch$git_status](bold #7A7A7A)
+[└─>](bold white) """
+
+add_newline = false
+
+[username]
+show_always = false
+style_user = "bold #F5F5F5"
+style_root = "bold #FFFFFF"
+format = "[$user]($style)"
+
+[hostname]
+ssh_only = false
+format = "[$hostname](bold #7A7A7A)"
+
+[directory]
+truncation_length = 3
+truncation_symbol = "…/"
+style = "bold #FFFFFF"
+format = "[$path]($style)"
+
+[git_branch]
+symbol = " "
+style = "bold #7A7A7A"
+format = "[$symbol$branch]($style)"
+
+[git_status]
+style = "bold #A0A0A0"
+format = "([$all_status$ahead_behind]($style))"
+
+[character]
+success_symbol = "[◆](bold white)"
+error_symbol = "[◇](bold #7A7A7A)"
+
+[cmd_duration]
+min_time = 2_000
+style = "bold #7A7A7A"
+format = "took [$duration]($style)"

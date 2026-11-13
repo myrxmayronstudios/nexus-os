@@ -1,0 +1,71 @@
+# ============================================================================
+# Neuxon OS - Stealth Monochrome btop Theme
+# Void Black (#050505), Carbon (#141414), Specular (#FFFFFF)
+# ============================================================================
+
+# Main background, empty for terminal default, need to be empty if you want transparent background
+theme[main_bg]="#050505"
+
+# Main text color
+theme[main_fg]="#F5F5F5"
+
+# Title color for boxes
+theme[title]="#FFFFFF"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="#FFFFFF"
+
+# Background color of selected item in processes box
+theme[selected_bg]="#2A2A2A"
+
+# Foreground color of selected item in processes box
+theme[selected_fg]="#FFFFFF"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#7A7A7A"
+
+# Color of text appearing on top of graphs, i.e uptime and current process
+theme[graph_text]="#D4D4D4"
+
+# Background color of the meter box
+theme[meter_bg]="#141414"
+
+# Misc colors for processes box including mini cpu graphs, details memory graph and details status text
+theme[proc_misc]="#A0A0A0"
+
+# Outline color of boxes
+theme[box_outline]="#2A2A2A"
+
+# Dividing line color between processes box and information box
+theme[div_line]="#2A2A2A"
+
+# Temperature graph colors (Grayscale gradient)
+theme[temp_start]="#7A7A7A"
+theme[temp_mid]="#C2C2C2"
+theme[temp_end]="#FFFFFF"
+
+# CPU graph colors
+theme[cpu_start]="#7A7A7A"
+theme[cpu_mid]="#C2C2C2"
+theme[cpu_end]="#FFFFFF"
+
+# Mem & Disk graph colors
+theme[free]="#7A7A7A"
+theme[cached]="#A0A0A0"
+theme[available]="#C2C2C2"
+theme[used]="#FFFFFF"
+
+# Download graph colors
+theme[download_start]="#7A7A7A"
+theme[download_mid]="#C2C2C2"
+theme[download_end]="#FFFFFF"
+
+# Upload graph colors
+theme[upload_start]="#7A7A7A"
+theme[upload_mid]="#C2C2C2"
+theme[upload_end]="#FFFFFF"
+
+# Process box color gradient for threads, mem and cpu usage
+theme[process_start]="#7A7A7A"
+theme[process_mid]="#C2C2C2"
+theme[process_end]="#FFFFFF"

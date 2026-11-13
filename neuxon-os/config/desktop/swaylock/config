@@ -1,0 +1,46 @@
+# ============================================================================
+# Neuxon OS - Stealth Monochrome Glass Swaylock Configuration
+# ============================================================================
+color=050505
+font=JetBrains Mono Nerd Font
+font-size=16
+
+# Indicator styling
+indicator
+indicator-radius=80
+indicator-thickness=6
+
+# Ring colors (Monochrome Hairlines)
+ring-color=2A2A2A
+ring-clear-color=7A7A7A
+ring-caps-lock-color=FFFFFF
+ring-ver-color=FFFFFF
+ring-wrong-color=7A7A7A
+
+# Inside colors (Frosted Obsidian)
+inside-color=0E0E0EDB
+inside-clear-color=141414DB
+inside-caps-lock-color=141414DB
+inside-ver-color=0E0E0EDB
+inside-wrong-color=2A2A2ADB
+
+# Line colors
+line-color=050505
+line-clear-color=050505
+line-caps-lock-color=050505
+line-ver-color=050505
+line-wrong-color=050505
+
+# Text & key colors
+key-hl-color=FFFFFF
+bs-hl-color=7A7A7A
+text-color=F5F5F5
+text-clear-color=F5F5F5
+text-caps-lock-color=FFFFFF
+text-ver-color=FFFFFF
+text-wrong-color=7A7A7A
+
+# Behavior
+daemonize
+ignore-empty-password
+show-failed-attempts

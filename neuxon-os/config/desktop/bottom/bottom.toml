@@ -1,0 +1,25 @@
+# ============================================================================
+# Neuxon OS - Bottom (btm) Monochrome Configuration
+# ============================================================================
+[flags]
+rate = "1500ms"
+basic = false
+battery = false
+temperature_type = "c"
+expanded = false
+dot_marker = true
+
+[colors]
+table_header_color = "white"
+all_cpu_color = "white"
+avg_cpu_color = "gray"
+cpu_core_colors = ["gray", "light gray", "white", "dark gray"]
+ram_color = "white"
+swap_color = "gray"
+rx_color = "white"
+tx_color = "gray"
+widget_title_color = "white"
+border_color = "#2A2A2A"
+highlighted_border_color = "white"
+text_color = "#F5F5F5"
+graph_style = { color = "white" }

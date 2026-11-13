@@ -1,3 +1,10 @@
+###############################################################################
+# build-neuxon-os.yml — GitHub Actions CI workflow for Neuxon OS
+###############################################################################
+# Builds the complete Neuxon OS image for Raspberry Pi 3B+ (arm64) using
+# QEMU user-mode emulation on an x86_64 runner.
+###############################################################################
+
 name: Build Neuxon OS
 
 on:
@@ -16,23 +23,39 @@ jobs:
     timeout-minutes: 360
 
     steps:
+      # ------------------------------------------------------------------
+      # 1. Checkout the repository
+      # ------------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install QEMU user-static and binfmt-support
+      # ------------------------------------------------------------------
+      # 2. Install QEMU user-static and binfmt-support
+      # ------------------------------------------------------------------
+      - name: Install QEMU user-static
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support || \
           sudo apt-get install -y --no-install-recommends qemu-user-binfmt binfmt-support
 
+      # ------------------------------------------------------------------
+      # 3. Register binfmt for arm64 (ensures QEMU handles aarch64 binaries)
+      # ------------------------------------------------------------------
       - name: Register binfmt for arm64
         run: |
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          # Verify registration
           if [ -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]; then
-            echo "qemu-aarch64 binfmt registered"
+            echo "✓ qemu-aarch64 binfmt registered"
             cat /proc/sys/fs/binfmt_misc/qemu-aarch64
+          else
+            echo "⚠ qemu-aarch64 not found in binfmt_misc, checking alternatives..."
+            ls -la /proc/sys/fs/binfmt_misc/ || true
           fi
 
+      # ------------------------------------------------------------------
+      # 4. Install all host build dependencies
+      # ------------------------------------------------------------------
       - name: Install host build dependencies
         run: |
           sudo apt-get install -y --no-install-recommends \
@@ -48,76 +71,91 @@ jobs:
             curl \
             wget \
             ca-certificates \
-            rsync
+            rsync \
+            jq \
+            unzip \
+            file
 
+      # ------------------------------------------------------------------
+      # 5. Make scripts executable
+      # ------------------------------------------------------------------
       - name: Make scripts executable
         run: |
           find . -name '*.sh' -exec chmod +x {} +
 
+      # ------------------------------------------------------------------
+      # 6. Run the build
+      # ------------------------------------------------------------------
       - name: Build Neuxon OS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -d "neuxon-os" ]; then
-            cd neuxon-os
-          fi
-          sudo ./build.sh
+          if [ -d "neuxon-os" ]; then cd neuxon-os; fi
+          sudo GITHUB_TOKEN="${GITHUB_TOKEN}" ./build.sh
 
+      # ------------------------------------------------------------------
+      # 7. Upload compressed image artifact
+      # ------------------------------------------------------------------
       - name: Upload Neuxon OS image (xz)
         uses: actions/upload-artifact@v4
         with:
           name: Neuxon-OS-rpi3bplus-arm64.img.xz
           path: |
-            neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.img.xz
             output/Neuxon-OS-rpi3bplus-arm64.img.xz
+            neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.img.xz
           retention-days: 30
           if-no-files-found: error
 
+      # ------------------------------------------------------------------
+      # 8. Upload ISO artifact
+      # ------------------------------------------------------------------
       - name: Upload Neuxon OS ISO
         uses: actions/upload-artifact@v4
         with:
           name: Neuxon-OS-rpi3bplus-arm64.iso
           path: |
-            neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.iso
             output/Neuxon-OS-rpi3bplus-arm64.iso
+            neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.iso
           retention-days: 30
           if-no-files-found: error
 
+      # ------------------------------------------------------------------
+      # 9. Upload checksums
+      # ------------------------------------------------------------------
       - name: Upload checksums
         uses: actions/upload-artifact@v4
         with:
           name: checksums
           path: |
-            neuxon-os/output/checksums.txt
             output/checksums.txt
+            neuxon-os/output/checksums.txt
           retention-days: 30
           if-no-files-found: error
 
+      # ------------------------------------------------------------------
+      # 10. Print build summary
+      # ------------------------------------------------------------------
       - name: Build summary
         run: |
           echo "## Neuxon OS Build Complete :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Artifact | Size |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          for f in neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.img.xz output/Neuxon-OS-rpi3bplus-arm64.img.xz; do
-            if [ -f "$f" ]; then
-              SIZE=$(du -h "$f" | cut -f1)
+          for outdir in output neuxon-os/output; do
+            if [ -f "$outdir/Neuxon-OS-rpi3bplus-arm64.img.xz" ]; then
+              SIZE=$(du -h "$outdir/Neuxon-OS-rpi3bplus-arm64.img.xz" | cut -f1)
               echo "| \`Neuxon-OS-rpi3bplus-arm64.img.xz\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
-              break
             fi
-          done
-          for f in neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.iso output/Neuxon-OS-rpi3bplus-arm64.iso; do
-            if [ -f "$f" ]; then
-              SIZE=$(du -h "$f" | cut -f1)
+            if [ -f "$outdir/Neuxon-OS-rpi3bplus-arm64.iso" ]; then
+              SIZE=$(du -h "$outdir/Neuxon-OS-rpi3bplus-arm64.iso" | cut -f1)
               echo "| \`Neuxon-OS-rpi3bplus-arm64.iso\` | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ -f "$outdir/checksums.txt" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Checksums" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              cat "$outdir/checksums.txt" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
               break
             fi
           done
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Checksums" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          for f in neuxon-os/output/checksums.txt output/checksums.txt; do
-            if [ -f "$f" ]; then
-              cat "$f" >> $GITHUB_STEP_SUMMARY
-              break
-            fi
-          done
-          echo '```' >> $GITHUB_STEP_SUMMARY

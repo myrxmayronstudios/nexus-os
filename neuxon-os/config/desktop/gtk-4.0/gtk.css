@@ -1,118 +1,71 @@
 /* ============================================================================
- * Neuxon OS - GTK 4.0 Custom Monochrome Stylesheet
- * Strict Dark Monochrome Visual Identity
+ * Neuxon OS - Stealth Monochrome Glass GTK 4.0 Stylesheet
+ * Void Black: #050505 | Frosted Obsidian: rgba(14, 14, 14, 0.86) | Carbon: #141414
+ * Specular Hairline: 1px solid #2A2A2A / #FFFFFF
+ * Typography: JetBrains Mono Nerd Font, #F5F5F5 (Primary), #7A7A7A (Muted)
  * ============================================================================ */
 
-/* Global Colors */
-@define-color window_bg_color #080808;
-@define-color window_fg_color #F2F2F2;
-@define-color view_bg_color #080808;
-@define-color view_fg_color #F2F2F2;
-@define-color headerbar_bg_color #121212;
-@define-color headerbar_fg_color #F2F2F2;
-@define-color headerbar_border_color #262626;
-@define-color card_bg_color #121212;
-@define-color card_fg_color #F2F2F2;
-@define-color popover_bg_color #121212;
-@define-color popover_fg_color #F2F2F2;
-@define-color accent_color #FFFFFF;
-@define-color accent_bg_color #FFFFFF;
-@define-color accent_fg_color #000000;
-@define-color border_color #262626;
+@define-color neuxon_bg #050505;
+@define-color neuxon_obsidian rgba(14, 14, 14, 0.86);
+@define-color neuxon_surface #141414;
+@define-color neuxon_surface_hover #222222;
+@define-color neuxon_border #2A2A2A;
+@define-color neuxon_border_active #FFFFFF;
+@define-color neuxon_fg #F5F5F5;
+@define-color neuxon_fg_muted #7A7A7A;
+@define-color neuxon_highlight #FFFFFF;
+@define-color neuxon_highlight_fg #050505;
 
-/* Base Window */
-window {
-    background-color: @window_bg_color;
-    color: @window_fg_color;
-    font-family: "Hack", "DejaVu Sans Mono", monospace;
+window,
+.background {
+    background-color: @neuxon_bg;
+    color: @neuxon_fg;
+    font-family: "JetBrains Mono Nerd Font", "JetBrains Mono", monospace;
     font-size: 10pt;
 }
 
-/* Headerbar */
 headerbar {
-    background-color: @headerbar_bg_color;
-    color: @headerbar_fg_color;
-    border-bottom: 1px solid @headerbar_border_color;
-    border-radius: 0;
-    padding: 0 6px;
-    min-height: 30px;
+    background-color: @neuxon_obsidian;
+    border-bottom: 1px solid @neuxon_border;
+    color: @neuxon_fg;
+    min-height: 28px;
+    padding: 0 8px;
+    border-radius: 6px 6px 0 0;
 }
 
-/* Buttons */
 button {
-    background-color: #121212;
-    color: #F2F2F2;
-    border: 1px solid #262626;
-    border-radius: 0;
+    background-color: @neuxon_surface;
+    color: @neuxon_fg;
+    border: 1px solid @neuxon_border;
+    border-radius: 6px;
     padding: 4px 10px;
 }
 
 button:hover {
-    background-color: #1c1c1c;
-    border-color: #888888;
-    color: #FFFFFF;
+    background-color: @neuxon_surface_hover;
+    border-color: @neuxon_border_active;
 }
 
-button:active,
 button:checked {
-    background-color: #FFFFFF;
-    color: #000000;
-    border-color: #FFFFFF;
+    background-color: @neuxon_highlight;
+    color: @neuxon_highlight_fg;
 }
 
-/* Entry */
 entry {
-    background-color: #121212;
-    color: #F2F2F2;
-    border: 1px solid #262626;
-    border-radius: 0;
+    background-color: @neuxon_surface;
+    color: @neuxon_fg;
+    border: 1px solid @neuxon_border;
+    border-radius: 6px;
     padding: 4px 8px;
 }
 
 entry:focus {
-    border-color: #FFFFFF;
-    color: #FFFFFF;
+    border-color: @neuxon_border_active;
 }
 
-/* Lists and Rows */
-listview,
-listbox,
-row {
-    background-color: #080808;
-    color: #F2F2F2;
-    border-radius: 0;
-}
-
-row:hover {
-    background-color: #121212;
-}
-
-row:selected {
-    background-color: #FFFFFF;
-    color: #000000;
-}
-
-/* Popover & Menus */
-popover,
-popover contents {
-    background-color: #121212;
-    color: #F2F2F2;
-    border: 1px solid #262626;
-    border-radius: 0;
-}
-
-/* Scrollbars */
-scrollbar slider {
-    background-color: #262626;
-    min-width: 6px;
-    min-height: 6px;
-    border-radius: 0;
-}
-
-scrollbar slider:hover {
-    background-color: #888888;
-}
-
-scrollbar slider:active {
-    background-color: #FFFFFF;
+popover {
+    background-color: @neuxon_obsidian;
+    color: @neuxon_fg;
+    border: 1px solid @neuxon_border;
+    border-radius: 6px;
 }

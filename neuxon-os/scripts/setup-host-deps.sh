@@ -15,7 +15,6 @@ apt-get update -qq
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     debootstrap \
-    qemu-user-static \
     binfmt-support \
     xz-utils \
     dosfstools \
@@ -32,6 +31,13 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     fdisk \
     jq \
     systemd-container
+
+# Install QEMU user emulation package (name varies by Ubuntu/Debian version)
+if apt-cache show qemu-user-static &>/dev/null; then
+    apt-get install -y --no-install-recommends qemu-user-static
+else
+    apt-get install -y --no-install-recommends qemu-user-binfmt
+fi
 
 # Ensure ARM64 binfmt registration is active
 if command -v update-binfmts &>/dev/null; then

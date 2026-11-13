@@ -1,37 +1,40 @@
 # ============================================================================
-# Neuxon OS - Labwc Theme Override
-# Strict Dark Monochrome Palette
+# Neuxon OS - Stealth Monochrome Glass Labwc Theme
+# Surface: Void Black (#050505), Frosted Obsidian (#0E0E0EDB), Carbon (#141414)
+# Specular Hairlines: #FFFFFF (Active), #2A2A2A (Inactive)
+# Typography: JetBrains Mono Nerd Font, #F5F5F5 (Primary), #7A7A7A (Muted)
 # ============================================================================
+
 # Window borders
 border.width: 1
-window.active.border.color: #262626
-window.inactive.border.color: #262626
+window.active.border.color: #FFFFFF
+window.inactive.border.color: #2A2A2A
 
-# Titlebar backgrounds
-window.active.title.bg.color: #121212
-window.inactive.title.bg.color: #080808
+# Titlebar backgrounds (Frosted Obsidian glassmorphism)
+window.active.title.bg.color: #0E0E0EDB
+window.inactive.title.bg.color: #050505DB
 
 # Titlebar typography
-window.active.label.text.color: #F2F2F2
-window.inactive.label.text.color: #888888
+window.active.label.text.color: #F5F5F5
+window.inactive.label.text.color: #7A7A7A
 
 # Window buttons (close, maximize, iconify)
-window.active.button.unpressed.image.color: #F2F2F2
-window.inactive.button.unpressed.image.color: #888888
+window.active.button.unpressed.image.color: #F5F5F5
+window.inactive.button.unpressed.image.color: #7A7A7A
 window.active.button.pressed.image.color: #FFFFFF
 window.active.button.hover.image.color: #FFFFFF
-window.inactive.button.hover.image.color: #F2F2F2
+window.inactive.button.hover.image.color: #F5F5F5
 
 # Menus (right-click desktop menu)
 menu.border.width: 1
-menu.border.color: #262626
-menu.items.bg.color: #121212
-menu.items.text.color: #F2F2F2
+menu.border.color: #2A2A2A
+menu.items.bg.color: #0E0E0EDB
+menu.items.text.color: #F5F5F5
 menu.items.active.bg.color: #FFFFFF
-menu.items.active.text.color: #000000
+menu.items.active.text.color: #050505
 
 # On-screen display (workspace switcher, resize popup)
 osd.border.width: 1
-osd.border.color: #262626
-osd.bg.color: #121212
-osd.label.text.color: #F2F2F2
+osd.border.color: #FFFFFF
+osd.bg.color: #0E0E0EDB
+osd.label.text.color: #F5F5F5

@@ -37,6 +37,9 @@ RUN apt-get update -qq && \
         fdisk \
         mount \
         systemd-container \
+        jq \
+        unzip \
+        file \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

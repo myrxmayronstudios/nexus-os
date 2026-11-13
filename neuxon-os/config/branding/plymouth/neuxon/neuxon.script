@@ -1,168 +1,80 @@
 # ============================================================================
-# Neuxon OS - Plymouth Boot Theme Script
-# Monochrome boot animation for Raspberry Pi 3B+ (BCM2837B0 / ARM Cortex-A53)
-# ============================================================================
-# Minimal, clean boot splash with centered title, subtitle, and a thin
-# progress bar. Designed for low-overhead rendering on the VideoCore IV GPU.
+# Neuxon OS - Stealth Monochrome Plymouth Boot Theme Script
+# Pitch Black #050505 canvas with minimalist white geometric logo & progress bar
 # ============================================================================
 
-# --- Background ---
-# Near-black (#080808 ≈ 0.031, 0.031, 0.031)
-Window.SetBackgroundTopColor(0.031, 0.031, 0.031);
-Window.SetBackgroundBottomColor(0.031, 0.031, 0.031);
+# Background: Void Black (#050505 ≈ 0.020, 0.020, 0.020)
+Window.SetBackgroundTopColor(0.020, 0.020, 0.020);
+Window.SetBackgroundBottomColor(0.020, 0.020, 0.020);
 
-# --- Screen dimensions ---
 screen_width = Window.GetWidth();
 screen_height = Window.GetHeight();
 center_x = screen_width / 2;
 center_y = screen_height / 2;
 
-# --- Title text: "NEUXON OS" ---
-# Color: #F2F2F2 ≈ (0.949, 0.949, 0.949)
-title_image = Image.Text("N E U X O N   O S", 0.949, 0.949, 0.949, 1, "Monospace 28");
+# Title logo: "◆  N E U X O N   O S"
+title_image = Image.Text("◆   N E U X O N   O S", 1.0, 1.0, 1.0, 1, "Monospace 24");
 title_sprite = Sprite(title_image);
 title_sprite.SetX(center_x - title_image.GetWidth() / 2);
-title_sprite.SetY(center_y - 70);
+title_sprite.SetY(center_y - 60);
 title_sprite.SetZ(10);
 
-# --- Subtitle text: "RPi3B+ // ARM64" ---
-# Color: #888888 ≈ (0.533, 0.533, 0.533)
-subtitle_image = Image.Text("RPi3B+ // ARM64", 0.533, 0.533, 0.533, 1, "Monospace 14");
+# Subtitle: "BCM2837B0 // 64-BIT STEALTH MONOCHROME"
+subtitle_image = Image.Text("BCM2837B0 // 64-BIT STEALTH MONOCHROME", 0.48, 0.48, 0.48, 1, "Monospace 11");
 subtitle_sprite = Sprite(subtitle_image);
 subtitle_sprite.SetX(center_x - subtitle_image.GetWidth() / 2);
-subtitle_sprite.SetY(center_y - 20);
+subtitle_sprite.SetY(center_y - 14);
 subtitle_sprite.SetZ(10);
 
-# --- Tagline text: "Precision-Engineered ARM64 Linux" ---
-# Color: #555555 ≈ (0.333, 0.333, 0.333) - subtle
-tagline_image = Image.Text("Precision-Engineered ARM64 Linux", 0.333, 0.333, 0.333, 1, "Monospace 11");
-tagline_sprite = Sprite(tagline_image);
-tagline_sprite.SetX(center_x - tagline_image.GetWidth() / 2);
-tagline_sprite.SetY(center_y + 10);
-tagline_sprite.SetZ(10);
-
-# --- Progress bar configuration ---
-progress_bar_width = 300;
+# Progress bar
+progress_bar_width = 280;
 progress_bar_height = 2;
-progress_bar_y = center_y + 60;
+progress_bar_y = center_y + 40;
 progress_bar_x = center_x - progress_bar_width / 2;
 
-# Create the progress bar track (dark gray background line)
-# Color: #222222 ≈ (0.133, 0.133, 0.133)
-progress_track_image = Image.Text("", 0.133, 0.133, 0.133);
-for (i = 0; i < progress_bar_width; i++)
-{
-    pixel_image = Image(1, progress_bar_height);
-    pixel_image = pixel_image.Scale(1, progress_bar_height);
-    pixel_sprite = Sprite(pixel_image);
-    pixel_sprite.SetX(progress_bar_x + i);
-    pixel_sprite.SetY(progress_bar_y);
-    pixel_sprite.SetZ(5);
+# Track outline
+track_img = Image(progress_bar_width, progress_bar_height);
+for (x = 0; x < progress_bar_width; x++) {
+    track_img.SetPixel(x, 0, 0.16, 0.16, 0.16, 1);
+    track_img.SetPixel(x, 1, 0.16, 0.16, 0.16, 1);
+}
+track_sprite = Sprite(track_img);
+track_sprite.SetX(progress_bar_x);
+track_sprite.SetY(progress_bar_y);
+track_sprite.SetZ(5);
+
+# Active progress fill
+progress_sprites = [];
+for (i = 0; i < progress_bar_width; i++) {
+    pix_img = Image(1, progress_bar_height);
+    pix_img.SetPixel(0, 0, 1.0, 1.0, 1.0, 1);
+    pix_img.SetPixel(0, 1, 1.0, 1.0, 1.0, 1);
+    progress_sprites[i] = Sprite(pix_img);
+    progress_sprites[i].SetX(progress_bar_x + i);
+    progress_sprites[i].SetY(progress_bar_y);
+    progress_sprites[i].SetZ(6);
+    progress_sprites[i].SetOpacity(0);
 }
 
-# Create the progress bar fill - a single white sprite that gets scaled
-# We create a 1px wide white image and scale it to represent progress
-progress_fill_image = Image(1, progress_bar_height);
-progress_fill_image = progress_fill_image.Scale(1, progress_bar_height);
-progress_fill_sprite = Sprite(progress_fill_image);
-progress_fill_sprite.SetX(progress_bar_x);
-progress_fill_sprite.SetY(progress_bar_y);
-progress_fill_sprite.SetZ(10);
-progress_fill_sprite.SetOpacity(0);
-
-# Global to track current progress for smooth animation
-global.current_progress = 0;
-
-# --- Status message text ---
-status_sprite = Sprite();
-status_sprite.SetZ(10);
-
-# --- Boot progress callback ---
-fun boot_progress_callback(duration, progress)
-{
-    # Update the progress bar fill width
-    if (progress >= 0 && progress <= 1)
-    {
-        global.current_progress = progress;
-        fill_width = Math.Int(progress * progress_bar_width);
-
-        if (fill_width > 0)
-        {
-            new_fill_image = Image(fill_width, progress_bar_height);
-            new_fill_image = new_fill_image.Scale(fill_width, progress_bar_height);
-            progress_fill_sprite.SetImage(new_fill_image);
-            progress_fill_sprite.SetX(progress_bar_x);
-            progress_fill_sprite.SetY(progress_bar_y);
-            progress_fill_sprite.SetOpacity(1);
+fun progress_callback(duration, progress) {
+    visible_pixels = Math.Int(progress * progress_bar_width);
+    for (i = 0; i < progress_bar_width; i++) {
+        if (i < visible_pixels) {
+            progress_sprites[i].SetOpacity(1);
+        } else {
+            progress_sprites[i].SetOpacity(0);
         }
     }
 }
-Plymouth.SetBootProgressFunction(boot_progress_callback);
+Plymouth.SetBootProgressFunction(progress_callback);
 
-# --- Status update callback ---
-fun update_status_callback(status)
-{
-    # Display current boot status below the progress bar
-    # Color: #666666 ≈ (0.4, 0.4, 0.4) - dimmed so it's not distracting
-    status_image = Image.Text(status, 0.4, 0.4, 0.4, 1, "Monospace 10");
-    status_sprite.SetImage(status_image);
-    status_sprite.SetX(center_x - status_image.GetWidth() / 2);
-    status_sprite.SetY(progress_bar_y + 20);
-}
-Plymouth.SetUpdateStatusFunction(update_status_callback);
-
-# --- Password prompt callback (for encrypted disks) ---
-fun display_password_callback(prompt, bullets)
-{
-    # Render the prompt text
-    prompt_image = Image.Text(prompt, 0.949, 0.949, 0.949, 1, "Monospace 14");
-    prompt_sprite = Sprite(prompt_image);
-    prompt_sprite.SetX(center_x - prompt_image.GetWidth() / 2);
-    prompt_sprite.SetY(center_y + 100);
-    prompt_sprite.SetZ(20);
-
-    # Render bullet dots for entered characters
-    bullet_string = "";
-    for (i = 0; i < bullets; i++)
-    {
-        bullet_string += "● ";
-    }
-
-    bullet_image = Image.Text(bullet_string, 0.949, 0.949, 0.949, 1, "Monospace 16");
-    bullet_sprite = Sprite(bullet_image);
-    bullet_sprite.SetX(center_x - bullet_image.GetWidth() / 2);
-    bullet_sprite.SetY(center_y + 130);
-    bullet_sprite.SetZ(20);
-}
-Plymouth.SetDisplayPasswordFunction(display_password_callback);
-
-# --- Message callback ---
-fun message_callback(text)
-{
-    msg_image = Image.Text(text, 0.533, 0.533, 0.533, 1, "Monospace 11");
-    msg_sprite = Sprite(msg_image);
-    msg_sprite.SetX(center_x - msg_image.GetWidth() / 2);
-    msg_sprite.SetY(center_y + 160);
-    msg_sprite.SetZ(10);
-}
-Plymouth.SetMessageFunction(message_callback);
-
-# --- Quit callback ---
-fun quit_callback()
-{
-    # Fade out all sprites cleanly
+# Quit callback
+fun quit_callback() {
     title_sprite.SetOpacity(0);
     subtitle_sprite.SetOpacity(0);
-    tagline_sprite.SetOpacity(0);
-    progress_fill_sprite.SetOpacity(0);
-    status_sprite.SetOpacity(0);
+    track_sprite.SetOpacity(0);
+    for (i = 0; i < progress_bar_width; i++) {
+        progress_sprites[i].SetOpacity(0);
+    }
 }
 Plymouth.SetQuitFunction(quit_callback);
-
-# --- Refresh callback (called each frame) ---
-fun refresh_callback()
-{
-    # No per-frame animation needed - keep it minimal for VideoCore IV
-    # The progress bar updates are handled entirely in boot_progress_callback
-}
-Plymouth.SetRefreshFunction(refresh_callback);

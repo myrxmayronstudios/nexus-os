@@ -1,66 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openbox_menu xmlns="http://openbox.org/3.4/menu">
 
-  <menu id="root-menu" label="Neuxon">
+  <menu id="root-menu" label="NEUXON // OS">
 
-    <!-- Applications -->
-    <item label="Terminal">
+    <!-- Primary Control Center -->
+    <item label="◆ Neuxon Control Center">
+      <action name="Execute">
+        <command>foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control</command>
+      </action>
+    </item>
+    <item label="◇ System HUD Overlay">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-hud</command>
+      </action>
+    </item>
+
+    <separator />
+
+    <!-- Core Terminal & Launchers -->
+    <item label="Terminal (Foot)">
       <action name="Execute">
         <command>foot</command>
       </action>
     </item>
-    <item label="File Manager">
+    <item label="App Launcher (Fuzzel)">
+      <action name="Execute">
+        <command>fuzzel</command>
+      </action>
+    </item>
+    <item label="Web Browser (Min)">
+      <action name="Execute">
+        <command>min</command>
+      </action>
+    </item>
+
+    <separator />
+
+    <!-- File Management & Editors -->
+    <item label="File Manager (Yazi)">
       <action name="Execute">
         <command>foot -e yazi</command>
       </action>
     </item>
-    <item label="Text Editor">
+    <item label="Helix Editor (Grayscale)">
+      <action name="Execute">
+        <command>foot -e hx</command>
+      </action>
+    </item>
+    <item label="Micro Editor">
       <action name="Execute">
         <command>foot -e micro</command>
       </action>
     </item>
-    <item label="System Monitor">
+
+    <separator />
+
+    <!-- System Monitoring & Tools -->
+    <item label="BTOP Monitor (Monochrome)">
       <action name="Execute">
         <command>foot -e btop</command>
       </action>
     </item>
-    <item label="Git UI">
+    <item label="Bottom Hardware Graphs (BTM)">
+      <action name="Execute">
+        <command>foot -e btm</command>
+      </action>
+    </item>
+    <item label="LazyGit UI">
       <action name="Execute">
         <command>foot -e lazygit</command>
       </action>
     </item>
-
-    <separator />
-
-    <!-- System Info -->
-    <item label="System Info">
+    <item label="LazyDocker UI">
       <action name="Execute">
-        <command>foot -e bash -c 'fastfetch; read -rp "Press Enter to close..."'</command>
+        <command>foot -e lazydocker</command>
+      </action>
+    </item>
+    <item label="Kew Terminal Music Player">
+      <action name="Execute">
+        <command>foot -e kew</command>
       </action>
     </item>
 
     <separator />
 
-    <!-- Settings Submenu -->
-    <menu id="settings-menu" label="Settings">
-      <item label="Network">
-        <action name="Execute">
-          <command>foot -e nmtui</command>
-        </action>
-      </item>
-      <item label="Display">
-        <action name="Execute">
-          <command>foot -e bash -c 'wlr-randr; read -rp "Press Enter to close..."'</command>
-        </action>
-      </item>
-    </menu>
-
-    <separator />
-
-    <!-- Session Actions -->
+    <!-- System Actions -->
     <item label="Lock Screen">
       <action name="Execute">
-        <command>swaylock -c 080808</command>
+        <command>swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5</command>
       </action>
     </item>
     <item label="Logout">
@@ -71,7 +98,7 @@
         <command>systemctl reboot</command>
       </action>
     </item>
-    <item label="Shutdown">
+    <item label="Power Off">
       <action name="Execute">
         <command>systemctl poweroff</command>
       </action>
