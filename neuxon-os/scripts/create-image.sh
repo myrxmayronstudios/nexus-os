@@ -51,22 +51,23 @@ trap _image_cleanup EXIT ERR
 
 # ---------------------------------------------------------------------------
 # 1. Calculate required image size dynamically
-#    Exact rootfs size + 25% safety buffer + 256MB boot partition + 32MB alignment
+#    Exact rootfs size + 65% safety buffer + 1GB headroom + 256MB boot partition
 # ---------------------------------------------------------------------------
 log_info "Calculating required image size from assembled rootfs..."
 mkdir -p "${OUTPUT_DIR}"
 
 ROOTFS_BYTES=$(du -sb "${ROOTFS_DIR}" | cut -f1)
 BOOT_BYTES=$(( 256 * 1024 * 1024 ))
-SAFETY_BUFFER=$(( ROOTFS_BYTES * 25 / 100 ))
-TOTAL_BYTES=$(( ROOTFS_BYTES + SAFETY_BUFFER + BOOT_BYTES + (32 * 1024 * 1024) ))
+# Generous 65% + 1024MB safety buffer ensures ext4 inode tables, journals, and rsync never run out of space
+SAFETY_BUFFER=$(( (ROOTFS_BYTES * 65 / 100) + (1024 * 1024 * 1024) ))
+TOTAL_BYTES=$(( ROOTFS_BYTES + SAFETY_BUFFER + BOOT_BYTES + (64 * 1024 * 1024) ))
 
 # Align to 128MB boundary
 ALIGN_128M=$(( 128 * 1024 * 1024 ))
 IMG_BYTES=$(( ((TOTAL_BYTES + ALIGN_128M - 1) / ALIGN_128M) * ALIGN_128M ))
 
 log_info "Rootfs size  : $((ROOTFS_BYTES / 1024 / 1024)) MB"
-log_info "Calculated   : $((IMG_BYTES / 1024 / 1024)) MB (with +25% safety + 256M boot)"
+log_info "Calculated   : $((IMG_BYTES / 1024 / 1024)) MB (with +65% + 1GB safety buffer & 256M boot)"
 log_info "Creating sparse image file: ${IMG_FILE}"
 truncate -s "${IMG_BYTES}" "${IMG_FILE}"
 
@@ -115,8 +116,8 @@ fi
 log_info "Formatting boot partition (FAT32, label=NEUXON-BOOT)..."
 mkfs.vfat -F 32 -n "NEUXON-BOOT" "${PART_BOOT}"
 
-log_info "Formatting root partition (ext4, label=NEUXON-ROOT)..."
-mkfs.ext4 -L "NEUXON-ROOT" -O "^metadata_csum,^64bit" -F "${PART_ROOT}"
+log_info "Formatting root partition (ext4, label=NEUXON-ROOT, reserved=1%)..."
+mkfs.ext4 -L "NEUXON-ROOT" -m 1 -O "^metadata_csum,^64bit" -F "${PART_ROOT}"
 
 # ---------------------------------------------------------------------------
 # 5. Mount partitions

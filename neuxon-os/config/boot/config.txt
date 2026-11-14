@@ -4,6 +4,10 @@
 # Force 64-bit kernel mode
 arm_64bit=1
 
+# Load 64-bit initramfs for Debian Bookworm (Fixes VFS Kernel Panic)
+auto_initramfs=1
+initramfs initramfs8 followkernel
+
 # Boot optimization
 boot_delay=0
 disable_splash=1
@@ -16,7 +20,7 @@ max_framebuffers=2
 disable_overscan=1
 hdmi_force_hotplug=1
 
-# Hardware peripherals
+# Disable unused hardware to save power/memory
 dtparam=audio=on
 dtparam=i2c_arm=off
 dtparam=i2s=off
