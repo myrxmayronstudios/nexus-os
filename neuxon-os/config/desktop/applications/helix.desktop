@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Helix Modal Editor
+Comment=Post-modern modal text editor built in Rust
+Exec=foot -e hx %F
+Icon=accessories-text-editor
+Terminal=false
+Categories=Development;TextEditor;
+Keywords=editor;helix;hx;vim;code;

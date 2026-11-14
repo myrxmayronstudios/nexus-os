@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Neuxon System Info
+Comment=Display hardware, kernel, and OS info banner
+Exec=foot -e bash -c "fastfetch; echo; read -p 'Press Enter to exit...'"
+Icon=dialog-information
+Terminal=false
+Categories=System;
+Keywords=specs;hardware;fastfetch;neofetch;info;

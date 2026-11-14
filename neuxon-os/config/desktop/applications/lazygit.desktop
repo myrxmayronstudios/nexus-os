@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=LazyGit
+Comment=Terminal UI for Git commands
+Exec=foot -e lazygit
+Icon=git
+Terminal=false
+Categories=Development;RevisionControl;
+Keywords=git;vcs;repository;code;

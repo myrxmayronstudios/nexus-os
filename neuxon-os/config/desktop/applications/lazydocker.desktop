@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=LazyDocker
+Comment=Terminal UI for Docker containers and images
+Exec=foot -e lazydocker
+Icon=docker
+Terminal=false
+Categories=Development;
+Keywords=docker;containers;compose;

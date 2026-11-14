@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=System HUD Overlay
+Comment=Toggle real-time system performance telemetry
+Exec=/usr/local/bin/neuxon-hud
+Icon=preferences-desktop-display
+Terminal=false
+Categories=System;Monitor;
+Keywords=telemetry;hud;cpu;ram;stats;

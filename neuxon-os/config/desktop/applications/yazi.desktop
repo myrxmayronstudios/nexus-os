@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=File Manager (Yazi)
+Comment=Lightning-fast terminal file manager with preview
+Exec=foot -e yazi
+Icon=system-file-manager
+Terminal=false
+Categories=System;FileManager;
+Keywords=file;manager;directory;browse;

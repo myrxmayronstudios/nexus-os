@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=System Activity Monitor (btop)
+Comment=Monochrome real-time resource monitor & process manager
+Exec=foot -e btop
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;Monitor;
+Keywords=cpu;memory;disk;network;processes;task;

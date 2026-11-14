@@ -13,8 +13,8 @@ if ! pgrep -x seatd > /dev/null 2>&1; then
 fi
 
 # --- Cursor theme and sizing ---
-export XCURSOR_THEME="Bibata-Modern-Classic"
-export XCURSOR_SIZE=18
+export XCURSOR_THEME="Adwaita"
+export XCURSOR_SIZE=24
 
 # --- Set desktop wallpaper (Default: Neuxon Geometric 01) ---
 if [ -f /usr/share/backgrounds/neuxon/neuxon-geometric-01.png ]; then
@@ -37,6 +37,14 @@ if command -v pipewire &>/dev/null && ! pgrep -x pipewire >/dev/null 2>&1; then
     sleep 0.2
     wireplumber &
 fi
+
+# --- Launch btop always-running desktop gadget ---
+foot --app-id=btop-gadget \
+     --title="btop-gadget" \
+     --window-size-chars=66x22 \
+     --override="colors.alpha=0.78" \
+     --override="font=JetBrains Mono:size=8.5" \
+     -e btop &
 
 # --- Import environment into systemd/dbus ---
 dbus-update-activation-environment --systemd \

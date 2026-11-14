@@ -2,13 +2,19 @@
     "layer": "top",
     "position": "top",
     "height": 28,
-    "spacing": 6,
+    "spacing": 4,
     "margin-top": 6,
     "margin-left": 10,
     "margin-right": 10,
 
     "modules-left": [
         "custom/launcher",
+        "custom/term",
+        "custom/browser",
+        "custom/files",
+        "custom/editor",
+        "custom/btop",
+        "custom/control",
         "wlr/workspaces",
         "custom/hud"
     ],
@@ -26,9 +32,45 @@
     ],
 
     "custom/launcher": {
-        "format": "◆ NEUXON // OS",
-        "tooltip-format": "Neuxon Application Launcher (Super+D)",
+        "format": "❖ APPS",
+        "tooltip-format": "Open Application Menu (Super+D)",
         "on-click": "fuzzel"
+    },
+
+    "custom/term": {
+        "format": " TERM",
+        "tooltip-format": "Open Terminal (Super+Return)",
+        "on-click": "foot"
+    },
+
+    "custom/browser": {
+        "format": "🌐 WEB",
+        "tooltip-format": "Launch Web Browser (Chromium / Min)",
+        "on-click": "/usr/local/bin/neuxon-browser"
+    },
+
+    "custom/files": {
+        "format": "📁 FILES",
+        "tooltip-format": "Open File Manager (Yazi)",
+        "on-click": "foot -e yazi"
+    },
+
+    "custom/editor": {
+        "format": "📝 EDIT",
+        "tooltip-format": "Open Micro Text Editor",
+        "on-click": "foot -e micro"
+    },
+
+    "custom/btop": {
+        "format": "📊 MON",
+        "tooltip-format": "Toggle Desktop btop Gadget (Super+B)",
+        "on-click": "/usr/local/bin/neuxon-btop-gadget"
+    },
+
+    "custom/control": {
+        "format": "⚙ CTRL",
+        "tooltip-format": "Neuxon Control Center (Super+C)",
+        "on-click": "foot -a neuxon-control -T 'Neuxon Control Center' /usr/local/bin/neuxon-control"
     },
 
     "custom/hud": {
@@ -62,21 +104,21 @@
         "format": "CPU {usage}%",
         "interval": 2,
         "tooltip": true,
-        "on-click": "foot -e btop"
+        "on-click": "/usr/local/bin/neuxon-btop-gadget"
     },
 
     "custom/zram": {
-        "exec": "bash -c 'if command -v zramctl &>/dev/null; then r=$(zramctl --bytes 2>/dev/null | awk \"NR>1 {if (\\$4>0) printf \\\"%.1fx\\\", \\$3/\\$4; else print \\\"1.0x\\\"}\"); echo \"ZRAM ${r:-1.0x}\"; else echo \"ZRAM OK\"; fi'",
+        "exec": "bash -c 'if command -v zramctl &>/dev/null; then r=$(zramctl --bytes 2>/dev/null | awk "NR>1 {if (\$4>0) printf \"%.1fx\", \$3/\$4; else print \"1.0x\"}"); echo "ZRAM ${r:-1.0x}"; else echo "ZRAM OK"; fi'",
         "interval": 5,
         "tooltip-format": "ZRAM Memory Compression Ratio",
-        "on-click": "foot -e btop"
+        "on-click": "/usr/local/bin/neuxon-btop-gadget"
     },
 
     "memory": {
         "format": "RAM {percentage}%",
         "interval": 3,
         "tooltip-format": "RAM: {used:0.2f}GB / {total:0.2f}GB ({percentage}%)",
-        "on-click": "foot -e btop"
+        "on-click": "/usr/local/bin/neuxon-btop-gadget"
     },
 
     "temperature": {
@@ -99,7 +141,7 @@
     },
 
     "custom/volume": {
-        "exec": "bash -c 'if command -v wpctl &>/dev/null; then v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk \"{print int(\\$2*100)}\"); echo \"VOL ${v:-50}%\"; else echo \"VOL 50%\"; fi'",
+        "exec": "bash -c 'if command -v wpctl &>/dev/null; then v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk "{print int(\$2*100)}"); echo "VOL ${v:-50}%"; else echo "VOL 50%"; fi'",
         "interval": 2,
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",

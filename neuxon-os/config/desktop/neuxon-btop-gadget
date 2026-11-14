@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+###############################################################################
+# neuxon-btop-gadget — Neuxon OS Desktop btop Gadget Manager
+# Toggles the persistent btop system monitor gadget on/off.
+###############################################################################
+set -euo pipefail
+
+GADGET_PID=$(pgrep -f "foot.*--app-id=btop-gadget" || true)
+
+if [[ -n "${GADGET_PID}" ]]; then
+    kill "${GADGET_PID}" 2>/dev/null || true
+else
+    foot --app-id=btop-gadget \
+         --title="btop-gadget" \
+         --window-size-chars=66x22 \
+         --override="colors.alpha=0.78" \
+         --override="font=JetBrains Mono:size=8.5" \
+         -e btop &
+fi

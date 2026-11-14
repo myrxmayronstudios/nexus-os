@@ -14,10 +14,15 @@
         <command>/usr/local/bin/neuxon-hud</command>
       </action>
     </item>
+    <item label="◈ Toggle btop Gadget">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-btop-gadget</command>
+      </action>
+    </item>
 
     <separator />
 
-    <!-- Core Terminal & Launchers -->
+    <!-- Core Applications -->
     <item label="Terminal (Foot)">
       <action name="Execute">
         <command>foot</command>
@@ -28,28 +33,24 @@
         <command>fuzzel</command>
       </action>
     </item>
-    <item label="Web Browser (Min)">
+    <item label="Web Browser">
       <action name="Execute">
-        <command>min</command>
+        <command>/usr/local/bin/neuxon-browser</command>
       </action>
     </item>
-
-    <separator />
-
-    <!-- File Management & Editors -->
     <item label="File Manager (Yazi)">
       <action name="Execute">
         <command>foot -e yazi</command>
       </action>
     </item>
-    <item label="Helix Editor (Grayscale)">
-      <action name="Execute">
-        <command>foot -e hx</command>
-      </action>
-    </item>
-    <item label="Micro Editor">
+    <item label="Micro Text Editor">
       <action name="Execute">
         <command>foot -e micro</command>
+      </action>
+    </item>
+    <item label="Helix Code Editor">
+      <action name="Execute">
+        <command>foot -e hx</command>
       </action>
     </item>
 
@@ -76,7 +77,7 @@
         <command>foot -e lazydocker</command>
       </action>
     </item>
-    <item label="Kew Terminal Music Player">
+    <item label="Kew Music Player">
       <action name="Execute">
         <command>foot -e kew</command>
       </action>
@@ -84,7 +85,7 @@
 
     <separator />
 
-    <!-- System Actions -->
+    <!-- Session Actions -->
     <item label="Lock Screen">
       <action name="Execute">
         <command>swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5</command>

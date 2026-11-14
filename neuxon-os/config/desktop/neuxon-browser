@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+###############################################################################
+# neuxon-browser — Neuxon OS Web Browser Launcher
+# Prioritizes Chromium with hardware acceleration & Wayland native flags,
+# falling back gracefully to Min if necessary.
+###############################################################################
+set -euo pipefail
+
+if command -v chromium &>/dev/null; then
+    exec chromium \
+        --enable-features=UseOzonePlatform \
+        --ozone-platform=wayland \
+        --enable-gpu-rasterization \
+        --enable-zero-copy \
+        --disable-gpu-driver-bug-workarounds \
+        --force-dark-mode \
+        "$@"
+elif command -v chromium-browser &>/dev/null; then
+    exec chromium-browser \
+        --enable-features=UseOzonePlatform \
+        --ozone-platform=wayland \
+        --enable-gpu-rasterization \
+        --enable-zero-copy \
+        --disable-gpu-driver-bug-workarounds \
+        --force-dark-mode \
+        "$@"
+elif command -v min &>/dev/null; then
+    exec min "$@"
+else
+    foot -e bash -c 'echo "No graphical web browser installed."; sleep 2'
+fi

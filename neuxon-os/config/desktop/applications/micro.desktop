@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Micro Text Editor
+Comment=Intuitive terminal text editor with modern keybindings
+Exec=foot -e micro %F
+Icon=accessories-text-editor
+Terminal=false
+Categories=Utility;TextEditor;
+Keywords=text;editor;code;notes;

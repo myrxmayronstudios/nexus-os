@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Web Browser
+Comment=Fast, modern web browser optimized for Wayland
+Exec=/usr/local/bin/neuxon-browser %U
+Icon=web-browser
+Terminal=false
+Categories=Network;WebBrowser;
+Keywords=web;browser;internet;chromium;min;

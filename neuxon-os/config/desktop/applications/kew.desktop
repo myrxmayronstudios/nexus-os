@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Kew Music Player
+Comment=Lightweight terminal music player
+Exec=foot -e kew
+Icon=multimedia-audio-player
+Terminal=false
+Categories=AudioVideo;Audio;Player;
+Keywords=music;audio;sound;player;mp3;

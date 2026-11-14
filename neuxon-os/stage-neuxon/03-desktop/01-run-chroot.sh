@@ -102,6 +102,20 @@ apt-get install -y --no-install-recommends \
 echo "[STAGE-03] Mesa/GPU drivers installed"
 
 # --------------------------------------------------------------------------
+# 7b. Install Chromium Browser & GUI Utilities
+# --------------------------------------------------------------------------
+echo "[STAGE-03] Installing Chromium browser, GUI file manager, and editor ..."
+apt-get install -y --no-install-recommends \
+    chromium \
+    pcmanfm \
+    mousepad 2>/dev/null || \
+apt-get install -y --no-install-recommends \
+    pcmanfm \
+    mousepad 2>/dev/null || true
+
+echo "[STAGE-03] Browser and GUI utilities provisioned" 
+
+# --------------------------------------------------------------------------
 # 8. Set up neuxon user
 # --------------------------------------------------------------------------
 echo "[STAGE-03] Setting up neuxon user ..."
@@ -150,26 +164,26 @@ if [ -f /tmp/neuxon-config/system/mpv/mpv.conf ]; then
 fi
 
 # --------------------------------------------------------------------------
-# 10. Install Custom Preloaded Utilities: neuxon-control & neuxon-hud
+# 10. Install Custom Preloaded Utilities & Desktop Launchers
 # --------------------------------------------------------------------------
-echo "[STAGE-03] Installing neuxon-control & neuxon-hud utilities..."
+echo "[STAGE-03] Installing Neuxon utilities and launchers..."
 
-if [ -f "${CONFIG_SRC}/neuxon-control" ]; then
-    cp "${CONFIG_SRC}/neuxon-control" /usr/local/bin/neuxon-control
-    chmod 755 /usr/local/bin/neuxon-control
-    echo "[STAGE-03] Installed /usr/local/bin/neuxon-control"
-fi
+for util in neuxon-control neuxon-hud neuxon-browser neuxon-btop-gadget; do
+    if [ -f "${CONFIG_SRC}/${util}" ]; then
+        cp "${CONFIG_SRC}/${util}" "/usr/local/bin/${util}"
+        chmod 755 "/usr/local/bin/${util}"
+        echo "[STAGE-03] Installed /usr/local/bin/${util}"
+    fi
+done
 
-if [ -f "${CONFIG_SRC}/neuxon-hud" ]; then
-    cp "${CONFIG_SRC}/neuxon-hud" /usr/local/bin/neuxon-hud
-    chmod 755 /usr/local/bin/neuxon-hud
-    echo "[STAGE-03] Installed /usr/local/bin/neuxon-hud"
-fi
-
-if [ -f "${CONFIG_SRC}/neuxon-control.desktop" ]; then
-    cp "${CONFIG_SRC}/neuxon-control.desktop" /usr/share/applications/
-    echo "[STAGE-03] Installed neuxon-control.desktop"
-fi
+# Install all .desktop application launchers into /usr/share/applications/
+mkdir -p /usr/share/applications
+for df in "${CONFIG_SRC}"/*.desktop "${CONFIG_SRC}/applications"/*.desktop; do
+    if [ -f "${df}" ]; then
+        cp "${df}" /usr/share/applications/
+        echo "[STAGE-03] Installed $(basename "${df}")"
+    fi
+done
 
 # --------------------------------------------------------------------------
 # 11. Install neuxon-session.sh

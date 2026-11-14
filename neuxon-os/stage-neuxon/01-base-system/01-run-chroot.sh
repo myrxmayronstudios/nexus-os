@@ -220,6 +220,13 @@ systemctl enable NetworkManager.service 2>/dev/null || true
 systemctl enable ssh.service 2>/dev/null || true
 systemctl enable neuxon-zram.service 2>/dev/null || true
 
+# Enable CPU performance governor service
+if [ -f /tmp/neuxon-config/system/neuxon-performance.service ]; then
+    cp /tmp/neuxon-config/system/neuxon-performance.service /etc/systemd/system/neuxon-performance.service
+    systemctl enable neuxon-performance.service 2>/dev/null || true
+    echo "[STAGE-01] Enabled neuxon-performance.service"
+fi
+
 echo "[STAGE-01] Required services enabled"
 
 # --------------------------------------------------------------------------

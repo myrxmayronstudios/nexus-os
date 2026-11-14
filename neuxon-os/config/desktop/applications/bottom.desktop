@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Bottom Hardware Graphs (btm)
+Comment=Graphical hardware activity monitor
+Exec=foot -e btm
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;Monitor;
+Keywords=monitor;cpu;gpu;graphs;

@@ -4,6 +4,11 @@
 # Force 64-bit kernel mode
 arm_64bit=1
 
+# Performance optimization for BCM2837B0 (Raspberry Pi 3B+)
+arm_freq=1400
+core_freq=400
+over_voltage=1
+
 # Load 64-bit initramfs for Debian Bookworm (Fixes VFS Kernel Panic)
 auto_initramfs=1
 initramfs initramfs8 followkernel

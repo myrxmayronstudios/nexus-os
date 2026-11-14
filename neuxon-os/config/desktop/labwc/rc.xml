@@ -50,6 +50,25 @@
       <serverDecoration>yes</serverDecoration>
       <skipTaskbar>no</skipTaskbar>
     </windowRule>
+
+    <!-- Always-running btop desktop gadget rule -->
+    <windowRule identifier="btop-gadget">
+      <windowType>normal</windowType>
+      <serverDecoration>no</serverDecoration>
+      <skipTaskbar>yes</skipTaskbar>
+      <skipWindowSwitcher>yes</skipWindowSwitcher>
+      <ignoreFocusRequest>yes</ignoreFocusRequest>
+      <action name="ToggleAlwaysOnBottom" />
+      <action name="ToggleOmnipresent" />
+      <action name="MoveTo" x="16" y="46" />
+    </windowRule>
+
+    <!-- Floating HUD window rule -->
+    <windowRule identifier="neuxon-hud">
+      <windowType>normal</windowType>
+      <serverDecoration>no</serverDecoration>
+      <action name="ToggleAlwaysOnTop" />
+    </windowRule>
   </windowRules>
 
   <focus>
@@ -95,6 +114,13 @@
       </action>
     </keybind>
 
+    <!-- Toggle btop desktop gadget -->
+    <keybind key="Super_L-b">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-btop-gadget</command>
+      </action>
+    </keybind>
+
     <!-- Neuxon Control Center -->
     <keybind key="Super_L-c">
       <action name="Execute">
@@ -126,60 +152,52 @@
       <action name="ToggleFullscreen" />
     </keybind>
 
-    <!-- Exit compositor -->
-    <keybind key="Super_L-Shift_L-e">
-      <action name="Exit" />
+    <!-- Window Navigation / Tiling Snap -->
+    <keybind key="Super_L-Left">
+      <action name="SnapToEdge" direction="left" />
+    </keybind>
+    <keybind key="Super_L-Right">
+      <action name="SnapToEdge" direction="right" />
+    </keybind>
+    <keybind key="Super_L-Up">
+      <action name="ToggleMaximize" />
+    </keybind>
+    <keybind key="Super_L-Down">
+      <action name="Iconify" />
     </keybind>
 
-    <!-- Switch workspaces -->
+    <!-- Workspace switching -->
     <keybind key="Super_L-1">
-      <action name="GoToDesktop"><to>1</to></action>
+      <action name="GoToDesktop" to="1" />
     </keybind>
     <keybind key="Super_L-2">
-      <action name="GoToDesktop"><to>2</to></action>
+      <action name="GoToDesktop" to="2" />
     </keybind>
     <keybind key="Super_L-3">
-      <action name="GoToDesktop"><to>3</to></action>
+      <action name="GoToDesktop" to="3" />
     </keybind>
     <keybind key="Super_L-4">
-      <action name="GoToDesktop"><to>4</to></action>
+      <action name="GoToDesktop" to="4" />
     </keybind>
 
-    <!-- Move window to workspace -->
-    <keybind key="Super_L-Shift_L-1">
-      <action name="SendToDesktop"><to>1</to><follow>no</follow></action>
+    <!-- Send to workspace -->
+    <keybind key="Super_L-Shift-1">
+      <action name="SendToDesktop" to="1" />
     </keybind>
-    <keybind key="Super_L-Shift_L-2">
-      <action name="SendToDesktop"><to>2</to><follow>no</follow></action>
+    <keybind key="Super_L-Shift-2">
+      <action name="SendToDesktop" to="2" />
     </keybind>
-    <keybind key="Super_L-Shift_L-3">
-      <action name="SendToDesktop"><to>3</to><follow>no</follow></action>
+    <keybind key="Super_L-Shift-3">
+      <action name="SendToDesktop" to="3" />
     </keybind>
-    <keybind key="Super_L-Shift_L-4">
-      <action name="SendToDesktop"><to>4</to><follow>no</follow></action>
-    </keybind>
-
-    <!-- Cycle windows -->
-    <keybind key="Alt_L-Tab">
-      <action name="NextWindow" />
-    </keybind>
-
-    <!-- Snap window left half -->
-    <keybind key="Super_L-Left">
-      <action name="MoveToEdge"><direction>left</direction></action>
-      <action name="SnapToEdge"><direction>left</direction></action>
-    </keybind>
-
-    <!-- Snap window right half -->
-    <keybind key="Super_L-Right">
-      <action name="MoveToEdge"><direction>right</direction></action>
-      <action name="SnapToEdge"><direction>right</direction></action>
+    <keybind key="Super_L-Shift-4">
+      <action name="SendToDesktop" to="4" />
     </keybind>
 
     <!-- Screenshot -->
     <keybind key="Print">
       <action name="Execute">
-        <command>bash -c 'mkdir -p ~/Pictures &amp;&amp; grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png &amp;&amp; notify-send "Screenshot Captured" "Saved to ~/Pictures"'</command>
+        <command>sh -c "grim ~/Pictures/screenshot_$(date +%Y%m%d_%H%M%S).png &amp;&amp; notify-send 'Screenshot captured'"</command>
       </action>
     </keybind>
   </keyboard>
@@ -187,14 +205,14 @@
   <mouse>
     <default />
     <context name="Frame">
-      <mousebind button="Alt_L-Left" action="Press">
+      <mousebind button="Left" action="Press">
         <action name="Focus" />
         <action name="Raise" />
       </mousebind>
-      <mousebind button="Alt_L-Left" action="Drag">
+      <mousebind button="Left" action="Drag">
         <action name="Move" />
       </mousebind>
-      <mousebind button="Alt_L-Right" action="Drag">
+      <mousebind button="Right" action="Drag">
         <action name="Resize" />
       </mousebind>
     </context>
@@ -225,7 +243,7 @@
       <tap>yes</tap>
       <tapButtonMap>lrm</tapButtonMap>
       <pointerSpeed>0.0</pointerSpeed>
-      <accelProfile>flat</accelProfile>
+      <accelProfile>adaptive</accelProfile>
     </device>
   </libinput>
 

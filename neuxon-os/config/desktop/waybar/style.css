@@ -38,25 +38,14 @@ tooltip label {
     padding: 4px 8px;
 }
 
-/* Launcher Pill */
-#custom-launcher {
-    background-color: #141414;
-    border: 1px solid #2A2A2A;
-    border-radius: 6px;
-    color: #FFFFFF;
-    font-weight: 700;
-    padding: 2px 10px;
-    margin: 3px 2px;
-    letter-spacing: 0.5px;
-}
-
-#custom-launcher:hover {
-    background-color: #FFFFFF;
-    color: #050505;
-    border-color: #FFFFFF;
-}
-
-/* System HUD Button */
+/* Quick Launcher Buttons */
+#custom-launcher,
+#custom-term,
+#custom-browser,
+#custom-files,
+#custom-editor,
+#custom-btop,
+#custom-control,
 #custom-hud {
     background-color: #141414;
     border: 1px solid #2A2A2A;
@@ -64,11 +53,25 @@ tooltip label {
     color: #F5F5F5;
     padding: 2px 8px;
     margin: 3px 2px;
+    letter-spacing: 0.3px;
+    font-weight: 600;
 }
 
-#custom-hud:hover {
-    background-color: #2A2A2A;
+#custom-launcher {
     color: #FFFFFF;
+    font-weight: 700;
+}
+
+#custom-launcher:hover,
+#custom-term:hover,
+#custom-browser:hover,
+#custom-files:hover,
+#custom-editor:hover,
+#custom-btop:hover,
+#custom-control:hover,
+#custom-hud:hover {
+    background-color: #FFFFFF;
+    color: #050505;
     border-color: #FFFFFF;
 }
 
