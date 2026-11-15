@@ -2,30 +2,25 @@
 <labwc_config>
 
   <core>
+    <decoration>server</decoration>
     <gap>4</gap>
     <adaptiveSync>no</adaptiveSync>
     <reuseOutputMode>no</reuseOutputMode>
   </core>
 
   <theme>
-    <name>Neuxon-Monochrome</name>
+    <name>Clearlooks-3.4</name>
     <cornerRadius>0</cornerRadius>
-    <buttonOrder>CIM</buttonOrder>
+    <titlebar>
+      <layout>icon:iconify,max,close</layout>
+      <showTitle>yes</showTitle>
+    </titlebar>
     <font place="ActiveWindow"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>bold</weight></font>
     <font place="InactiveWindow"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>normal</weight></font>
     <font place="MenuHeader"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>bold</weight></font>
     <font place="MenuItem"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>normal</weight></font>
     <font place="OnScreenDisplay"><name>JetBrains Mono</name><size>11</size><slant>normal</slant><weight>bold</weight></font>
   </theme>
-
-  <decoration>
-    <titlebar>
-      <height>24</height>
-    </titlebar>
-    <border>
-      <width>1</width>
-    </border>
-  </decoration>
 
   <windowRules>
     <windowRule identifier="*" serverDecoration="yes" skipTaskbar="no" />
@@ -244,9 +239,7 @@
     </context>
     <context name="Root">
       <mousebind button="Right" action="Press">
-        <action name="ShowMenu">
-          <menu>root-menu</menu>
-        </action>
+        <action name="ShowMenu" menu="root-menu" />
       </mousebind>
     </context>
   </mouse>

@@ -16,7 +16,7 @@ APP="${1:-}"
 shift || true
 
 case "${APP}" in
-    browser|web)
+    browser|web|chromium|chromium-browser|google-chrome)
         if [ -x /usr/local/bin/neuxon-browser ]; then
             exec /usr/local/bin/neuxon-browser "$@"
         elif command -v chromium-browser >/dev/null 2>&1; then
@@ -31,7 +31,7 @@ case "${APP}" in
         fi
         ;;
 
-    terminal|term)
+    terminal|term|foot)
         if command -v foot >/dev/null 2>&1; then
             exec foot "$@"
         elif command -v alacritty >/dev/null 2>&1; then
@@ -57,7 +57,7 @@ case "${APP}" in
         fi
         ;;
 
-    files|filemanager)
+    files|filemanager|yazi)
         if command -v yazi >/dev/null 2>&1; then
             exec foot --app-id=neuxon-files --window-size-chars=104x32 -e yazi "$@"
         elif command -v pcmanfm >/dev/null 2>&1; then
@@ -83,7 +83,7 @@ case "${APP}" in
         fi
         ;;
 
-    editor|edit)
+    editor|edit|micro|hx)
         if command -v micro >/dev/null 2>&1; then
             exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e micro "$@"
         elif command -v hx >/dev/null 2>&1; then
@@ -95,6 +95,15 @@ case "${APP}" in
         else
             log_heal "micro/hx missing, falling back to vi"
             exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e vi "$@"
+        fi
+        ;;
+
+    control|neuxon-control)
+        if [ -x /usr/local/bin/neuxon-control ]; then
+            exec foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control "$@"
+        else
+            log_heal "neuxon-control binary missing, launching power menu"
+            exec foot --app-id=neuxon-control -e /usr/local/bin/neuxon-launch power
         fi
         ;;
 
