@@ -8,6 +8,11 @@
 [![Supervisor: NeuxonGuard OODA](https://img.shields.io/badge/Self--Healing-NeuxonGuard%20OODA%20(PID%201)-success.svg)](#autonomous-ooda-self-healing-engine-neuxonguard)
 [![Latest Release](https://img.shields.io/badge/Release-Neuxon--OS--rpi3bplus--arm64.img.xz-brightgreen.svg)](https://github.com/myrxmayronstudios/nexus-os/releases/tag/latest)
 
+> [!IMPORTANT]
+> ### 📥 **[CLICK HERE TO DOWNLOAD FLASHABLE OS IMAGE (`Neuxon-OS-rpi3bplus-arm64.img.xz`)](https://github.com/myrxmayronstudios/nexus-os/releases/download/latest/Neuxon-OS-rpi3bplus-arm64.img.xz)** (617 MB)
+> **This is the exact pre-built, flashable operating system file for Raspberry Pi 3 Model B+.**  
+> Simply flash this file directly to your microSD card using [Raspberry Pi Imager](https://www.raspberrypi.com/software/) or BalenaEtcher. Direct release page: [Releases (`latest`)](https://github.com/myrxmayronstudios/nexus-os/releases/tag/latest).
+
 ```
       ███╗   ██╗███████╗██╗   ██╗██╗  ██╗ ██████╗ ███╗   ██╗
       ████╗  ██║██╔════╝██║   ██║╚██╗██╔╝██╔═══██╗████╗  ██║
