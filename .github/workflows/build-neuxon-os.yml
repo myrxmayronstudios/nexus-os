@@ -18,9 +18,9 @@ on:
 
 jobs:
   build:
-    name: Build Neuxon OS
+    name: Build Neuxon OS Image
     permissions:
-      contents: write Image
+      contents: write
     runs-on: ubuntu-24.04
     timeout-minutes: 360
 
