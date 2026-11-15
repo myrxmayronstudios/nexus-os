@@ -74,11 +74,14 @@ if [ -d "${CONFIG_DIR}/branding/wallpapers" ]; then
 fi
 
 # Ensure default wallpaper exists
-if [ -f /usr/share/backgrounds/neuxon/neuxon-geometric-01.png ]; then
+if [ -f /usr/share/backgrounds/neuxon/default.png ]; then
+    chmod 644 /usr/share/backgrounds/neuxon/default.png
+elif [ -f /usr/share/backgrounds/neuxon/neuxon-windows-hero.png ]; then
+    ln -sfn /usr/share/backgrounds/neuxon/neuxon-windows-hero.png /usr/share/backgrounds/neuxon/default.png
+elif [ -f /usr/share/backgrounds/neuxon/neuxon-geometric-01.png ]; then
     ln -sfn /usr/share/backgrounds/neuxon/neuxon-geometric-01.png /usr/share/backgrounds/neuxon/default.png
-elif [ -f /usr/share/backgrounds/neuxon/neuxon-geometric-01.svg ]; then
-    ln -sfn /usr/share/backgrounds/neuxon/neuxon-geometric-01.svg /usr/share/backgrounds/neuxon/default.svg
 fi
+chmod 644 /usr/share/backgrounds/neuxon/* 2>/dev/null || true
 
 echo "[STAGE-04] Wallpapers configured in /usr/share/backgrounds/neuxon/"
 

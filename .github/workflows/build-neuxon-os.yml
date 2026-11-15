@@ -18,7 +18,9 @@ on:
 
 jobs:
   build:
-    name: Build Neuxon OS Image
+    name: Build Neuxon OS
+    permissions:
+      contents: write Image
     runs-on: ubuntu-24.04
     timeout-minutes: 360
 
@@ -159,3 +161,27 @@ jobs:
               break
             fi
           done
+
+      # ------------------------------------------------------------------
+      # 11. Publish GitHub Release with direct .img.xz asset
+      # ------------------------------------------------------------------
+      - name: Publish GitHub Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Neuxon OS — Latest Raspberry Pi 3B+ Release"
+          body: |
+            ## Neuxon OS for Raspberry Pi 3 Model B+ (ARM64)
+            - **Windows Hero Stealth Monochrome Wallpaper**
+            - **Zero Mouse Lag:** VideoCore IV KMS 60Hz hardware overlay cursor
+            - **Persistent btop Gadget:** Always-running desktop resource monitor
+            - **Auto-expand Rootfs:** Automatically resizes to 100% of SD card
+            - **Flashable image:** Direct `.img.xz` file for Raspberry Pi Imager
+          files: |
+            output/Neuxon-OS-rpi3bplus-arm64.img.xz
+            neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.img.xz
+            output/checksums.txt
+            neuxon-os/output/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

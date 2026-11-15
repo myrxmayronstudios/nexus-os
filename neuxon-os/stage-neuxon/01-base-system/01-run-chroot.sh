@@ -224,6 +224,17 @@ systemctl enable neuxon-zram.service 2>/dev/null || true
 if [ -f /tmp/neuxon-config/system/neuxon-performance.service ]; then
     cp /tmp/neuxon-config/system/neuxon-performance.service /etc/systemd/system/neuxon-performance.service
     systemctl enable neuxon-performance.service 2>/dev/null || true
+
+# Install and enable first-boot root partition expansion
+if [ -f /tmp/neuxon-config/system/neuxon-expand-root.sh ]; then
+    cp /tmp/neuxon-config/system/neuxon-expand-root.sh /usr/local/sbin/neuxon-expand-root.sh
+    chmod 755 /usr/local/sbin/neuxon-expand-root.sh
+fi
+if [ -f /tmp/neuxon-config/system/neuxon-expand-root.service ]; then
+    cp /tmp/neuxon-config/system/neuxon-expand-root.service /etc/systemd/system/neuxon-expand-root.service
+    systemctl enable neuxon-expand-root.service 2>/dev/null || true
+    echo "[STAGE-01] Enabled neuxon-expand-root.service"
+fi
     echo "[STAGE-01] Enabled neuxon-performance.service"
 fi
 

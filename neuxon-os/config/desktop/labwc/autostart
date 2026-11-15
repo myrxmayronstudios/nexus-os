@@ -16,11 +16,13 @@ fi
 export XCURSOR_THEME="Adwaita"
 export XCURSOR_SIZE=24
 
-# --- Set desktop wallpaper (Default: Neuxon Geometric 01) ---
-if [ -f /usr/share/backgrounds/neuxon/neuxon-geometric-01.png ]; then
-    swaybg -i /usr/share/backgrounds/neuxon/neuxon-geometric-01.png -m fill &
-elif [ -f /usr/share/backgrounds/neuxon/default.png ]; then
+# --- Set desktop wallpaper (Default: Windows Hero Stealth Monochrome) ---
+if [ -f /usr/share/backgrounds/neuxon/default.png ]; then
     swaybg -i /usr/share/backgrounds/neuxon/default.png -m fill &
+elif [ -f /usr/share/backgrounds/neuxon/neuxon-windows-hero.png ]; then
+    swaybg -i /usr/share/backgrounds/neuxon/neuxon-windows-hero.png -m fill &
+elif [ -f /usr/share/backgrounds/neuxon/neuxon-geometric-01.png ]; then
+    swaybg -i /usr/share/backgrounds/neuxon/neuxon-geometric-01.png -m fill &
 else
     swaybg -c '#050505' &
 fi

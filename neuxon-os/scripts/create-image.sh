@@ -162,7 +162,8 @@ umount "${MNT_ROOT}"
 # Run filesystem check and shrink to minimal size
 log_info "Optimizing ext4 filesystem with e2fsck and resize2fs..."
 e2fsck -f -y "${PART_ROOT}" || true
-resize2fs -M "${PART_ROOT}" || true
+# Keep filesystem aligned with partition boundaries (do not shrink with -M)
+# resize2fs -M "${PART_ROOT}" || true
 
 # ---------------------------------------------------------------------------
 # 9. Detach loopback

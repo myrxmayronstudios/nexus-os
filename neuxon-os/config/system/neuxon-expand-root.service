@@ -1,0 +1,12 @@
+[Unit]
+Description=Neuxon OS Expand Root Filesystem on First Boot
+After=local-fs.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/neuxon-expand-root.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
