@@ -13,6 +13,7 @@ pub mod abi;
 pub mod apps;
 pub mod arch;
 pub mod drivers;
+pub mod guard;
 pub mod gui;
 pub mod hal;
 pub mod ipc;
@@ -44,7 +45,7 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
     serial_println!("║      ██║╚██╗██║██╔══╝  ██║   ██║ ██╔██╗ ██║   ██║██║╚██╗██║      ║");
     serial_println!("║      ██║ ╚████║███████╗╚██████╔╝██╔╝ ██╗╚██████╔╝██║ ╚████║      ║");
     serial_println!("║      ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝      ║");
-    serial_println!("║   NEUXON OS 2.0: ZERO-LATENCY EXOKERNEL & 1-BIT macOS-STYLE UI   ║");
+    serial_println!("║   NEUXON OS v3.5: 16-BIT Hi-Res & AUTONOMOUS SELF-HEALING EXOKERNEL  ║");
     serial_println!("╚══════════════════════════════════════════════════════════════════╝");
     serial_println!("[NEUXON-KERNEL] Bootloader handoff validated. Long mode active (x86_64).");
 
@@ -178,16 +179,24 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
     }
 
     // ------------------------------------------------------------------------
-    // 10. Enable Hardware Interrupts & Enter Compositor Loop
+    // 10. NeuxonGuard Pre-Boot Diagnostic & Golden Shadow Verification
+    // ------------------------------------------------------------------------
+    guard::NeuxonBootGuard::verify_stage0_stage1().expect("Stage-0/1 Boot verification failed");
+
+    // ------------------------------------------------------------------------
+    // 11. Enable Hardware Interrupts & Enter Compositor Loop
     // ------------------------------------------------------------------------
     serial_println!("[NEUXON-KERNEL] Enabling CPU interrupts and launching NeuxonWM Compositor loop...");
     arch::x86_64::enable_interrupts();
 
     serial_println!("╔══════════════════════════════════════════════════════════════════╗");
-    serial_println!("║ NEUXON OS 2.0 RUNNING: macOS DOCK & TOP BAR ACTIVE               ║");
+    serial_println!("║ NEUXON OS v3.5 RUNNING: 16-BIT macOS DOCK & NeuxonGuard ACTIVE   ║");
     serial_println!("╚══════════════════════════════════════════════════════════════════╝");
 
     loop {
+        // 0. PID 1 NeuxonDoctor OODA supervise tick
+        guard::NeuxonDoctor::ooda_supervise_tick();
+
         // 1. Process asynchronous syscall ring submissions
         unsafe {
             ipc::ring_buffer::get_global_ring().dispatch_pending();

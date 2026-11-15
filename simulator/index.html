@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neuxon OS v3.5 — 16-Bit Hi-Res & Autonomous Self-Healing Edition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  body {
+    background-color: #030305;
+    color: #A8B2C1;
+    font-family: 'Courier New', Courier, monospace, monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 12px;
+    overflow: hidden;
+  }
+  #header-info {
+    margin-bottom: 8px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: #A8B2C1;
+    text-align: center;
+    font-weight: 600;
+  }
+  #header-info .brand { color: #FFFFFF; text-shadow: 0 0 10px rgba(255,255,255,0.4); }
+  #header-info .stat { color: #A8B2C1; background: #0E1015; padding: 2px 8px; border: 1px solid #4A5262; border-radius: 4px; margin: 0 4px; }
+  #canvas-container {
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(168, 178, 193, 0.15);
+    border: 2px solid #4A5262;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: default;
+    background: #050508;
+  }
+  canvas {
+    display: block;
+    image-rendering: auto;
+  }
+  #instructions {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #717B8C;
+    text-align: center;
+    max-width: 1280px;
+    line-height: 1.6;
+  }
+  .key {
+    border: 1px solid #4A5262;
+    padding: 1px 6px;
+    color: #FFFFFF;
+    border-radius: 3px;
+    background: #1E222B;
+    font-weight: bold;
+  }
+  .highlight { color: #FFFFFF; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div id="header-info">
+  <span class="brand">NEUXON OS v3.5</span> | <span class="stat">16-BIT OBSIDIAN & SILVER HiDPI</span> | <span class="stat">NEUXONGUARD OODA SELF-HEALING: 100% OK</span> | <span class="stat">LOCK-FREE IPC RING (0.0002ms)</span>
+</div>
+
+<div id="canvas-container">
+  <canvas id="screen" width="1280" height="800"></canvas>
+</div>
+
+<div id="instructions">
+  <span>CONTROLS:</span> Click <span class="key">Kernel -> [ 🛠️ Verify & Repair All Systems ]</span> or type <span class="key">heal</span> in NeuxonTerm | Hover Dock for <span class="highlight">Gaussian Magnification</span> | Drag windows with <span class="highlight">120fps Spring Physics & Screen Clamping</span> | Top-left buttons: <span class="key">[ ✕ ] Close</span> <span class="key">[ − ] Dock</span> <span class="key">[ + ] Maximize</span> | Toggle CRT Bloom: <span class="key">Shader -> CRT Bloom</span> or <span class="key">Ctrl+B</span> | Click anywhere to unlock procedural WebAudio switch clicks.
+</div>
+
+<script>
+// ============================================================================
+// NEUXON OS v3.5 — 16-BIT OBSIDIAN & SILVER ARCHITECTURE & COMPOSITOR
+// ============================================================================
+
+const canvas = document.getElementById('screen');
+const ctx = canvas.getContext('2d');
+
+// High-DPI Resolution scaling
+const LOGICAL_W = 1280;
+const LOGICAL_H = 800;
+const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+canvas.width = LOGICAL_W * DPR;
+canvas.height = LOGICAL_H * DPR;
+canvas.style.width = LOGICAL_W + 'px';
+canvas.style.height = LOGICAL_H + 'px';
+ctx.scale(DPR, DPR);
+
+const W = LOGICAL_W;
+const H = LOGICAL_H;
+const TOPBAR_H = 26;
+const DOCK_H = 54;
+const DOCK_BASE_ITEM_W = 52;
+
+// 16-Bit Grayscale Luminance Palette
+const C_VOID     = '#050508'; // Deep Obsidian Void
+const C_CARBON   = '#0E1015'; // Carbon Panel
+const C_GUNMETAL = '#1E222B'; // Brushed Gunmetal
+const C_STEEL    = '#4A5262'; // Machined Steel
+const C_SILVER   = '#A8B2C1'; // Phosphor Silver
+const C_WHITE    = '#FFFFFF'; // Specular Pure White
+const C_ACCENT   = '#78889E'; // Subtle Metallic Accent
+
+// Bayer 8x8 Dithering Matrix
+const BAYER_8X8 = [
+  [  0, 32,  8, 40,  2, 34, 10, 42 ],
+  [ 48, 16, 56, 24, 50, 18, 58, 26 ],
+  [ 12, 44,  4, 36, 14, 46,  6, 38 ],
+  [ 60, 28, 52, 20, 62, 30, 54, 22 ],
+  [  3, 35, 11, 43,  1, 33,  9, 41 ],
+  [ 51, 19, 59, 27, 49, 17, 57, 25 ],
+  [ 15, 47,  7, 39, 13, 45,  5, 37 ],
+  [ 63, 31, 55, 23, 61, 29, 53, 21 ]
+];
+
+function bayerDither(x, y, lum) {
+  const threshold = (BAYER_8X8[Math.floor(y) % 8][Math.floor(x) % 8] / 64) * 255;
+  return lum > threshold;
+}
+
+// ============================================================================
+// PROCEDURAL AUDIO SYNTHESIZER (ZERO-FAULT WEB-AUDIO CONTEXT)
+// ============================================================================
+class NeuxonAudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+  }
+
+  ensureContext() {
+    if (!this.ctx) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          this.ctx = new AudioContext();
+        }
+      } catch (e) {
+        // Safe auto-catch: audio policy failover
+      }
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+  }
+
+  playKeyClick() {
+    if (!this.enabled) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.018);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.018);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.018);
+    } catch(e) {}
+  }
+
+  playHoverTick() {
+    if (!this.enabled) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(680, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.015);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.015);
+    } catch(e) {}
+  }
+
+  playSnapChime() {
+    if (!this.enabled) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+    try {
+      const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.04);
+        gain.gain.setValueAtTime(0.03, this.ctx.currentTime + idx * 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.04 + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + idx * 0.04);
+        osc.stop(this.ctx.currentTime + idx * 0.04 + 0.08);
+      });
+    } catch(e) {}
+  }
+
+  playHealFanfare() {
+    if (!this.enabled) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+    try {
+      const notes = [440, 554.37, 659.25, 880];
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.06);
+        gain.gain.setValueAtTime(0.05, this.ctx.currentTime + idx * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.06 + 0.14);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + idx * 0.06);
+        osc.stop(this.ctx.currentTime + idx * 0.06 + 0.14);
+      });
+    } catch(e) {}
+  }
+}
+
+const audio = new NeuxonAudioEngine();
+
+// ============================================================================
+// IMMUTABLE GOLDEN SHADOW VFS & NEUXONGUARD OODA CONTROLLER
+// ============================================================================
+const GOLDEN_VFS_SNAPSHOT = {
+  "/sys/version": "NeuxonOS 3.5.0-exokernel (16-Bit Obsidian & Silver Edition)",
+  "/sys/kernel_cmdline": "guard=active hidpi=2x 16bit=true dock=macos sched=o1 ring=lockfree",
+  "/sys/notes.txt": "=== NEUXON OS 3.5 PERSISTENT WORKSPACE ===\n- Architecture: 16-Bit Obsidian & Silver Exokernel\n- NeuxonGuard: Autonomous OODA Supervisor (PID 1 NeuxonDoctor)\n- Display Server: 120fps NeuxonWM with Spring Physics & Clamping\n- Syscall Engine: Lock-Free Dual-Ring Buffer (0.0002ms Latency)",
+  "/sys/heal.log": "[BOOT] NeuxonGuard OODA supervisor online.\n[OK] All VFS inodes verified against golden shadow snapshot.\n[OK] Lock-Free Ring SQ/CQ pointers aligned.\n[OK] HiDPI 16-bit framebuffer ready.",
+  "/bin/sh": "#!/bin/sh\n# Neuxon Shell v3.5",
+  "/bin/heal": "#!/bin/heal\n# NeuxonGuard Full Diagnostic",
+  "/bin/fsck": "#!/bin/fsck\n# VFS Consistency Checker",
+  "/bin/ringstat": "#!/bin/ringstat\n# Lock-Free Ring Inspector",
+  "/etc/fstab": "vfs0 / sysfs rw 0 0\nramfs0 /home ramfs rw 0 0",
+  "/home/user/welcome.txt": "Welcome to Neuxon OS 3.5!\nPress Super/Win key to open the System Menu.\nType 'heal' in NeuxonTerm to test autonomous self-healing.",
+  "/trash/readme_old.txt": "Old legacy note file (recovered)."
+};
+
+class NeuxonGuardEngine {
+  constructor() {
+    this.vfs = {};
+    this.healLogs = [];
+    this.healthScore = 100;
+    this.totalRepairs = 0;
+    this.activeRepairScan = null;
+    this.initVFS();
+  }
+
+  initVFS() {
+    try {
+      const saved = localStorage.getItem('neuxon_vfs_v35');
+      if (saved) {
+        this.vfs = JSON.parse(saved);
+      } else {
+        this.reconstructFromGolden();
+      }
+    } catch (e) {
+      this.reconstructFromGolden();
+    }
+    this.verifyVFSIntegrity();
+  }
+
+  reconstructFromGolden() {
+    this.vfs = JSON.parse(JSON.stringify(GOLDEN_VFS_SNAPSHOT));
+    this.saveVFS();
+    this.logRepair("VFS reconstructed from immutable golden shadow snapshot");
+  }
+
+  saveVFS() {
+    try {
+      localStorage.setItem('neuxon_vfs_v35', JSON.stringify(this.vfs));
+    } catch(e) {}
+  }
+
+  verifyVFSIntegrity() {
+    let repaired = 0;
+    for (const key of Object.keys(GOLDEN_VFS_SNAPSHOT)) {
+      if (!this.vfs[key]) {
+        this.vfs[key] = GOLDEN_VFS_SNAPSHOT[key];
+        repaired++;
+      }
+    }
+    if (repaired > 0) {
+      this.saveVFS();
+      this.logRepair(`Restored ${repaired} missing VFS inode(s)`);
+    }
+  }
+
+  logRepair(message) {
+    const timestamp = new Date().toISOString().split('T')[1].slice(0, 8);
+    const entry = `[${timestamp}] [OK: AUTO-REPAIRED] ${message}`;
+    this.healLogs.push(entry);
+    this.totalRepairs++;
+    if (this.vfs["/sys/heal.log"]) {
+      this.vfs["/sys/heal.log"] += "\n" + entry;
+      this.saveVFS();
+    }
+  }
+
+  // NeuxonDoctor Runtime Watchdog Loop (Run every frame)
+  superviseWindows(windowsList) {
+    for (const win of windowsList) {
+      // 1. Boundary Clamping: Window can never get lost off-screen
+      if (isNaN(win.x) || isNaN(win.y) || isNaN(win.w) || isNaN(win.h)) {
+        win.x = 80; win.y = 80; win.w = 560; win.h = 360;
+        this.logRepair(`Fixed NaN coordinates for window PID ${win.id} (${win.title})`);
+      }
+      const minX = -win.w + 60;
+      const maxX = W - 60;
+      const minY = TOPBAR_H + 2;
+      const maxY = H - DOCK_H - 30;
+
+      if (win.x < minX) win.x = minX;
+      if (win.x > maxX) win.x = maxX;
+      if (win.y < minY) win.y = minY;
+      if (win.y > maxY) win.y = maxY;
+
+      if (win.w < 260) win.w = 260;
+      if (win.h < 180) win.h = 180;
+    }
+  }
+
+  // Live System Diagnostic & Repair Sweep (Interactive)
+  triggerFullSystemRepair(callback) {
+    this.activeRepairScan = {
+      step: 0,
+      steps: [
+        "Scanning Memory Page Tables & Slab Bins (0x0 - 0x7FFFFFFF)...",
+        "Inspecting Lock-Free IPC Ring Submission & Completion Queues...",
+        "Auditing VFS Inode Table & Reconciling Golden Shadow State...",
+        "Recalibrating HiDPI 16-Bit Display Buffers & Bayer Matrices...",
+        "Validating PID 1..8 Fault Boundaries & Checkpoint Snapshots...",
+        "Zeroing Drifted Window Vectors & Re-anchoring Desktop Widgets..."
+      ],
+      progress: 0,
+      totalSteps: 6,
+      timer: 0,
+      callback: callback
+    };
+  }
+
+  updateRepairScan() {
+    if (!this.activeRepairScan) return;
+    this.activeRepairScan.timer++;
+    if (this.activeRepairScan.timer % 12 === 0) {
+      this.activeRepairScan.step++;
+      this.activeRepairScan.progress = Math.min(100, Math.floor((this.activeRepairScan.step / this.activeRepairScan.totalSteps) * 100));
+      audio.playKeyClick();
+      if (this.activeRepairScan.step >= this.activeRepairScan.totalSteps) {
+        this.verifyVFSIntegrity();
+        this.logRepair("Interactive Full System Verification: 0 Faults Found / Repaired.");
+        audio.playHealFanfare();
+        if (this.activeRepairScan.callback) this.activeRepairScan.callback();
+        this.activeRepairScan = null;
+      }
+    }
+  }
+}
+
+const guard = new NeuxonGuardEngine();
+
+// ============================================================================
+// GRAPHICAL ENGINE & 16-BIT SHADED DRAWING UTILITIES
+// ============================================================================
+const FONT_W = 8;
+const FONT_H = 15;
+
+function drawText(text, x, y, fg = C_WHITE, bg = null, isBold = false) {
+  ctx.save();
+  if (bg !== null) {
+    ctx.fillStyle = bg;
+    ctx.fillRect(Math.floor(x), Math.floor(y), text.length * FONT_W, FONT_H);
+  }
+  ctx.fillStyle = fg;
+  ctx.font = `${isBold ? 'bold' : 'normal'} 12px 'Courier New', Courier, monospace`;
+  ctx.textBaseline = 'top';
+  ctx.fillText(text, Math.floor(x), Math.floor(y));
+  ctx.restore();
+}
+
+// 16-Bit Beveled Metallic Box
+function drawBevelBox(x, y, w, h, isRaised = true, title = null, subtitle = null) {
+  ctx.save();
+  x = Math.floor(x); y = Math.floor(y); w = Math.floor(w); h = Math.floor(h);
+
+  // Background Gradient
+  const grad = ctx.createLinearGradient(x, y, x, y + h);
+  if (isRaised) {
+    grad.addColorStop(0, C_GUNMETAL);
+    grad.addColorStop(1, C_CARBON);
+  } else {
+    grad.addColorStop(0, C_CARBON);
+    grad.addColorStop(1, C_GUNMETAL);
+  }
+  ctx.fillStyle = grad;
+  ctx.fillRect(x, y, w, h);
+
+  // Outer Bevel Highlight / Shadow
+  ctx.strokeStyle = isRaised ? C_STEEL : C_VOID;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+
+  // Inner Highlight Line
+  ctx.strokeStyle = isRaised ? C_SILVER : C_STEEL;
+  ctx.beginPath();
+  if (isRaised) {
+    ctx.moveTo(x + 1, y + h - 2);
+    ctx.lineTo(x + 1, y + 1);
+    ctx.lineTo(x + w - 2, y + 1);
+  } else {
+    ctx.moveTo(x + 1, y + h - 2);
+    ctx.lineTo(x + w - 2, y + h - 2);
+    ctx.lineTo(x + w - 2, y + 1);
+  }
+  ctx.stroke();
+
+  // Header Bar with Box Characters
+  if (title) {
+    drawText(`╡ ${title} ╞`, x + 12, y - 6, C_WHITE, C_CARBON, true);
+  }
+  if (subtitle) {
+    drawText(`[ ${subtitle} ]`, x + w - (subtitle.length + 4) * FONT_W - 8, y - 6, C_SILVER, C_CARBON);
+  }
+  ctx.restore();
+}
+
+function drawFrostedRect(x, y, w, h, radius = 6) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(14, 16, 21, 0.88)';
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, radius);
+  ctx.fill();
+
+  // 16-Bit Metallic double border
+  ctx.strokeStyle = C_STEEL;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, radius);
+  ctx.stroke();
+
+  ctx.strokeStyle = C_SILVER;
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.roundRect(x + 2, y + 2, w - 4, h - 4, Math.max(1, radius - 2));
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ============================================================================
+// SYSTEM STATE & APPS SPECIFICATION (7 APPS & 4 LIVE WIDGETS)
+// ============================================================================
+let ticks = 0;
+let mouse = { x: 640, y: 400, left: false, prevLeft: false, downX: 0, downY: 0 };
+let appleMenuOpen = false;
+let activeDropdown = null; // 'apple', 'file', 'edit', 'view', 'kernel', 'window', 'shader'
+let draggingWindow = null;
+let resizingWindow = null;
+let dragOffset = { x: 0, y: 0 };
+let hoveredDockIndex = null;
+let crtBloomEnabled = false;
+let shaderMode = 1; // 0 = 1-Bit Dither, 1 = 16-Bit Silver (Default), 2 = Raw Color
+let bootSequence = {
+  active: true,
+  progress: 0,
+  timer: 0,
+  stage: 0,
+  logs: [
+    "[NeuxonBoot-0] Stage-0 hardware handoff validated (x86_64 SMP)...",
+    "[NeuxonBoot-0] Memory Page Tables: Buddy Allocator 16GB [ OK: 100% VERIFIED ]",
+    "[NeuxonBoot-1] NeuxonRing IPC: Lock-free SQ/CQ Ring Buffers [ OK: 0-COPY SYNC ]",
+    "[NeuxonBoot-1] VFS Inode Integrity: Checking /sys, /bin, /etc, /home [ OK: AUTO-REPAIRED ]",
+    "[NeuxonBoot-1] HiDPI Framebuffer: 16-Bit Obsidian & Silver Engine [ OK: 120 FPS ]",
+    "[NeuxonBoot-1] NeuxonDoctor PID 1: Fault-boundary watchdog initialized.",
+    "[NeuxonBoot-1] WebAudio Procedural Synthesizer: Initialized.",
+    "[BOOT INTEGRITY: 100% VERIFIED] Magnetically assembling desktop..."
+  ]
+};
+
+// 7 Working Apps in macOS Dock
+const dockApps = [
+  { id: "browser",    name: "MonoChrome",  title: "Neuxon Chromium [Ozone Host]", glyph: "🌐", shortcut: "⌘1", pid: 4 },
+  { id: "terminal",   name: "NeuxonTerm",  title: "NeuxonTerm [Exokernel Shell]", glyph: ">_", shortcut: "⌘2", pid: 2 },
+  { id: "ring",       name: "NeuxonRing",  title: "NeuxonRing [3D IPC Visualizer]",glyph: "⚡", shortcut: "⌘3", pid: 3 },
+  { id: "files",      name: "NeuxonFiles", title: "NeuxonFiles [Dual-Pane VFS]",   glyph: "📁", shortcut: "⌘4", pid: 5 },
+  { id: "taskmatrix", name: "TaskMatrix",  title: "TaskMatrix [Process & Memory]",glyph: "📊", shortcut: "⌘5", pid: 6 },
+  { id: "notes",      name: "SysNotes",    title: "SysNotes [VFS Markdown Editor]",glyph: "📝", shortcut: "⌘6", pid: 7 },
+  { id: "trash",      name: "Trash",       title: "System Trash [VFS Recycler]",  glyph: "🗑", shortcut: "⌘7", pid: 0 },
+];
+
+// Active Windows List
+const windows = [
+  {
+    id: 1,
+    appType: "terminal",
+    title: "NeuxonTerm [Exokernel Shell]",
+    x: 48, y: 52, w: 580, h: 360,
+    targetX: 48, targetY: 52, targetW: 580, targetH: 360,
+    minimized: false, maximized: false, focused: false,
+    history: [
+      "╔══════════════════════════════════════════════════════════════╗",
+      "║ NeuxonTerm v3.5.0 — 16-Bit Obsidian & Silver Exokernel       ║",
+      "║ NeuxonGuard Autonomous Self-Healing Active (PID 1 Watchdog)  ║",
+      "║ Type 'help' for commands, or 'heal' to trigger full repair.  ║",
+      "╚══════════════════════════════════════════════════════════════╝",
+      "root@neuxon:~# neofetch",
+      "      ███╗   ██╗███████╗██╗   ██╗██╗  ██╗ ██████╗ ███╗   ██╗",
+      "      ████╗  ██║██╔════╝██║   ██║╚██╗██╔╝██╔═══██╗████╗  ██║",
+      "      ██╔██╗ ██║█████╗  ██║   ██║ ╚███╔╝ ██║   ██║██╔██╗ ██║",
+      "      ██║╚██╗██║██╔══╝  ██║   ██║ ██╔██╗ ██║   ██║██║╚██╗██║",
+      "      ██║ ╚████║███████╗╚██████╔╝██╔╝ ██╗╚██████╔╝██║ ╚████║",
+      "      ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝",
+      "  ─────────────────────────────────────────────────────────────",
+      "  OS:        Neuxon OS v3.5 (x86_64 SMP Exokernel)",
+      "  Kernel:    NeuxonCore #![forbid(unsafe_op_in_unsafe_fn)]",
+      "  Supervisor:NeuxonGuard OODA Fault Recovery [HEALTH: 100%]",
+      "  Compositor:NeuxonWM 16-Bit HiDPI (120fps Spring Physics)",
+      "  IPC Ring:  Lock-Free Dual-Ring (0.0002ms Latency)",
+      "  Uptime:    42m (100Hz PIT Timer) | Palette: 16-Bit Obsidian",
+      "root@neuxon:~# "
+    ],
+    input: ""
+  },
+  {
+    id: 2,
+    appType: "browser",
+    title: "Neuxon Chromium [Ozone Host]",
+    x: 480, y: 78, w: 660, h: 440,
+    targetX: 480, targetY: 78, targetW: 660, targetH: 440,
+    minimized: false, maximized: false, focused: true,
+    activeTab: 0,
+    tabs: [
+      { title: "Exokernel RFC-9942", url: "https://neuxon.org/exokernel-spec" },
+      { title: "Hacker News Feed",   url: "https://news.ycombinator.com/neuxon" },
+      { title: "NeuxonGuard Docs",   url: "https://crates.io/crates/neuxon-guard" }
+    ],
+    urlInput: "https://neuxon.org/exokernel-spec"
+  },
+  {
+    id: 3,
+    appType: "ring",
+    title: "NeuxonRing [3D IPC & Self-Healing Visualizer]",
+    x: 120, y: 220, w: 540, h: 360,
+    targetX: 120, targetY: 220, targetW: 540, targetH: 360,
+    minimized: false, maximized: false, focused: false,
+    ringSpeed: 1.0,
+    faultInjected: false,
+    opsSec: 32400
+  }
+];
+
+// 4 Live Desktop Widgets (Draggable & Grid-Snapping)
+const widgets = [
+  {
+    id: "telemetry",
+    title: "NEUXON IPC & TELEMETRY",
+    x: 24, y: TOPBAR_H + 12, w: 320, h: 165,
+    dragging: false, dragOffset: { x: 0, y: 0 }
+  },
+  {
+    id: "chrono",
+    title: "CHRONO & CALENDAR MATRIX",
+    x: W - 320 - 24, y: TOPBAR_H + 12, w: 320, h: 185,
+    dragging: false, dragOffset: { x: 0, y: 0 },
+    monthOffset: 0
+  },
+  {
+    id: "sticky",
+    title: "VFS STICKY [/sys/notes.txt]",
+    x: 24, y: H - DOCK_H - 185, w: 340, h: 160,
+    dragging: false, dragOffset: { x: 0, y: 0 }
+  },
+  {
+    id: "net",
+    title: "PACKET & SOCKET MATRIX",
+    x: W - 340 - 24, y: H - DOCK_H - 185, w: 340, h: 160,
+    dragging: false, dragOffset: { x: 0, y: 0 },
+    paused: false, filter: "ALL"
+  }
+];
+
+function focusWindow(w) {
+  windows.forEach(win => win.focused = false);
+  w.focused = true;
+  w.minimized = false;
+  const idx = windows.indexOf(w);
+  if (idx !== -1) {
+    windows.splice(idx, 1);
+    windows.push(w);
+  }
+  audio.playHoverTick();
+}
+
+function launchApp(appId) {
+  let win = windows.find(w => w.appType === appId);
+  if (win) {
+    if (win.minimized) win.minimized = false;
+    focusWindow(win);
+    return;
+  }
+  const meta = dockApps.find(a => a.id === appId);
+  const newId = windows.length + 1;
+  const newWin = {
+    id: newId,
+    appType: appId,
+    title: meta ? meta.title : "Application",
+    x: 100 + (windows.length % 5) * 30,
+    y: 80 + (windows.length % 5) * 30,
+    w: 580, h: 360,
+    targetX: 100 + (windows.length % 5) * 30,
+    targetY: 80 + (windows.length % 5) * 30,
+    targetW: 580, targetH: 360,
+    minimized: false, maximized: false, focused: true
+  };
+
+  if (appId === "files") {
+    newWin.currentDir = "/sys";
+    newWin.selectedFile = "/sys/notes.txt";
+  } else if (appId === "taskmatrix") {
+    newWin.selectedPid = 2;
+  } else if (appId === "notes") {
+    newWin.content = guard.vfs["/sys/notes.txt"] || "";
+  } else if (appId === "trash") {
+    newWin.trashFiles = Object.keys(guard.vfs).filter(k => k.startsWith("/trash"));
+  }
+
+  windows.push(newWin);
+  focusWindow(newWin);
+  audio.playSnapChime();
+}
+
+// ============================================================================
+// 120FPS DAMPED SPRING PHYSICS ENGINE (NeuxonWM)
+// ============================================================================
+function updateSpringPhysics() {
+  const springFactor = 0.32;
+  for (const w of windows) {
+    w.x += (w.targetX - w.x) * springFactor;
+    w.y += (w.targetY - w.y) * springFactor;
+    w.w += (w.targetW - w.w) * springFactor;
+    w.h += (w.targetH - w.h) * springFactor;
+  }
+  // NeuxonDoctor enforces runtime coordinate safety
+  guard.superviseWindows(windows);
+}
+
+// ============================================================================
+// DESKTOP WIDGET RENDERERS
+// ============================================================================
+function renderWidgets() {
+  for (const wg of widgets) {
+    drawBevelBox(wg.x, wg.y, wg.w, wg.h, true, wg.title);
+
+    if (wg.id === "telemetry") {
+      const cpuPct = Math.min(100, Math.floor((ticks % 40) + 12));
+      const ramPct = 14;
+      const ringOps = ticks * 12 + 28450;
+
+      function bar(pct, width = 14) {
+        const filled = Math.floor((pct * width) / 100);
+        return '[' + '█'.repeat(filled) + '░'.repeat(width - filled) + ']';
+      }
+
+      drawText(`CPU CORE 0  ${bar(cpuPct)} ${cpuPct}%`, wg.x + 14, wg.y + 22, C_WHITE);
+      drawText(`RAM USAGE   ${bar(ramPct)} ${ramPct}% (2.2GB/16GB)`, wg.x + 14, wg.y + 44, C_SILVER);
+      drawText(`LOCKLESS IPC: ${ringOps} ops/s (0-copy)`, wg.x + 14, wg.y + 68, C_WHITE, null, true);
+      drawText(`LATENCY:      0.0002ms (200 picoseconds)`, wg.x + 14, wg.y + 88, C_SILVER);
+      drawText(`SUPERVISOR:   NeuxonGuard OODA (PID 1)`, wg.x + 14, wg.y + 108, C_WHITE);
+
+      // Glowing Health Pill
+      const hStr = `[ HEALTH: 100% / 0 ERRORS ]`;
+      drawText(hStr, wg.x + 14, wg.y + 130, C_WHITE, C_STEEL, true);
+      drawText(`•`, wg.x + wg.w - 24, wg.y + 130, C_WHITE);
+    }
+    else if (wg.id === "chrono") {
+      const now = new Date();
+      const h = String(now.getUTCHours()).padStart(2, '0');
+      const m = String(now.getUTCMinutes()).padStart(2, '0');
+      const s = String(now.getUTCSeconds()).padStart(2, '0');
+      const ms = String(Math.floor(now.getUTCMilliseconds() / 10)).padStart(2, '0');
+      const timeStr = `${h}:${m}:${s}.${ms} UTC`;
+
+      drawText(`TIME: ${timeStr}`, wg.x + 14, wg.y + 22, C_WHITE, null, true);
+      drawText(`DATE: 2026-11-15 [SUNDAY]`, wg.x + 14, wg.y + 42, C_SILVER);
+      drawText(`╠══════════════════════════════════╣`, wg.x + 6, wg.y + 60, C_STEEL);
+      drawText(`  Su  Mo  Tu  We  Th  Fr  Sa`, wg.x + 12, wg.y + 78, C_SILVER);
+      drawText(`   1   2   3   4   5   6   7`, wg.x + 12, wg.y + 96, C_ACCENT);
+      drawText(`   8   9  10  11  12  13  14`, wg.x + 12, wg.y + 114, C_ACCENT);
+      drawText(`  `, wg.x + 12, wg.y + 132);
+      drawText(`15`, wg.x + 36, wg.y + 132, C_CARBON, C_WHITE, true); // Today highlighted
+      drawText(`  16  17  18  19  20  21`, wg.x + 52, wg.y + 132, C_ACCENT);
+      drawText(`  22  23  24  25  26  27  28`, wg.x + 12, wg.y + 150, C_ACCENT);
+      drawText(`  29  30`, wg.x + 12, wg.y + 166, C_ACCENT);
+
+      // Month nav controls
+      drawText(`[◄] [►]`, wg.x + wg.w - 68, wg.y + 42, C_WHITE);
+    }
+    else if (wg.id === "sticky") {
+      drawText(`=== PERSISTENT VFS MEMO ===`, wg.x + 14, wg.y + 22, C_WHITE, null, true);
+      const rawText = guard.vfs["/sys/notes.txt"] || "";
+      const lines = rawText.split('\n').slice(1, 6);
+      let py = wg.y + 44;
+      for (const line of lines) {
+        drawText(line.slice(0, 38), wg.x + 14, py, C_SILVER);
+        py += 18;
+      }
+      drawText(`[ STATUS: SYNCED TO /sys/notes.txt ]`, wg.x + 14, wg.y + wg.h - 22, C_ACCENT);
+    }
+    else if (wg.id === "net") {
+      drawText(`ETH0: 10.0.2.15 | RX: ${Math.floor(ticks/3)}KB TX: ${Math.floor(ticks/6)}KB`, wg.x + 14, wg.y + 22, C_WHITE);
+      drawText(`── LIVE RAW SOCKET PACKETS ──`, wg.x + 14, wg.y + 42, C_STEEL);
+
+      const offset = Math.floor(ticks / 8) % 4;
+      const packets = [
+        "45 00 00 3C [TCP :80->49152 ACK PSH]",
+        "45 00 00 28 [UDP DNS 1.1.1.1:53 RESP]",
+        "45 00 01 04 [HTTP/2 TLSv1.3 STREAM]",
+        "00 01 08 00 [ARP Who has 10.0.2.2?]"
+      ];
+      drawText(packets[(offset) % 4], wg.x + 14, wg.y + 64, C_SILVER);
+      drawText(packets[(offset + 1) % 4], wg.x + 14, wg.y + 84, C_SILVER);
+      drawText(packets[(offset + 2) % 4], wg.x + 14, wg.y + 104, C_SILVER);
+
+      // Working Filter & Pause buttons
+      drawText(`[ ${wg.paused ? "▶ RESUME" : "⏸ PAUSE"} ]`, wg.x + 14, wg.y + wg.h - 24, C_WHITE, C_STEEL);
+      drawText(`[ FILTER: ${wg.filter} ]`, wg.x + 110, wg.y + wg.h - 24, C_WHITE, C_STEEL);
+    }
+  }
+}
+
+// ============================================================================
+// 7 FULLY FUNCTIONAL APP RENDERERS
+// ============================================================================
+
+// App 1: MonoChrome Browser
+function renderBrowser(w, cx, cy, cw, ch) {
+  // Tab Bar
+  let tabX = cx;
+  w.tabs.forEach((tab, idx) => {
+    const isAct = (idx === w.activeTab);
+    const tabW = 160;
+    ctx.fillStyle = isAct ? C_GUNMETAL : C_CARBON;
+    ctx.fillRect(tabX, cy, tabW, 20);
+    ctx.strokeStyle = isAct ? C_STEEL : C_CARBON;
+    ctx.strokeRect(tabX + 0.5, cy + 0.5, tabW - 1, 19);
+    drawText(tab.title, tabX + 8, cy + 4, isAct ? C_WHITE : C_ACCENT, null, isAct);
+    tabX += tabW + 4;
+  });
+
+  const barY = cy + 24;
+  // Address Bar
+  drawText("[◄] [►] [⟳]", cx, barY + 4, C_WHITE);
+  const urlBoxW = cw - 260;
+  ctx.fillStyle = C_CARBON;
+  ctx.fillRect(cx + 95, barY + 2, urlBoxW, 20);
+  ctx.strokeStyle = C_STEEL;
+  ctx.strokeRect(cx + 95.5, barY + 2.5, urlBoxW - 1, 19);
+  drawText(w.tabs[w.activeTab].url, cx + 104, barY + 6, C_WHITE);
+
+  // 3-Mode Shader Toggle
+  const shaderLabels = ["[ ◐ 1-BIT ]", "[ ◒ 16-BIT ]", "[ ◯ RAW ]"];
+  drawText(shaderLabels[shaderMode], cx + cw - 120, barY + 4, C_WHITE, C_STEEL, true);
+
+  // Viewport Content Area
+  const viewY = barY + 28;
+  const viewH = ch - (viewY - cy);
+  ctx.fillStyle = C_CARBON;
+  ctx.fillRect(cx, viewY, cw, viewH);
+  ctx.strokeStyle = C_STEEL;
+  ctx.strokeRect(cx + 0.5, viewY + 0.5, cw - 1, viewH - 1);
+
+  if (w.activeTab === 0) {
+    // RFC Specification View
+    drawText("# NEUXON OS EXOKERNEL RFC-9942 SPECIFICATION", cx + 16, viewY + 14, C_WHITE, null, true);
+    drawText("Engine: Chromium Blink v128.0 | V8 Direct JIT | Ozone SHM Direct", cx + 16, viewY + 34, C_SILVER);
+    drawText("---------------------------------------------------------------------", cx + 16, viewY + 50, C_STEEL);
+    drawText("1. ZERO-LATENCY IPC RING BUFFER (io_uring on Steroids)", cx + 16, viewY + 68, C_WHITE, null, true);
+    drawText("   Synchronous int 0x80 traps are completely bypassed. User-space and kernel", cx + 16, viewY + 86, C_SILVER);
+    drawText("   share a lock-free cacheline-aligned Ring Buffer with 256 submission slots.", cx + 16, viewY + 104, C_SILVER);
+    drawText("2. NEUXONGUARD ZERO-FAULT OODA SUPERVISOR", cx + 16, viewY + 128, C_WHITE, null, true);
+    drawText("   Every app and driver is bounded in a lightweight memory fault supervisor.", cx + 16, viewY + 146, C_SILVER);
+    drawText("   Dangling pointers or out-of-bound requests are auto-repaired in < 0.4ms.", cx + 16, viewY + 164, C_SILVER);
+
+    // Live Dither Graphic Canvas inside Browser
+    const gW = 280, gH = 64;
+    const gx = cx + 16, gy = viewY + 192;
+    drawBevelBox(gx, gy, gW, gH, false, "16-BIT SHADING DEMO");
+    const imgData = ctx.createImageData(gW - 12, gH - 16);
+    for (let iy = 0; iy < gH - 16; iy++) {
+      const lum = (iy / (gH - 16)) * 255;
+      for (let ix = 0; ix < gW - 12; ix++) {
+        const idx = (iy * (gW - 12) + ix) * 4;
+        let val = lum;
+        if (shaderMode === 0) { // 1-bit dither
+          val = bayerDither(ix, iy, lum) ? 255 : 0;
+        } else if (shaderMode === 1) { // 16-bit stepped luminance
+          val = Math.floor(lum / 16) * 16;
+        }
+        imgData.data[idx] = val;
+        imgData.data[idx + 1] = val;
+        imgData.data[idx + 2] = val;
+        imgData.data[idx + 3] = 255;
+      }
+    }
+    ctx.putImageData(imgData, gx + 6, gy + 8);
+  } else if (w.activeTab === 1) {
+    drawText("HACKER NEWS — NEUXON OS v3.5 RELEASE", cx + 16, viewY + 14, C_WHITE, null, true);
+    drawText("▲ 1. Neuxon OS 3.5: 16-Bit Obsidian & Silver Exokernel (neuxon.org)", cx + 16, viewY + 40, C_WHITE);
+    drawText("   1,429 points by myrx 4 hours ago | 382 comments", cx + 34, viewY + 58, C_ACCENT);
+    drawText("   \"The zero context-switch ring buffer makes DOM composite fly.\"", cx + 34, viewY + 80, C_SILVER);
+    drawText("▲ 2. NeuxonGuard: How we achieved 0 crashes across 10,000 runs", cx + 16, viewY + 110, C_WHITE);
+    drawText("   892 points by doctor_pid1 6 hours ago | 154 comments", cx + 34, viewY + 128, C_ACCENT);
+  } else {
+    drawText("CRATES.IO / NEUXON-GUARD v3.5.0", cx + 16, viewY + 14, C_WHITE, null, true);
+    drawText("Autonomous OODA Fault Recovery & Golden Shadow State Reconstruction", cx + 16, viewY + 36, C_SILVER);
+    drawText("Cargo.toml: neuxon-guard = { version = \"3.5\", features = [\"auto-heal\"] }", cx + 16, viewY + 64, C_WHITE, C_CARBON);
+    drawText("Dependencies: #![no_std] alloc spin x86_64", cx + 16, viewY + 92, C_ACCENT);
+  }
+}
+
+// App 2: NeuxonTerm Console
+function renderTerminal(w, cx, cy, cw, ch) {
+  const maxLines = Math.floor((ch - 30) / FONT_H);
+  const lines = w.history.slice(-maxLines);
+  let py = cy + 4;
+  for (const line of lines) {
+    drawText(line, cx + 4, py, C_SILVER);
+    py += FONT_H;
+  }
+  const cursorChar = (Math.floor(ticks / 16) % 2 === 0) ? "█" : " ";
+  drawText(`root@neuxon:~# ${w.input}${cursorChar}`, cx + 4, py, C_WHITE, null, true);
+}
+
+// App 3: NeuxonRing 3D IPC & Self-Healing Visualizer
+function renderRingVisualizer(w, cx, cy, cw, ch) {
+  drawText("LOCK-FREE ASYNCHRONOUS SYSCALL RING (0.0002ms)", cx + 8, cy + 8, C_WHITE, null, true);
+  drawText(`STATUS: ${w.faultInjected ? "[ ⚠️ FAULT DETECTED: AUTO-REPAIRING ]" : "[ OK: 0 CONTEXT SWITCH TRAPS ]"}`, cx + 8, cy + 26, w.faultInjected ? C_WHITE : C_SILVER, w.faultInjected ? C_STEEL : null);
+
+  const centerX = cx + cw / 2;
+  const centerY = cy + ch / 2 - 10;
+  const ringRadius = 75;
+  const angleSpeed = (ticks * 0.035 * w.ringSpeed);
+
+  // Render 3D Isometric Dual Ring
+  ctx.save();
+  ctx.lineWidth = 3;
+
+  // Outer Submission Queue (SQ) Ring
+  ctx.strokeStyle = C_STEEL;
+  ctx.beginPath();
+  for (let a = 0; a <= Math.PI * 2; a += 0.1) {
+    const rx = centerX + Math.cos(a + angleSpeed) * ringRadius;
+    const ry = centerY + Math.sin(a + angleSpeed) * (ringRadius * 0.45);
+    if (a === 0) ctx.moveTo(rx, ry);
+    else ctx.lineTo(rx, ry);
+  }
+  ctx.closePath();
+  ctx.stroke();
+
+  // Ring Nodes
+  const numNodes = 12;
+  for (let i = 0; i < numNodes; i++) {
+    const a = (i / numNodes) * Math.PI * 2 + angleSpeed;
+    const nx = centerX + Math.cos(a) * ringRadius;
+    const ny = centerY + Math.sin(a) * (ringRadius * 0.45);
+    const isAct = ((i + Math.floor(ticks / 4)) % numNodes === 0);
+
+    ctx.fillStyle = isAct ? C_WHITE : C_SILVER;
+    ctx.beginPath();
+    ctx.arc(nx, ny, isAct ? 5 : 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Inner Completion Queue (CQ) Ring
+  ctx.strokeStyle = C_SILVER;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let a = 0; a <= Math.PI * 2; a += 0.1) {
+    const rx = centerX + Math.cos(-a + angleSpeed * 1.5) * (ringRadius * 0.65);
+    const ry = centerY + Math.sin(-a + angleSpeed * 1.5) * (ringRadius * 0.3);
+    if (a === 0) ctx.moveTo(rx, ry);
+    else ctx.lineTo(rx, ry);
+  }
+  ctx.closePath();
+  ctx.stroke();
+
+  // Core Exokernel Core Box
+  drawBevelBox(centerX - 42, centerY - 14, 84, 28, true);
+  drawText("EXOKERNEL", centerX - 36, centerY - 6, C_WHITE, null, true);
+  ctx.restore();
+
+  // Interactive Buttons at bottom
+  const btnY = cy + ch - 30;
+  drawText("[ ⚡ Boost IPC ]", cx + 12, btnY, C_WHITE, C_STEEL);
+  drawText("[ ⚠️ Test Auto-Heal ]", cx + 140, btnY, C_WHITE, C_STEEL);
+  drawText("[ ↺ Reset Ring ]", cx + 320, btnY, C_WHITE, C_STEEL);
+}
+
+// App 4: NeuxonFiles Dual-Pane Manager
+function renderFiles(w, cx, cy, cw, ch) {
+  const leftW = 160;
+  // Left Tree Pane
+  drawBevelBox(cx, cy, leftW, ch, false, "DIRECTORIES");
+  const dirs = ["/", "/sys", "/bin", "/etc", "/home", "/trash"];
+  let dy = cy + 22;
+  for (const d of dirs) {
+    const isSel = (w.currentDir === d);
+    drawText(`📁 ${d}`, cx + 8, dy, isSel ? C_WHITE : C_SILVER, isSel ? C_STEEL : null, isSel);
+    dy += 22;
+  }
+
+  // Right Files Pane
+  const rightX = cx + leftW + 6;
+  const rightW = cw - leftW - 6;
+  drawBevelBox(rightX, cy, rightW, ch, false, `CONTENTS: ${w.currentDir || "/sys"}`);
+
+  const allFiles = Object.keys(guard.vfs).filter(p => {
+    const cur = w.currentDir || "/sys";
+    if (cur === "/") return p.startsWith("/");
+    return p.startsWith(cur);
+  });
+
+  let fy = cy + 22;
+  drawText("NAME                    SIZE     MODIFIED", rightX + 8, fy, C_ACCENT);
+  fy += 18;
+  ctx.strokeStyle = C_STEEL;
+  ctx.strokeRect(rightX + 6, fy - 2, rightW - 12, 1);
+
+  for (const file of allFiles) {
+    const isSel = (w.selectedFile === file);
+    const content = guard.vfs[file] || "";
+    const nameOnly = file.split('/').pop() || file;
+    const row = `${nameOnly.padEnd(23)} ${String(content.length).padStart(4)}B   2026-11-15`;
+    drawText(row, rightX + 8, fy, isSel ? C_WHITE : C_SILVER, isSel ? C_STEEL : null, isSel);
+    fy += 20;
+  }
+
+  // File action toolbar at bottom
+  const fBarY = cy + ch - 26;
+  drawText("[ 📄 New ]", rightX + 8, fBarY, C_WHITE, C_STEEL);
+  drawText("[ ✏️ Edit in Notes ]", rightX + 90, fBarY, C_WHITE, C_STEEL);
+  drawText("[ 🗑 Delete ]", rightX + 250, fBarY, C_WHITE, C_STEEL);
+}
+
+// App 5: TaskMatrix Process & Memory Inspector
+function renderTaskMatrix(w, cx, cy, cw, ch) {
+  drawText("[K] Kill Task   [B] Boost Priority   [H] Allocate HugePage   [G] Run GC", cx, cy + 2, C_WHITE, C_STEEL);
+
+  let py = cy + 26;
+  drawText("PID  NAME           PRIORITY     CPU%   PAGES (4K)   STATE", cx, py, C_ACCENT);
+  py += 18;
+  ctx.strokeStyle = C_STEEL;
+  ctx.strokeRect(cx, py - 4, cw, 1);
+
+  const tasks = [
+    ["1", "neuxon_guard",  "Supervisor", " 1%", "     4 p", "RUNNING [Core 0]"],
+    ["2", "neuxon_wm",     "Compositor", "14%", "   192 p", "RUNNING [Core 1]"],
+    ["3", "mono_ring",     "Interactive"," 3%", "     8 p", "READY   [Core 0]"],
+    ["4", "chromium_ozone","Normal",     "36%", "  4096 p", "READY   [Core 2]"],
+    ["5", "blink_raster",  "Compositor", "18%", "  2048 p", "READY   [Core 3]"],
+    ["6", "task_matrix",   "Interactive"," 2%", "    128 p", "RUNNING [Core 1]"],
+    ["7", "sys_notes",     "Normal",     " 1%", "     64 p", "SLEEPING"],
+  ];
+
+  for (const t of tasks) {
+    const isSel = (w.selectedPid === parseInt(t[0]));
+    const row = `${t[0].padEnd(4)} ${t[1].padEnd(14)} ${t[2].padEnd(12)} ${t[3].padEnd(6)} ${t[4].padEnd(12)} ${t[5]}`;
+    drawText(row, cx, py, isSel ? C_WHITE : C_SILVER, isSel ? C_STEEL : null, isSel);
+    py += 18;
+  }
+
+  // CPU 4-Core Visualizer Bars
+  py += 12;
+  drawText("SMP PER-CORE SCHEDULING (O(1) CACHE-AWARE):", cx, py, C_WHITE, null, true);
+  py += 20;
+  for (let core = 0; core < 4; core++) {
+    const pct = Math.min(100, Math.floor((ticks * (core + 1) * 3) % 45 + 10));
+    drawText(`CORE ${core}: [${'█'.repeat(Math.floor(pct / 6))}${'░'.repeat(16 - Math.floor(pct / 6))}] ${pct}%`, cx + 8, py, C_SILVER);
+    py += 18;
+  }
+}
+
+// App 6: SysNotes Persistent Markdown Editor
+function renderNotes(w, cx, cy, cw, ch) {
+  drawText("VFS PATH: /sys/notes.txt  [ AUTOSAVED & FAULT-CHECKED ]", cx, cy + 4, C_WHITE, C_STEEL, true);
+
+  const editY = cy + 28;
+  const editH = ch - 54;
+  ctx.fillStyle = C_CARBON;
+  ctx.fillRect(cx, editY, cw, editH);
+  ctx.strokeStyle = C_STEEL;
+  ctx.strokeRect(cx + 0.5, editY + 0.5, cw - 1, editH - 1);
+
+  const text = guard.vfs["/sys/notes.txt"] || "";
+  const lines = text.split('\n');
+  let py = editY + 8;
+  for (const l of lines.slice(0, 16)) {
+    drawText(l, cx + 8, py, C_SILVER);
+    py += 18;
+  }
+
+  const btnY = cy + ch - 22;
+  drawText("[ 💾 Save VFS ]", cx, btnY, C_WHITE, C_STEEL);
+  drawText("[ ↻ Revert ]", cx + 130, btnY, C_WHITE, C_STEEL);
+  drawText("[ 🗑 Clear ]", cx + 240, btnY, C_WHITE, C_STEEL);
+}
+
+// App 7: Trash Manager
+function renderTrash(w, cx, cy, cw, ch) {
+  drawText("VFS TRASH BIN — RECOVERABLE INODES", cx, cy + 4, C_WHITE, null, true);
+  let py = cy + 28;
+
+  const trashKeys = Object.keys(guard.vfs).filter(k => k.startsWith("/trash"));
+  if (trashKeys.length === 0) {
+    drawText("Trash is currently empty. (Zero garbage inodes in VFS)", cx + 8, py + 20, C_ACCENT);
+  } else {
+    for (const key of trashKeys) {
+      drawText(`🗑 ${key} (${(guard.vfs[key] || '').length} bytes)`, cx + 8, py, C_SILVER);
+      py += 22;
+    }
+  }
+
+  const btnY = cy + ch - 26;
+  drawText("[ ♻️ Empty Trash ]", cx + 8, btnY, C_WHITE, C_STEEL);
+  drawText("[ ↺ Restore All to VFS ]", cx + 160, btnY, C_WHITE, C_STEEL);
+}
+
+// ============================================================================
+// WINDOW MANAGER WITH TRAFFIC LIGHTS & 16-BIT BEVEL FRAMES
+// ============================================================================
+function renderWindowManager() {
+  for (const w of windows) {
+    if (w.minimized) continue;
+
+    // Drop Shadow (16-bit dithered obsidian shadow)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.fillRect(Math.floor(w.x + 8), Math.floor(w.y + 8), Math.floor(w.w), Math.floor(w.h));
+
+    // Solid Window Area & 16-Bit Beveled Borders
+    drawBevelBox(w.x, w.y, w.w, w.h, true);
+
+    // Title Bar (Obsidian/Silver gradient)
+    const tbH = 24;
+    const tbGrad = ctx.createLinearGradient(w.x, w.y, w.x, w.y + tbH);
+    if (w.focused) {
+      tbGrad.addColorStop(0, C_STEEL);
+      tbGrad.addColorStop(1, C_GUNMETAL);
+    } else {
+      tbGrad.addColorStop(0, C_GUNMETAL);
+      tbGrad.addColorStop(1, C_CARBON);
+    }
+    ctx.fillStyle = tbGrad;
+    ctx.fillRect(w.x + 1, w.y + 1, w.w - 2, tbH);
+
+    // Traffic Lights on Top-Left: [ ✕ ] [ − ] [ + ]
+    const tlY = w.y + 5;
+    drawText("[ ✕ ]", w.x + 8, tlY, w.focused ? C_WHITE : C_SILVER, null, true);
+    drawText("[ − ]", w.x + 44, tlY, w.focused ? C_WHITE : C_SILVER, null, true);
+    drawText("[ + ]", w.x + 80, tlY, w.focused ? C_WHITE : C_SILVER, null, true);
+
+    // Title Text centered/offset
+    drawText(` ${w.title}`, w.x + 120, tlY, w.focused ? C_WHITE : C_SILVER, null, w.focused);
+
+    // Window Content Viewport
+    const cx = w.x + 10;
+    const cy = w.y + tbH + 8;
+    const cw = w.w - 20;
+    const ch = w.h - tbH - 18;
+
+    try {
+      if (w.appType === "terminal") renderTerminal(w, cx, cy, cw, ch);
+      else if (w.appType === "browser") renderBrowser(w, cx, cy, cw, ch);
+      else if (w.appType === "ring") renderRingVisualizer(w, cx, cy, cw, ch);
+      else if (w.appType === "files") renderFiles(w, cx, cy, cw, ch);
+      else if (w.appType === "taskmatrix") renderTaskMatrix(w, cx, cy, cw, ch);
+      else if (w.appType === "notes") renderNotes(w, cx, cy, cw, ch);
+      else if (w.appType === "trash") renderTrash(w, cx, cy, cw, ch);
+    } catch (err) {
+      // PID 1 NeuxonDoctor fault boundary interception
+      guard.logRepair(`NeuxonDoctor recovered app fault in PID ${w.id}: ${err.message}`);
+    }
+  }
+}
+
+// ============================================================================
+// 16-BIT macOS DOCK WITH PARABOLIC GAUSSIAN MAGNIFICATION
+// ============================================================================
+function renderMacosDock() {
+  const dockY = H - DOCK_H - 10;
+  const numApps = dockApps.length;
+  const dockW = numApps * DOCK_BASE_ITEM_W + 36;
+  const dockX = (W - dockW) / 2;
+
+  // Dithered Drop Shadow
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.beginPath();
+  ctx.roundRect(dockX + 6, dockY + 6, dockW, DOCK_H, 12);
+  ctx.fill();
+
+  // Translucent Frosted Beveled Glass Pill
+  drawFrostedRect(dockX, dockY, dockW, DOCK_H, 10);
+
+  let curX = dockX + 18;
+  const mouseInDock = (mouse.y >= dockY - 20 && mouse.y <= dockY + DOCK_H + 10 && mouse.x >= dockX && mouse.x <= dockX + dockW);
+
+  dockApps.forEach((app, idx) => {
+    const itemCenterX = curX + DOCK_BASE_ITEM_W / 2;
+    let scale = 1.0;
+    let lift = 0;
+
+    // Parabolic Gaussian Magnification
+    if (mouseInDock) {
+      const dist = Math.abs(mouse.x - itemCenterX);
+      const sigma = 50;
+      scale = 1.0 + 0.45 * Math.exp(-(dist * dist) / (2 * sigma * sigma));
+      lift = (scale - 1.0) * 28;
+    }
+
+    const iconY = dockY + 8 - lift;
+    const isHovered = (hoveredDockIndex === idx);
+    const isRunning = windows.some(w => w.appType === app.id);
+
+    // 16-Bit Metallic Icon Box
+    const iconSize = Math.floor(34 * scale);
+    const boxX = Math.floor(itemCenterX - iconSize / 2);
+    const boxY = Math.floor(iconY);
+
+    drawBevelBox(boxX, boxY, iconSize, iconSize, true);
+    ctx.font = `${Math.floor(16 * scale)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = C_WHITE;
+    ctx.fillText(app.glyph, itemCenterX, boxY + iconSize / 2);
+
+    // Active PID Indicator Dot
+    if (isRunning) {
+      ctx.fillStyle = C_WHITE;
+      ctx.beginPath();
+      ctx.arc(itemCenterX, dockY + DOCK_H - 7, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Floating 16-Bit Tooltip on Hover
+    if (isHovered) {
+      const tipText = `╡ ${app.name} (${app.shortcut}) ╞`;
+      const tipW = tipText.length * FONT_W + 16;
+      const tipX = itemCenterX - tipW / 2;
+      const tipY = dockY - lift - 26;
+      drawFrostedRect(tipX, tipY, tipW, 22, 4);
+      drawText(tipText, tipX + 8, tipY + 4, C_WHITE, null, true);
+    }
+
+    curX += DOCK_BASE_ITEM_W;
+  });
+}
+
+// ============================================================================
+// GLOBAL TOP MENU BAR & INTERACTIVE DROP-DOWN MENUS
+// ============================================================================
+const menuItems = [
+  { id: 'apple',  label: ' ❖ NEUXON ' },
+  { id: 'file',   label: ' File ' },
+  { id: 'edit',   label: ' Edit ' },
+  { id: 'view',   label: ' View ' },
+  { id: 'kernel', label: ' Kernel ' },
+  { id: 'window', label: ' Window ' },
+  { id: 'shader', label: ' Shader ' }
+];
+
+function renderTopMenuBar() {
+  // 16-Bit Brushed Gunmetal Gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, TOPBAR_H);
+  grad.addColorStop(0, C_GUNMETAL);
+  grad.addColorStop(1, C_CARBON);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, TOPBAR_H);
+
+  ctx.strokeStyle = C_STEEL;
+  ctx.beginPath();
+  ctx.moveTo(0, TOPBAR_H - 0.5);
+  ctx.lineTo(W, TOPBAR_H - 0.5);
+  ctx.stroke();
+
+  let mx = 8;
+  for (const m of menuItems) {
+    const isAct = (activeDropdown === m.id);
+    if (isAct) {
+      ctx.fillStyle = C_STEEL;
+      ctx.fillRect(mx - 2, 2, m.label.length * FONT_W + 4, TOPBAR_H - 4);
+    }
+    drawText(m.label, mx, 6, isAct ? C_WHITE : C_SILVER, null, isAct || m.id === 'apple');
+    mx += m.label.length * FONT_W + 12;
+  }
+
+  // Right Status Badges
+  const now = new Date();
+  const timeStr = now.toTimeString().split(' ')[0].slice(0, 5) + " UTC";
+  const badges = `[Wi-Fi: ▓▓▓░ 98MB/s]  [CPU: 14%]  [GUARD: 100% OK]  [${timeStr}]`;
+  drawText(badges, W - badges.length * FONT_W - 14, 6, C_WHITE, null, true);
+
+  // Render Dropdown if Active
+  if (activeDropdown) {
+    renderDropdownMenu();
+  }
+}
+
+function renderDropdownMenu() {
+  let list = [];
+  let dropX = 10;
+  if (activeDropdown === 'apple') {
+    dropX = 6;
+    list = [
+      { label: "About Neuxon OS 3.5...", action: "about" },
+      { label: "System Preferences...", action: "prefs" },
+      { label: "🛠️ Verify & Repair All Systems", action: "heal" },
+      { label: "──────────────────────────", action: null },
+      { label: "Reboot with Boot Check...", action: "reboot" },
+      { label: "Shut Down...", action: "shutdown" }
+    ];
+  } else if (activeDropdown === 'file') {
+    dropX = 90;
+    list = [
+      { label: "New Terminal Window", action: "new_term" },
+      { label: "New VFS Note File", action: "new_note" },
+      { label: "Reconcile VFS Inodes", action: "vfs_reconcile" }
+    ];
+  } else if (activeDropdown === 'edit') {
+    dropX = 145;
+    list = [
+      { label: "Undo", action: null },
+      { label: "Redo", action: null },
+      { label: "──────────────────────────", action: null },
+      { label: "Clear Active Terminal", action: "term_clear" }
+    ];
+  } else if (activeDropdown === 'view') {
+    dropX = 195;
+    list = [
+      { label: crtBloomEnabled ? "Disable 16-Bit CRT Bloom" : "Enable 16-Bit CRT Bloom", action: "toggle_crt" },
+      { label: "Reset Window Layout", action: "reset_layout" }
+    ];
+  } else if (activeDropdown === 'kernel') {
+    dropX = 245;
+    list = [
+      { label: "🛠️ Run NeuxonGuard Full Audit", action: "heal" },
+      { label: "Flush Lock-Free Ring Queue", action: "flush_ring" },
+      { label: "Dump Slab Allocator Bins", action: "dump_slab" }
+    ];
+  } else if (activeDropdown === 'window') {
+    dropX = 310;
+    list = [
+      { label: "Tile Left (50% Width)", action: "tile_left" },
+      { label: "Tile Right (50% Width)", action: "tile_right" },
+      { label: "Maximize Focused Window", action: "maximize" },
+      { label: "Minimize All to Dock", action: "minimize_all" }
+    ];
+  } else if (activeDropdown === 'shader') {
+    dropX = 375;
+    list = [
+      { label: shaderMode === 0 ? "✓ 1-Bit Bayer Dither" : "  1-Bit Bayer Dither", action: "shader_0" },
+      { label: shaderMode === 1 ? "✓ 16-Bit Silver HiDPI" : "  16-Bit Silver HiDPI", action: "shader_1" },
+      { label: shaderMode === 2 ? "✓ Raw Color Pipeline" : "  Raw Color Pipeline", action: "shader_2" }
+    ];
+  }
+
+  const dropW = 240;
+  const dropH = list.length * 24 + 12;
+  const dropY = TOPBAR_H + 2;
+
+  drawFrostedRect(dropX, dropY, dropW, dropH, 4);
+
+  let py = dropY + 8;
+  list.forEach(item => {
+    const isHover = (mouse.x >= dropX && mouse.x <= dropX + dropW && mouse.y >= py && mouse.y <= py + 22);
+    if (isHover && item.action) {
+      ctx.fillStyle = C_STEEL;
+      ctx.fillRect(dropX + 4, py, dropW - 8, 20);
+    }
+    drawText(item.label, dropX + 10, py + 3, isHover ? C_WHITE : C_SILVER, null, isHover);
+    py += 24;
+  });
+}
+
+function handleMenuAction(action) {
+  activeDropdown = null;
+  audio.playKeyClick();
+  if (!action) return;
+
+  if (action === "heal") {
+    guard.triggerFullSystemRepair(() => {
+      // Re-center windows cleanly
+      windows.forEach((w, i) => {
+        w.targetX = 60 + i * 40;
+        w.targetY = 60 + i * 30;
+      });
+    });
+  } else if (action === "reboot") {
+    bootSequence.active = true;
+    bootSequence.progress = 0;
+    bootSequence.timer = 0;
+    bootSequence.stage = 0;
+  } else if (action === "new_term") {
+    launchApp("terminal");
+  } else if (action === "new_note") {
+    launchApp("notes");
+  } else if (action === "toggle_crt") {
+    crtBloomEnabled = !crtBloomEnabled;
+  } else if (action === "reset_layout") {
+    windows.forEach((w, i) => {
+      w.targetX = 50 + i * 30;
+      w.targetY = 60 + i * 30;
+      w.targetW = 560; w.targetH = 360;
+      w.minimized = false; w.maximized = false;
+    });
+  } else if (action === "tile_left") {
+    const w = windows[windows.length - 1];
+    if (w) { w.targetX = 0; w.targetY = TOPBAR_H; w.targetW = W / 2; w.targetH = H - TOPBAR_H - DOCK_H - 12; }
+  } else if (action === "tile_right") {
+    const w = windows[windows.length - 1];
+    if (w) { w.targetX = W / 2; w.targetY = TOPBAR_H; w.targetW = W / 2; w.targetH = H - TOPBAR_H - DOCK_H - 12; }
+  } else if (action === "shader_0") { shaderMode = 0; }
+  else if (action === "shader_1") { shaderMode = 1; }
+  else if (action === "shader_2") { shaderMode = 2; }
+}
+
+// ============================================================================
+// SYSTEM REPAIR VISUAL OVERLAY (NeuxonGuard)
+// ============================================================================
+function renderRepairOverlay() {
+  if (!guard.activeRepairScan) return;
+  const scan = guard.activeRepairScan;
+  const ovW = 540, ovH = 220;
+  const ovX = (W - ovW) / 2;
+  const ovY = (H - ovH) / 2;
+
+  drawFrostedRect(ovX, ovY, ovW, ovH, 8);
+  drawText("🛠️ NEUXONGUARD AUTONOMOUS REPAIR SCAN", ovX + 18, ovY + 16, C_WHITE, null, true);
+  drawText(`Step ${scan.step + 1} of ${scan.totalSteps}: ${scan.steps[scan.step] || "Finalizing..."}`, ovX + 18, ovY + 44, C_SILVER);
+
+  // Progress Bar
+  const barW = ovW - 36;
+  ctx.fillStyle = C_CARBON;
+  ctx.fillRect(ovX + 18, ovY + 80, barW, 24);
+  ctx.strokeStyle = C_STEEL;
+  ctx.strokeRect(ovX + 18.5, ovY + 80.5, barW - 1, 23);
+
+  const fillW = Math.floor((scan.progress / 100) * (barW - 4));
+  ctx.fillStyle = C_WHITE;
+  ctx.fillRect(ovX + 20, ovY + 82, fillW, 20);
+
+  drawText(`[ ${scan.progress}% COMPLETE ]`, ovX + 18, ovY + 116, C_WHITE, null, true);
+  drawText(`Supervising PID 1..7 | Reconciling VFS & Paging Tables | 0 Stalls`, ovX + 18, ovY + 140, C_ACCENT);
+
+  // Laser scanning animation line
+  const laserX = ovX + 18 + (ticks * 8) % barW;
+  ctx.strokeStyle = C_WHITE;
+  ctx.beginPath();
+  ctx.moveTo(laserX, ovY + 80);
+  ctx.lineTo(laserX, ovY + 104);
+  ctx.stroke();
+}
+
+// ============================================================================
+// CINEMATIC KINETIC BOOT SEQUENCE (NeuxonBoot)
+// ============================================================================
+function renderBootSequence() {
+  bootSequence.timer++;
+  ctx.fillStyle = C_VOID;
+  ctx.fillRect(0, 0, W, H);
+
+  // Spinning 3D Wireframe Exokernel Ring
+  const cx = W / 2, cy = H / 2 - 60;
+  const r = 110;
+  ctx.save();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = C_STEEL;
+  ctx.beginPath();
+  for (let a = 0; a <= Math.PI * 2; a += 0.08) {
+    const rx = cx + Math.cos(a + bootSequence.timer * 0.04) * r;
+    const ry = cy + Math.sin(a + bootSequence.timer * 0.04) * (r * 0.4);
+    if (a === 0) ctx.moveTo(rx, ry);
+    else ctx.lineTo(rx, ry);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = C_WHITE;
+  ctx.beginPath();
+  for (let a = 0; a <= Math.PI * 2; a += 0.08) {
+    const rx = cx + Math.cos(-a + bootSequence.timer * 0.08) * (r * 0.7);
+    const ry = cy + Math.sin(-a + bootSequence.timer * 0.08) * (r * 0.25);
+    if (a === 0) ctx.moveTo(rx, ry);
+    else ctx.lineTo(rx, ry);
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  drawText("NEUXON OS v3.5 — 16-BIT EXOKERNEL", cx - 140, cy - 8, C_WHITE, null, true);
+
+  // Live Typewriter Boot Logs
+  const maxLogs = Math.min(bootSequence.logs.length, Math.floor(bootSequence.timer / 18));
+  let ly = cy + 90;
+  for (let i = 0; i < maxLogs; i++) {
+    drawText(bootSequence.logs[i], cx - 260, ly, C_SILVER);
+    ly += 20;
+  }
+
+  drawText("Press [Esc] or Click anywhere to Skip Boot Animation", cx - 180, H - 40, C_ACCENT);
+
+  if (bootSequence.timer >= 180 || maxLogs >= bootSequence.logs.length) {
+    bootSequence.active = false;
+    audio.playSnapChime();
+  }
+}
+
+// ============================================================================
+// OPTIONAL 16-BIT CRT / PHOSPHOR BLOOM POST-PROCESSING PASS
+// ============================================================================
+function renderCrtPostPass() {
+  if (!crtBloomEnabled) return;
+  ctx.save();
+  // Ultra-fine sub-pixel scanlines
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+  for (let y = 0; y < H; y += 2) {
+    ctx.fillRect(0, y, W, 1);
+  }
+  // Subtle phosphor vignette
+  const radGrad = ctx.createRadialGradient(W / 2, H / 2, H * 0.4, W / 2, H / 2, W * 0.65);
+  radGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  radGrad.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
+  ctx.fillStyle = radGrad;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
+// ============================================================================
+// CURSOR RENDERER
+// ============================================================================
+function renderCursor() {
+  const mx = mouse.x, my = mouse.y;
+  ctx.save();
+  ctx.fillStyle = C_WHITE;
+  ctx.beginPath();
+  ctx.moveTo(mx, my);
+  ctx.lineTo(mx, my + 17);
+  ctx.lineTo(mx + 5, my + 13);
+  ctx.lineTo(mx + 12, my + 13);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = C_VOID;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ============================================================================
+// EVENT LISTENERS & INTERACTION CONTROLLER
+// ============================================================================
+canvas.addEventListener('mousemove', (e) => {
+  const r = canvas.getBoundingClientRect();
+  mouse.x = Math.floor((e.clientX - r.left) * (LOGICAL_W / r.width));
+  mouse.y = Math.floor((e.clientY - r.top) * (LOGICAL_H / r.height));
+
+  // Check Dock Hover
+  const dockY = H - DOCK_H - 10;
+  const numApps = dockApps.length;
+  const dockW = numApps * DOCK_BASE_ITEM_W + 36;
+  const dockX = (W - dockW) / 2;
+
+  if (mouse.y >= dockY - 14 && mouse.y <= dockY + DOCK_H && mouse.x >= dockX && mouse.x <= dockX + dockW) {
+    const relX = mouse.x - (dockX + 18);
+    const idx = Math.floor(relX / DOCK_BASE_ITEM_W);
+    if (idx >= 0 && idx < numApps && hoveredDockIndex !== idx) {
+      hoveredDockIndex = idx;
+      audio.playHoverTick();
+    }
+  } else {
+    hoveredDockIndex = null;
+  }
+
+  // Window Dragging & Edge Snapping
+  if (mouse.left && draggingWindow) {
+    draggingWindow.targetX = mouse.x - dragOffset.x;
+    draggingWindow.targetY = Math.max(TOPBAR_H, mouse.y - dragOffset.y);
+
+    const snapMargin = 16;
+    if (mouse.x <= snapMargin) { // Snap left half
+      draggingWindow.targetX = 0;
+      draggingWindow.targetY = TOPBAR_H;
+      draggingWindow.targetW = W / 2;
+      draggingWindow.targetH = H - TOPBAR_H - DOCK_H - 12;
+      audio.playSnapChime();
+    } else if (mouse.x >= W - snapMargin) { // Snap right half
+      draggingWindow.targetX = W / 2;
+      draggingWindow.targetY = TOPBAR_H;
+      draggingWindow.targetW = W / 2;
+      draggingWindow.targetH = H - TOPBAR_H - DOCK_H - 12;
+      audio.playSnapChime();
+    }
+  }
+
+  // Widget Dragging
+  for (const wg of widgets) {
+    if (mouse.left && wg.dragging) {
+      wg.x = Math.max(10, Math.min(W - wg.w - 10, mouse.x - wg.dragOffset.x));
+      wg.y = Math.max(TOPBAR_H + 4, Math.min(H - DOCK_H - wg.h - 10, mouse.y - wg.dragOffset.y));
+    }
+  }
+});
+
+canvas.addEventListener('mousedown', (e) => {
+  mouse.left = true;
+  mouse.downX = mouse.x;
+  mouse.downY = mouse.y;
+  audio.ensureContext();
+
+  if (bootSequence.active) {
+    bootSequence.active = false;
+    audio.playSnapChime();
+    return;
+  }
+
+  // 1. Top Bar & Dropdowns Check
+  if (mouse.y <= TOPBAR_H) {
+    let mx = 8;
+    for (const m of menuItems) {
+      const mw = m.label.length * FONT_W + 12;
+      if (mouse.x >= mx && mouse.x <= mx + mw) {
+        activeDropdown = (activeDropdown === m.id) ? null : m.id;
+        audio.playKeyClick();
+        return;
+      }
+      mx += mw;
+    }
+    activeDropdown = null;
+    return;
+  }
+
+  // 2. Dropdown Menu Item Click
+  if (activeDropdown) {
+    let list = [];
+    let dropX = 10;
+    if (activeDropdown === 'apple') {
+      dropX = 6;
+      list = ["about", "prefs", "heal", null, "reboot", "shutdown"];
+    } else if (activeDropdown === 'file') {
+      dropX = 90; list = ["new_term", "new_note", "vfs_reconcile"];
+    } else if (activeDropdown === 'edit') {
+      dropX = 145; list = [null, null, null, "term_clear"];
+    } else if (activeDropdown === 'view') {
+      dropX = 195; list = ["toggle_crt", "reset_layout"];
+    } else if (activeDropdown === 'kernel') {
+      dropX = 245; list = ["heal", "flush_ring", "dump_slab"];
+    } else if (activeDropdown === 'window') {
+      dropX = 310; list = ["tile_left", "tile_right", "maximize", "minimize_all"];
+    } else if (activeDropdown === 'shader') {
+      dropX = 375; list = ["shader_0", "shader_1", "shader_2"];
+    }
+
+    const dropW = 240;
+    const dropY = TOPBAR_H + 2;
+    if (mouse.x >= dropX && mouse.x <= dropX + dropW && mouse.y >= dropY && mouse.y <= dropY + list.length * 24 + 12) {
+      const idx = Math.floor((mouse.y - dropY - 8) / 24);
+      if (idx >= 0 && idx < list.length) {
+        handleMenuAction(list[idx]);
+        return;
+      }
+    }
+    activeDropdown = null;
+  }
+
+  // 3. Floating Dock Check
+  const dockY = H - DOCK_H - 10;
+  const numApps = dockApps.length;
+  const dockW = numApps * DOCK_BASE_ITEM_W + 36;
+  const dockX = (W - dockW) / 2;
+
+  if (mouse.y >= dockY - 10 && mouse.y <= dockY + DOCK_H && mouse.x >= dockX && mouse.x <= dockX + dockW) {
+    const relX = mouse.x - (dockX + 18);
+    const idx = Math.floor(relX / DOCK_BASE_ITEM_W);
+    if (idx >= 0 && idx < numApps) {
+      launchApp(dockApps[idx].id);
+      audio.playKeyClick();
+      return;
+    }
+  }
+
+  // 4. Windows Interaction
+  for (let i = windows.length - 1; i >= 0; i--) {
+    const w = windows[i];
+    if (w.minimized) continue;
+
+    if (mouse.x >= w.x && mouse.x <= w.x + w.w && mouse.y >= w.y && mouse.y <= w.y + w.h) {
+      focusWindow(w);
+
+      // Title Bar Click & Traffic Lights
+      if (mouse.y >= w.y && mouse.y <= w.y + 26) {
+        // [ ✕ ] Close (w.x + 6 to w.x + 36)
+        if (mouse.x >= w.x + 6 && mouse.x <= w.x + 38) {
+          w.minimized = true;
+          audio.playKeyClick();
+          return;
+        }
+        // [ − ] Minimize to dock (w.x + 42 to w.x + 72)
+        if (mouse.x >= w.x + 42 && mouse.x <= w.x + 74) {
+          w.minimized = true;
+          audio.playKeyClick();
+          return;
+        }
+        // [ + ] Zoom / Maximize (w.x + 78 to w.x + 110)
+        if (mouse.x >= w.x + 78 && mouse.x <= w.x + 110) {
+          if (w.maximized) {
+            w.targetX = 60; w.targetY = 60; w.targetW = 560; w.targetH = 360;
+            w.maximized = false;
+          } else {
+            w.targetX = 0; w.targetY = TOPBAR_H; w.targetW = W; w.targetH = H - TOPBAR_H - DOCK_H - 12;
+            w.maximized = true;
+          }
+          audio.playSnapChime();
+          return;
+        }
+
+        // Start Window Drag
+        draggingWindow = w;
+        dragOffset.x = mouse.x - w.x;
+        dragOffset.y = mouse.y - w.y;
+        return;
+      }
+
+      // App-Specific Controls
+      if (w.appType === "browser") {
+        // Tabs click
+        let tabX = w.x + 10;
+        for (let tIdx = 0; tIdx < w.tabs.length; tIdx++) {
+          if (mouse.x >= tabX && mouse.x <= tabX + 160 && mouse.y >= w.y + 34 && mouse.y <= w.y + 54) {
+            w.activeTab = tIdx;
+            audio.playKeyClick();
+            return;
+          }
+          tabX += 164;
+        }
+        // Shader Toggle click
+        if (mouse.x >= w.x + w.w - 140 && mouse.x <= w.x + w.w - 20 && mouse.y >= w.y + 58 && mouse.y <= w.y + 78) {
+          shaderMode = (shaderMode + 1) % 3;
+          audio.playKeyClick();
+          return;
+        }
+      } else if (w.appType === "ring") {
+        const btnY = w.y + w.h - 38;
+        if (mouse.y >= btnY && mouse.y <= btnY + 24) {
+          if (mouse.x >= w.x + 12 && mouse.x <= w.x + 130) {
+            w.ringSpeed = (w.ringSpeed === 1.0) ? 2.5 : 1.0;
+            audio.playKeyClick();
+          } else if (mouse.x >= w.x + 140 && mouse.x <= w.x + 300) {
+            // Inject deliberate fault -> NeuxonDoctor intercepts!
+            w.faultInjected = true;
+            audio.playKeyClick();
+            setTimeout(() => {
+              guard.logRepair("NeuxonDoctor resolved injected ring pointer desync in 0.2ms");
+              w.faultInjected = false;
+              audio.playHealFanfare();
+            }, 600);
+          } else if (mouse.x >= w.x + 320 && mouse.x <= w.x + 440) {
+            w.ringSpeed = 1.0; w.faultInjected = false;
+            audio.playKeyClick();
+          }
+        }
+      } else if (w.appType === "files") {
+        // Left pane directory click
+        if (mouse.x >= w.x + 10 && mouse.x <= w.x + 160) {
+          const dirs = ["/", "/sys", "/bin", "/etc", "/home", "/trash"];
+          const dIdx = Math.floor((mouse.y - (w.y + 54)) / 22);
+          if (dIdx >= 0 && dIdx < dirs.length) {
+            w.currentDir = dirs[dIdx];
+            audio.playKeyClick();
+          }
+        }
+      } else if (w.appType === "notes") {
+        const btnY = w.y + w.h - 32;
+        if (mouse.y >= btnY && mouse.y <= btnY + 24) {
+          if (mouse.x >= w.x + 10 && mouse.x <= w.x + 120) {
+            guard.saveVFS();
+            audio.playSnapChime();
+          }
+        }
+      }
+      return;
+    }
+  }
+
+  // 5. Desktop Widgets Dragging Check
+  for (const wg of widgets) {
+    if (mouse.x >= wg.x && mouse.x <= wg.x + wg.w && mouse.y >= wg.y && mouse.y <= wg.y + 24) {
+      wg.dragging = true;
+      wg.dragOffset.x = mouse.x - wg.x;
+      wg.dragOffset.y = mouse.y - wg.y;
+      return;
+    }
+    // Net Widget Pause & Filter button clicks
+    if (wg.id === "net" && mouse.y >= wg.y + wg.h - 26 && mouse.y <= wg.y + wg.h) {
+      if (mouse.x >= wg.x + 14 && mouse.x <= wg.x + 100) {
+        wg.paused = !wg.paused;
+        audio.playKeyClick();
+      } else if (mouse.x >= wg.x + 110 && mouse.x <= wg.x + 220) {
+        const modes = ["ALL", "TCP", "UDP"];
+        wg.filter = modes[(modes.indexOf(wg.filter) + 1) % modes.length];
+        audio.playKeyClick();
+      }
+    }
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  mouse.left = false;
+  draggingWindow = null;
+  for (const wg of widgets) wg.dragging = false;
+});
+
+// Keyboard Commands for NeuxonTerm
+window.addEventListener('keydown', (e) => {
+  audio.ensureContext();
+  audio.playKeyClick();
+
+  if (e.key === "Escape") {
+    if (bootSequence.active) {
+      bootSequence.active = false;
+      audio.playSnapChime();
+      return;
+    }
+    activeDropdown = null;
+    return;
+  }
+
+  // Toggle CRT bloom with Ctrl+B
+  if (e.ctrlKey && e.key.toLowerCase() === 'b') {
+    crtBloomEnabled = !crtBloomEnabled;
+    return;
+  }
+
+  const focusedWin = windows[windows.length - 1];
+  if (focusedWin && focusedWin.appType === "terminal" && focusedWin.focused) {
+    if (e.key === "Enter") {
+      const cmd = focusedWin.input.trim();
+      focusedWin.history.push(`root@neuxon:~# ${cmd}`);
+      focusedWin.input = "";
+
+      if (cmd === "help") {
+        focusedWin.history.push("NEUXON OS 3.5 COMMANDS: heal, fsck, ringstat, neofetch, ps, mem, ls, cat <file>, write, clear, reboot, uptime, uname");
+      } else if (cmd === "heal" || cmd === "fsck") {
+        handleMenuAction("heal");
+        focusedWin.history.push("[NeuxonGuard] Autonomous visual diagnostic initiated.");
+      } else if (cmd === "neofetch") {
+        focusedWin.history.push("      ███╗   ██╗███████╗██╗   ██╗██╗  ██╗ ██████╗ ███╗   ██╗");
+        focusedWin.history.push("      ████╗  ██║██╔════╝██║   ██║╚██╗██╔╝██╔═══██╗████╗  ██║");
+        focusedWin.history.push("      ██╔██╗ ██║█████╗  ██║   ██║ ╚███╔╝ ██║   ██║██╔██╗ ██║");
+        focusedWin.history.push("      ██║╚██╗██║██╔══╝  ██║   ██║ ██╔██╗ ██║   ██║██║╚██╗██║");
+        focusedWin.history.push("      ██║ ╚████║███████╗╚██████╔╝██╔╝ ██╗╚██████╔╝██║ ╚████║");
+        focusedWin.history.push("      ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝");
+        focusedWin.history.push("  ─────────────────────────────────────────────────────────────");
+        focusedWin.history.push("  OS:        Neuxon OS v3.5 (x86_64 SMP Exokernel)");
+        focusedWin.history.push("  Kernel:    NeuxonCore #![forbid(unsafe_op_in_unsafe_fn)]");
+        focusedWin.history.push("  Compositor:NeuxonWM 16-Bit HiDPI (120fps Spring Physics)");
+        focusedWin.history.push("  Supervisor:NeuxonGuard OODA (PID 1 NeuxonDoctor) [HEALTH: 100%]");
+      } else if (cmd === "ring" || cmd === "ringstat") {
+        focusedWin.history.push("[NeuxonRing] Lock-Free Ring SQ/CQ (256 Slots): 0.0002ms Latency");
+        focusedWin.history.push("  Head: 142 | Tail: 142 | Zero Context-Switch Traps");
+      } else if (cmd === "ps") {
+        focusedWin.history.push("PID  NAME         PRIORITY    STATE");
+        focusedWin.history.push("1    neuxon_guard Supervisor  RUNNING [Core 0]");
+        focusedWin.history.push("2    neuxon_wm    Compositor  RUNNING [Core 1]");
+        focusedWin.history.push("3    mono_ring    Interactive READY   [Core 0]");
+        focusedWin.history.push("4    chromium_oz  Normal      READY   [Core 2]");
+      } else if (cmd === "mem") {
+        focusedWin.history.push("PHYSICAL FRAMES: 524,288 total / 65,536 used (12%)");
+        focusedWin.history.push("SLAB ALLOCATOR: 8 bins (32B to 4096B) zero fragmentation");
+      } else if (cmd === "ls") {
+        focusedWin.history.push(Object.keys(guard.vfs).join("  "));
+      } else if (cmd.startsWith("cat ")) {
+        const file = cmd.slice(4).trim();
+        focusedWin.history.push(guard.vfs[file] || `cat: ${file}: No such file in VFS`);
+      } else if (cmd === "clear") {
+        focusedWin.history = [];
+      } else if (cmd === "reboot") {
+        handleMenuAction("reboot");
+      } else if (cmd === "uname" || cmd === "uname -a") {
+        focusedWin.history.push("NeuxonOS 3.5.0-exokernel x86_64 SMP");
+      } else if (cmd !== "") {
+        focusedWin.history.push(`neuxon: command not found: ${cmd} (type 'help')`);
+      }
+    } else if (e.key === "Backspace") {
+      focusedWin.input = focusedWin.input.slice(0, -1);
+    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+      focusedWin.input += e.key;
+    }
+  }
+});
+
+// ============================================================================
+// MAIN 120FPS COMPOSITOR LOOP
+// ============================================================================
+function loop() {
+  ticks++;
+
+  if (bootSequence.active) {
+    renderBootSequence();
+    requestAnimationFrame(loop);
+    return;
+  }
+
+  // Update dynamic physics and self-healing supervisor
+  updateSpringPhysics();
+  guard.updateRepairScan();
+
+  // Clear Screen with Deep Obsidian Void
+  ctx.fillStyle = C_VOID;
+  ctx.fillRect(0, 0, W, H);
+
+  // 16-Bit Dot-Matrix Background Grid
+  ctx.fillStyle = '#141822';
+  for (let y = TOPBAR_H + 8; y < H; y += 20) {
+    for (let x = 0; x < W; x += 20) {
+      ctx.fillRect(x + 9, y + 9, 2, 2);
+    }
+  }
+
+  // 1. Render Desktop Widgets
+  renderWidgets();
+
+  // 2. Render Windows in Z-Order
+  renderWindowManager();
+
+  // 3. Render Floating macOS Dock
+  renderMacosDock();
+
+  // 4. Render Global Top Menu Bar
+  renderTopMenuBar();
+
+  // 5. Render NeuxonGuard Repair Overlay (if active)
+  renderRepairOverlay();
+
+  // 6. Optional CRT / Phosphor Post-Processing Pass
+  renderCrtPostPass();
+
+  // 7. Render Inverted Mouse Cursor
+  renderCursor();
+
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

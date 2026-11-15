@@ -51,6 +51,31 @@ impl Rect {
     }
 }
 
+/// 16-Bit Obsidian & Silver Grayscale Luminance Palette
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Luminance16 {
+    Void,     // 0x05 (Deep Obsidian)
+    Carbon,   // 0x0E (Carbon Panel)
+    Gunmetal, // 0x1E (Brushed Gunmetal)
+    Steel,    // 0x4A (Machined Steel)
+    Silver,   // 0xA8 (Phosphor Silver)
+    White,    // 0xFF (Specular Pure White)
+}
+
+impl Luminance16 {
+    #[inline(always)]
+    pub const fn to_u8(self) -> u8 {
+        match self {
+            Self::Void => 0x05,
+            Self::Carbon => 0x0E,
+            Self::Gunmetal => 0x1E,
+            Self::Steel => 0x4A,
+            Self::Silver => 0xA8,
+            Self::White => 0xFF,
+        }
+    }
+}
+
 pub struct MonoDisplay {
     hw_buffer: *mut u8,
     hw_info: FrameBufferInfo,
@@ -491,8 +516,8 @@ impl MonoDisplay {
             let dst_row = py * hw_stride * bpp;
 
             for px in rect.x..(rect.x + rect.width).min(self.width) {
-                let is_white = self.back_buffer[src_row + px] != 0;
-                let color_val: u8 = if is_white { 0xFF } else { 0x00 };
+                // 16-Bit Grayscale Luminance direct mapping
+                let color_val = self.back_buffer[src_row + px];
                 let dst_idx = dst_row + px * bpp;
 
                 // SAFETY: Writing into validated linear framebuffer bounds

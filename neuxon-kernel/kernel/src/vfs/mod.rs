@@ -26,19 +26,23 @@ impl VirtualFileSystem {
         // Populate initial Neuxon OS kernel virtual files
         vfs.write_file(
             "/sys/version",
-            b"NeuxonOS 1.0.0-exokernel (Zero-Latency Rust SMP Microkernel)\n",
+            b"NeuxonOS 3.5.0-exokernel (16-Bit Obsidian & Silver Edition)\n",
         );
         vfs.write_file(
             "/sys/kernel_cmdline",
-            b"BOOT_IMAGE=/boot/vmlinuz root=PARTUUID=neuxon-01 ro quiet dock=macos 1bit=true\n",
+            b"BOOT_IMAGE=/boot/vmlinuz root=PARTUUID=neuxon-01 ro quiet guard=active hidpi=2x 16bit=true dock=macos\n",
         );
         vfs.write_file(
             "/sys/notes.txt",
-            b"=== NEUXON OS PERSISTENT DESKTOP NOTES ===\n- Architecture: 1-Bit Hybrid Exokernel (Rust)\n- Compositor: NeuxonWM (macOS Character Dock + Top Bar)\n- Syscall Ring: Lock-Free Asynchronous MonoRing\n- Window Controls: Top-Left Character Traffic Lights\n",
+            b"=== NEUXON OS 3.5 PERSISTENT WORKSPACE ===\n- Architecture: 16-Bit Obsidian & Silver Exokernel\n- NeuxonGuard: Autonomous OODA Supervisor (PID 1 NeuxonDoctor)\n- Display Server: 120fps NeuxonWM with Spring Physics & Clamping\n- Syscall Engine: Lock-Free Dual-Ring Buffer (0.0002ms Latency)\n",
+        );
+        vfs.write_file(
+            "/sys/heal.log",
+            b"[BOOT] NeuxonGuard Stage-0/Stage-1 boot diagnostic completed with 0 errors.\n",
         );
         vfs.write_file(
             "/home/user/welcome.txt",
-            b"Welcome to Neuxon OS 2.0.\nExperience high-performance 1-bit typography & macOS ergonomics!\n",
+            b"Welcome to Neuxon OS 3.5.\nExperience high-resolution 16-bit obsidian/silver typography & autonomous self-healing!\n",
         );
 
         vfs

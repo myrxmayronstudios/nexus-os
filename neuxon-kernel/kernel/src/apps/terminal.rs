@@ -39,9 +39,11 @@ impl TerminalState {
         let mut parts = trimmed.split_whitespace();
         match parts.next() {
             Some("help") => {
-                self.history.push(String::from("NEUXON OS AVAILABLE COMMANDS:"));
+                self.history.push(String::from("NEUXON OS v3.5 AVAILABLE COMMANDS:"));
                 self.history.push(String::from("  help       - Display this command reference"));
                 self.history.push(String::from("  neofetch   - Display Neuxon OS ASCII emblem & specs"));
+                self.history.push(String::from("  heal, fsck - Run NeuxonGuard autonomous system repair"));
+                self.history.push(String::from("  ringstat   - Inspect lock-free syscall ring metrics"));
                 self.history.push(String::from("  ps         - Enumerate active scheduler threads"));
                 self.history.push(String::from("  mem        - Display physical & slab memory stats"));
                 self.history.push(String::from("  ring       - Benchmark lock-free syscall ring throughput"));
@@ -51,6 +53,12 @@ impl TerminalState {
                 self.history.push(String::from("  uptime     - Display system timer ticks"));
                 self.history.push(String::from("  uname      - Print kernel architecture"));
             }
+            Some("heal") | Some("fsck") => {
+                let report = crate::guard::NeuxonDoctor::interactive_repair_all();
+                for line in report.lines() {
+                    self.history.push(String::from(line));
+                }
+            }
             Some("neofetch") => {
                 self.history.push(String::from("      ███╗   ██╗███████╗██╗   ██╗██╗  ██╗ ██████╗ ███╗   ██╗"));
                 self.history.push(String::from("      ████╗  ██║██╔════╝██║   ██║╚██╗██╔╝██╔═══██╗████╗  ██║"));
@@ -59,13 +67,13 @@ impl TerminalState {
                 self.history.push(String::from("      ██║ ╚████║███████╗╚██████╔╝██╔╝ ██╗╚██████╔╝██║ ╚████║"));
                 self.history.push(String::from("      ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝"));
                 self.history.push(String::from("  ─────────────────────────────────────────────────────────────"));
-                self.history.push(String::from("  OS:       Neuxon OS 2.0 (x86_64 Exokernel)"));
+                self.history.push(String::from("  OS:       Neuxon OS v3.5 (x86_64 SMP Exokernel)"));
                 self.history.push(String::from("  Kernel:   Neuxon Core #![forbid(unsafe_op_in_unsafe_fn)]"));
-                self.history.push(String::from("  Uptime:   12m (100Hz PIT Tick Timer)"));
-                self.history.push(String::from("  Shell:    NeuxonTerm v2.0"));
-                self.history.push(String::from("  WM:       NeuxonWM (macOS Character Dock + Top Bar)"));
+                self.history.push(String::from("  Guardian: NeuxonGuard OODA Fault Recovery [HEALTH: 100%]"));
+                self.history.push(String::from("  Shell:    NeuxonTerm v3.5"));
+                self.history.push(String::from("  Compositor: NeuxonWM (16-Bit HiDPI Spring Physics)"));
                 self.history.push(String::from("  Memory:   192 MB / 16384 MB (Slab 8-bin power-of-two)"));
-                self.history.push(String::from("  Palette:  1-Bit Monochrome (#000000 / #FFFFFF)"));
+                self.history.push(String::from("  Palette:  16-Bit Obsidian & Silver Grayscale"));
             }
             Some("ps") => {
                 self.history.push(String::from("PID   NAME         PRIORITY    STATE"));
