@@ -1,0 +1,24 @@
+[package]
+name = "neuxon-kernel"
+version = "2.0.0"
+edition = "2021"
+authors = ["Neuxon OS Architect Team"]
+description = "Neuxon OS: Deterministic zero-latency Rust exokernel with lock-free syscall rings and macOS-style 1-bit monochrome character GUI"
+
+[package.metadata.bootloader]
+map-physical-memory = true
+map-page-table-to-recursive-index = 511
+
+[dependencies]
+bootloader = { version = "0.9.23", features = ["map_physical_memory"] }
+volatile = "0.4.6"
+spin = "0.9.8"
+x86_64 = "0.14.12"
+bitflags = "2.4.2"
+lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
+conquer-once = { version = "0.4.0", default-features = false }
+
+[features]
+default = []
+smp = []
+trace-ipc = []

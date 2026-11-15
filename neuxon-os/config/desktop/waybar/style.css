@@ -172,3 +172,74 @@ tooltip label {
     background-color: #FFFFFF;
     color: #050505;
 }
+
+
+/* ============================================================================
+ * macOS-Style Floating Character Dock & Top Bar Extensions
+ * ============================================================================ */
+
+window#waybar.top-bar {
+    background-color: rgba(10, 10, 10, 0.92);
+    border: none;
+    border-bottom: 1px solid #262626;
+    border-radius: 0;
+}
+
+#custom-apple {
+    font-weight: 700;
+    color: #FFFFFF;
+    background-color: #141414;
+    border: 1px solid #2A2A2A;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin: 2px 4px;
+}
+
+#custom-apple:hover {
+    background-color: #FFFFFF;
+    color: #000000;
+    border-color: #FFFFFF;
+}
+
+window#waybar.dock {
+    background-color: rgba(10, 10, 10, 0.94);
+    border: 1px solid #FFFFFF;
+    border-radius: 14px;
+    padding: 2px 8px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85);
+}
+
+#custom-dock-launcher,
+#custom-dock-browser,
+#custom-dock-term,
+#custom-dock-files,
+#custom-dock-editor,
+#custom-dock-btop,
+#custom-dock-control,
+#custom-dock-hud,
+#custom-dock-trash {
+    background-color: #121212;
+    border: 1px solid #2A2A2A;
+    border-radius: 8px;
+    color: #F5F5F5;
+    padding: 4px 10px;
+    margin: 2px;
+    font-weight: 600;
+    transition: all 0.15s ease-in-out;
+}
+
+#custom-dock-launcher:hover,
+#custom-dock-browser:hover,
+#custom-dock-term:hover,
+#custom-dock-files:hover,
+#custom-dock-editor:hover,
+#custom-dock-btop:hover,
+#custom-dock-control:hover,
+#custom-dock-hud:hover,
+#custom-dock-trash:hover {
+    background-color: #FFFFFF;
+    color: #000000;
+    border-color: #FFFFFF;
+    margin-top: -4px;
+    padding: 4px 12px;
+}

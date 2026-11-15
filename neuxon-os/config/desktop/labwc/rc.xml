@@ -10,6 +10,7 @@
   <theme>
     <name>Neuxon-Monochrome</name>
     <cornerRadius>6</cornerRadius>
+    <buttonOrder>CIM</buttonOrder>
     <font place="ActiveWindow">
       <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
       <size>10</size>
