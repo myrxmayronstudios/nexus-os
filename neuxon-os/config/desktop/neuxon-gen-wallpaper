@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""
+Neuxon OS - 16-Bit Obsidian & Silver Binary Matrix Wallpaper Generator
+Generates /usr/share/backgrounds/neuxon-binary.png (1920x1080)
+Aesthetic: Deep obsidian void (#060709), subtle faded binary/hex columns,
+subtle vignette, and centered architectural watermark banner.
+"""
+import os
+import sys
+import random
+import math
+
+OUTPUT_PATH = "/usr/share/backgrounds/neuxon-binary.png"
+FALLBACK_DIR = os.path.expanduser("~/.local/share/backgrounds")
+WIDTH = 1920
+HEIGHT = 1080
+
+def generate_with_pillow(target_file):
+    from PIL import Image, ImageDraw, ImageFont
+
+    # 1. Base Deep Obsidian Void: #060709 (R:6, G:7, B:9)
+    img = Image.new("RGB", (WIDTH, HEIGHT), (6, 7, 9))
+    draw = ImageDraw.Draw(img)
+
+    # Monospace font attempt
+    font = None
+    for font_path in [
+        "/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
+    ]:
+        if os.path.exists(font_path):
+            try:
+                font = ImageFont.truetype(font_path, 13)
+                break
+            except Exception:
+                pass
+    if font is None:
+        font = ImageFont.load_default()
+
+    # 2. Draw Faded Binary Columns & Hex Memory Addresses
+    # Faded slate / charcoal shades: #0E1116 (14,17,22), #151921 (21,25,33), #1D232E (29,35,46)
+    shades = [(14, 17, 22), (21, 25, 33), (29, 35, 46)]
+    hex_prefixes = ["0x7FFF", "0x0020", "0xA8B2", "0x0E10", "0x1E22", "0x0000", "0x8000", "0x0400"]
+
+    random.seed(42)  # Deterministic seed for aesthetic balance
+    col_spacing = 28
+    for x in range(16, WIDTH - 16, col_spacing):
+        if random.random() < 0.25:
+            continue  # Natural column gaps
+        
+        y = 20
+        while y < HEIGHT - 30:
+            color = random.choice(shades)
+            if random.random() < 0.15:
+                # Hex memory address
+                txt = f"{random.choice(hex_prefixes)}"
+                draw.text((x, y), txt, fill=color, font=font)
+                y += 20
+            else:
+                # 3-6 binary digits vertically
+                digits_count = random.randint(3, 8)
+                for _ in range(digits_count):
+                    bit = "1" if random.random() > 0.5 else "0"
+                    draw.text((x, y), bit, fill=color, font=font)
+                    y += 15
+                y += random.randint(15, 45)
+
+    # 3. Soft Radial Vignette
+    cx, cy = WIDTH / 2, HEIGHT / 2
+    max_dist = math.sqrt(cx**2 + cy**2)
+    pixels = img.load()
+    for py in range(0, HEIGHT, 2):
+        for px in range(0, WIDTH, 2):
+            dist = math.sqrt((px - cx)**2 + (py - cy)**2)
+            factor = max(0.4, 1.0 - (dist / max_dist) * 0.7)
+            r, g, b = pixels[px, py]
+            nr, ng, nb = int(r * factor), int(g * factor), int(b * factor)
+            pixels[px, py] = (nr, ng, nb)
+            if px + 1 < WIDTH: pixels[px + 1, py] = (nr, ng, nb)
+            if py + 1 < HEIGHT: pixels[px, py + 1] = (nr, ng, nb)
+            if px + 1 < WIDTH and py + 1 < HEIGHT: pixels[px + 1, py + 1] = (nr, ng, nb)
+
+    # 4. Centered Subtle Architectural Watermark
+    watermark_w = 540
+    watermark_h = 36
+    wx = (WIDTH - watermark_w) // 2
+    wy = (HEIGHT - watermark_h) // 2
+
+    # Double-border character frame
+    draw.rectangle([wx, wy, wx + watermark_w, wy + watermark_h], outline=(42, 50, 65), width=1)
+    draw.rectangle([wx + 2, wy + 2, wx + watermark_w - 2, wy + watermark_h - 2], outline=(25, 30, 40), width=1)
+    
+    title_text = "╔══ NEUXON OS // ARM64 PRECISION ENVIRONMENT ══╗"
+    draw.text((wx + 16, wy + 10), title_text, fill=(168, 178, 193), font=font)
+
+    # Ensure parent directory exists
+    os.makedirs(os.path.dirname(target_file), exist_ok=True)
+    img.save(target_file, "PNG")
+    print(f"Generated wallpaper: {target_file}")
+
+def generate_with_ppm(target_file):
+    # Pure Python portable PPM (P6) generator without external dependencies
+    ppm_file = target_file.replace(".png", ".ppm")
+    os.makedirs(os.path.dirname(ppm_file), exist_ok=True)
+
+    header = f"P6\n{WIDTH} {HEIGHT}\n255\n".encode("ascii")
+    with open(ppm_file, "wb") as f:
+        f.write(header)
+        row_dark = bytes([6, 7, 9] * WIDTH)
+        subtle_vals = []
+        for x in range(WIDTH):
+            subtle_vals.extend([14, 17, 22 if (x % 32 == 0) else 9])
+        row_subtle = bytes(subtle_vals)
+        for y in range(HEIGHT):
+            if y % 16 == 0:
+                f.write(row_subtle)
+            else:
+                f.write(row_dark)
+    
+    if os.system(f"convert {ppm_file} {target_file} >/dev/null 2>&1") == 0:
+        if os.path.exists(ppm_file): os.remove(ppm_file)
+        print(f"Generated wallpaper via PPM/convert: {target_file}")
+    else:
+        # If convert not available, move PPM directly as fallback
+        os.rename(ppm_file, target_file)
+        print(f"Generated raw PPM fallback: {target_file}")
+
+def main():
+    target = OUTPUT_PATH
+    try:
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+    except Exception:
+        target = os.path.join(FALLBACK_DIR, "neuxon-binary.png")
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+
+    try:
+        generate_with_pillow(target)
+    except Exception as e:
+        print(f"Pillow generation notice: {e}, falling back to portable PPM generator")
+        generate_with_ppm(target)
+
+if __name__ == "__main__":
+    main()

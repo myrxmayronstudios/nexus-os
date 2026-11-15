@@ -3,10 +3,10 @@
         "name": "top-bar",
         "layer": "top",
         "position": "top",
-        "height": 24,
+        "height": 32,
         "spacing": 4,
         "modules-left": [
-            "custom/apple",
+            "custom/neuxon-brand",
             "wlr/workspaces"
         ],
         "modules-center": [
@@ -14,16 +14,16 @@
         ],
         "modules-right": [
             "cpu",
-            "custom/zram",
             "memory",
             "temperature",
+            "custom/zram",
             "network",
             "custom/volume",
             "tray"
         ],
-        "custom/apple": {
-            "format": "\u2756 NEUXON",
-            "tooltip-format": "Neuxon OS 2.0 (Super+D for App Launcher)",
+        "custom/neuxon-brand": {
+            "format": "❖ NEUXON",
+            "tooltip-format": "Neuxon OS (Super+D for App Menu)",
             "on-click": "fuzzel"
         },
         "wlr/workspaces": {
@@ -31,17 +31,17 @@
             "all-outputs": true,
             "format": "{icon}",
             "format-icons": {
-                "1": "\u25c6",
-                "2": "\u25c7",
-                "3": "\u25c7",
-                "4": "\u25c7",
-                "active": "\u25c6",
-                "default": "\u25c7"
+                "1": "◆",
+                "2": "◇",
+                "3": "◇",
+                "4": "◇",
+                "active": "◆",
+                "default": "◇"
             },
             "on-click": "activate"
         },
         "clock": {
-            "format": "{:%H:%M:%S  \u00b7  %Y-%m-%d}",
+            "format": "{:%H:%M:%S  ·  %Y-%m-%d}",
             "tooltip-format": "<tt><small>{calendar}</small></tt>",
             "interval": 1
         },
@@ -49,36 +49,36 @@
             "format": "CPU {usage}%",
             "interval": 2,
             "tooltip": true,
-            "on-click": "/usr/local/bin/neuxon-btop-gadget"
-        },
-        "custom/zram": {
-            "exec": "/usr/local/bin/neuxon-zram-status",
-            "interval": 5,
-            "tooltip-format": "ZRAM Memory Compression Ratio",
-            "on-click": "/usr/local/bin/neuxon-btop-gadget"
+            "on-click": "/usr/local/bin/neuxon-launch btop"
         },
         "memory": {
             "format": "RAM {percentage}%",
             "interval": 3,
             "tooltip-format": "RAM: {used:0.2f}GB / {total:0.2f}GB ({percentage}%)",
-            "on-click": "/usr/local/bin/neuxon-btop-gadget"
+            "on-click": "/usr/local/bin/neuxon-launch btop"
         },
         "temperature": {
             "thermal-zone": 0,
-            "format": "{temperatureC}\u00b0C",
+            "format": "{temperatureC}°C",
             "critical-threshold": 75,
-            "format-critical": "! {temperatureC}\u00b0C",
+            "format-critical": "! {temperatureC}°C",
             "interval": 4,
-            "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}\u00b0C"
+            "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}°C"
+        },
+        "custom/zram": {
+            "exec": "/usr/local/bin/neuxon-zram-status",
+            "interval": 5,
+            "tooltip-format": "ZRAM Memory Compression Ratio",
+            "on-click": "/usr/local/bin/neuxon-launch btop"
         },
         "network": {
             "interval": 5,
             "format-wifi": "WLAN {signalStrength}%",
             "format-ethernet": "ETH {ifname}",
             "format-disconnected": "OFFLINE",
-            "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Strength: {signalStrength}%",
+            "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Signal: {signalStrength}%",
             "tooltip-format-ethernet": "Interface: {ifname} | IP: {ipaddr}",
-            "on-click": "foot -a neuxon-control /usr/local/bin/neuxon-control"
+            "on-click": "/usr/local/bin/neuxon-launch control"
         },
         "custom/volume": {
             "exec": "/usr/local/bin/neuxon-volume-status",
@@ -97,64 +97,52 @@
         "name": "dock",
         "layer": "top",
         "position": "bottom",
-        "height": 44,
-        "margin-bottom": 10,
-        "spacing": 6,
+        "height": 48,
+        "margin-bottom": 12,
+        "spacing": 8,
         "modules-center": [
-            "custom/dock-launcher",
             "custom/dock-browser",
             "custom/dock-term",
-            "custom/dock-files",
-            "custom/dock-editor",
             "custom/dock-btop",
-            "custom/dock-control",
-            "custom/dock-hud",
-            "custom/dock-trash"
+            "custom/dock-files",
+            "custom/dock-fastfetch",
+            "custom/dock-heal",
+            "custom/dock-power"
         ],
-        "custom/dock-launcher": {
-            "format": "\u2756 APPS",
-            "tooltip-format": "Application Menu (Super+D)",
-            "on-click": "fuzzel"
-        },
         "custom/dock-browser": {
-            "format": "\ud83c\udf10 WEB",
-            "tooltip-format": "Chromium Web Browser",
-            "on-click": "/usr/local/bin/neuxon-browser"
+            "format": "🌐 Chromium",
+            "tooltip-format": "Chromium Web Browser (ARM64 Optimized)",
+            "on-click": "/usr/local/bin/neuxon-launch chromium"
         },
         "custom/dock-term": {
-            "format": ">_ TERM",
+            "format": ">_ Terminal",
             "tooltip-format": "Foot Terminal Shell (Super+Return)",
-            "on-click": "foot"
-        },
-        "custom/dock-files": {
-            "format": "\ud83d\udcc1 FILES",
-            "tooltip-format": "Yazi File Manager",
-            "on-click": "foot -e yazi"
-        },
-        "custom/dock-editor": {
-            "format": "\ud83d\udcdd EDIT",
-            "tooltip-format": "Micro Code & Text Editor",
-            "on-click": "foot -e micro"
+            "on-click": "/usr/local/bin/neuxon-launch foot"
         },
         "custom/dock-btop": {
-            "format": "\ud83d\udcca MON",
-            "tooltip-format": "Toggle Desktop btop Gadget (Super+B)",
-            "on-click": "/usr/local/bin/neuxon-btop-gadget"
+            "format": "📊 btop",
+            "tooltip-format": "BTOP System Monitor & Task Matrix",
+            "on-click": "/usr/local/bin/neuxon-launch btop"
         },
-        "custom/dock-control": {
-            "format": "\u2699 CTRL",
-            "tooltip-format": "Neuxon Control Center (Super+C)",
-            "on-click": "foot -a neuxon-control -T 'Neuxon Control Center' /usr/local/bin/neuxon-control"
+        "custom/dock-files": {
+            "format": "📁 Files",
+            "tooltip-format": "Yazi Terminal File Manager",
+            "on-click": "/usr/local/bin/neuxon-launch yazi"
         },
-        "custom/dock-hud": {
-            "format": "\u25c7 HUD",
-            "tooltip-format": "Toggle Neuxon HUD Overlay (Super+H)",
-            "on-click": "/usr/local/bin/neuxon-hud"
+        "custom/dock-fastfetch": {
+            "format": "⚡ Fastfetch",
+            "tooltip-format": "Neuxon Architecture & Kernel Specification",
+            "on-click": "/usr/local/bin/neuxon-launch fastfetch"
         },
-        "custom/dock-trash": {
-            "format": "\ud83d\uddd1 TRASH",
-            "tooltip-format": "Trash (Open Trash directory)",
-            "on-click": "foot -e yazi ~/.local/share/Trash"
+        "custom/dock-heal": {
+            "format": "🛠 Heal OS",
+            "tooltip-format": "Neuxon Autonomous Self-Healing Diagnostic",
+            "on-click": "/usr/local/bin/neuxon-launch doctor"
+        },
+        "custom/dock-power": {
+            "format": "⏻ Power",
+            "tooltip-format": "Neuxon Power & Control Center",
+            "on-click": "/usr/local/bin/neuxon-launch control"
         }
     }
 ]

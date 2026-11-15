@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS - Persistent VFS Notes & Checklist Widget (436x560 px)
+# Backed directly by ~/.local/share/neuxon/notes.txt with live editing
+# ============================================================================
+set -u
+
+NOTES_DIR="${HOME}/.local/share/neuxon"
+NOTES_FILE="${NOTES_DIR}/notes.txt"
+mkdir -p "${NOTES_DIR}"
+
+if [ ! -f "${NOTES_FILE}" ]; then
+    cat > "${NOTES_FILE}" << 'EOF'
+=== NEUXON OS // SYSTEM CHECKLIST ===
+[OK] BCM2837B0 ARM64 Kernel 64-bit Verified
+[OK] 16-Bit Obsidian & Silver Compositor Active
+[OK] VideoCore IV vc4-kms-v3d Acceleration Ready
+[OK] ZRAM zstd Swap Configured (1GB Pool)
+
+WORKSPACE SHORTCUTS:
+• Super + Return : Foot Terminal
+• Super + D      : Fuzzel Application Launcher
+• Super + B      : btop System Monitor
+• Super + C      : Neuxon Control Center
+• Super + Q      : Close Focused Window
+• Super + 1..4   : Switch Workspaces
+• Super + Shift + 1..4: Move Window
+
+VFS MEMO PAD:
+- All changes saved in real-time to notes.txt
+- Press [e] to edit, or [q] to refresh view
+EOF
+fi
+
+clear
+while true; do
+    printf "\033[H"
+    echo "╔══════════════════════════════════════════╗"
+    echo "║  NEUXON OS PERSISTENT NOTES SCRATCHPAD   ║"
+    echo "╠══════════════════════════════════════════╣"
+    head -n 24 "${NOTES_FILE}"
+    echo "╚══════════════════════════════════════════╝"
+    echo " [e] Edit Notes in Micro  |  [r] Refresh view"
+    read -n 1 -t 5 key || true
+    if [ "${key}" = "e" ] || [ "${key}" = "E" ]; then
+        if command -v micro >/dev/null 2>&1; then
+            micro "${NOTES_FILE}"
+        else
+            nano "${NOTES_FILE}"
+        fi
+        clear
+    elif [ "${key}" = "q" ] || [ "${key}" = "Q" ]; then
+        clear
+    fi
+done

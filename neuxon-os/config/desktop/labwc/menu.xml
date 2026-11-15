@@ -3,29 +3,34 @@
 
   <menu id="root-menu" label="NEUXON // OS">
 
-    <!-- Primary Control Center -->
-    <item label="◆ Neuxon Control Center">
+    <!-- Self-Healing & Diagnostics -->
+    <item label="◆ Neuxon Doctor (Audit &amp; Repair)">
       <action name="Execute">
-        <command>foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control</command>
+        <command>/usr/local/bin/neuxon-launch doctor</command>
       </action>
     </item>
-    <item label="◇ System HUD Overlay">
+    <item label="◈ Neuxon Control Center">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch control</command>
+      </action>
+    </item>
+    <item label="◇ System Telemetry HUD">
       <action name="Execute">
         <command>/usr/local/bin/neuxon-hud</command>
-      </action>
-    </item>
-    <item label="◈ Toggle btop Gadget">
-      <action name="Execute">
-        <command>/usr/local/bin/neuxon-btop-gadget</command>
       </action>
     </item>
 
     <separator />
 
     <!-- Core Applications -->
-    <item label="Terminal (Foot)">
+    <item label="Terminal Shell (Foot)">
       <action name="Execute">
-        <command>foot</command>
+        <command>/usr/local/bin/neuxon-launch foot</command>
+      </action>
+    </item>
+    <item label="Web Browser (Chromium)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch chromium</command>
       </action>
     </item>
     <item label="App Launcher (Fuzzel)">
@@ -33,53 +38,48 @@
         <command>fuzzel</command>
       </action>
     </item>
-    <item label="Web Browser">
-      <action name="Execute">
-        <command>/usr/local/bin/neuxon-browser</command>
-      </action>
-    </item>
     <item label="File Manager (Yazi)">
       <action name="Execute">
-        <command>foot -e yazi</command>
+        <command>/usr/local/bin/neuxon-launch yazi</command>
       </action>
     </item>
     <item label="Micro Text Editor">
       <action name="Execute">
-        <command>foot -e micro</command>
+        <command>/usr/local/bin/neuxon-launch micro</command>
       </action>
     </item>
     <item label="Helix Code Editor">
       <action name="Execute">
-        <command>foot -e hx</command>
+        <command>/usr/local/bin/neuxon-launch hx</command>
       </action>
     </item>
 
     <separator />
 
-    <!-- System Monitoring & Tools -->
-    <item label="BTOP Monitor (Monochrome)">
+    <!-- System Telemetry & Utilities -->
+    <item label="Task Matrix (btop)">
       <action name="Execute">
-        <command>foot -e btop</command>
+        <command>/usr/local/bin/neuxon-launch btop</command>
       </action>
     </item>
-    <item label="Bottom Hardware Graphs (BTM)">
+    <item label="System Spec (Fastfetch)">
       <action name="Execute">
-        <command>foot -e btm</command>
+        <command>/usr/local/bin/neuxon-launch fastfetch</command>
       </action>
     </item>
     <item label="LazyGit UI">
       <action name="Execute">
-        <command>foot -e lazygit</command>
+        <command>/usr/local/bin/neuxon-launch lazygit</command>
       </action>
     </item>
     <item label="LazyDocker UI">
       <action name="Execute">
-        <command>foot -e lazydocker</command>
+        <command>/usr/local/bin/neuxon-launch lazydocker</command>
       </action>
     </item>
-    <item label="Kew Music Player">
+    <item label="Regenerate Binary Wallpaper">
       <action name="Execute">
-        <command>foot -e kew</command>
+        <command>/usr/local/bin/neuxon-gen-wallpaper</command>
       </action>
     </item>
 

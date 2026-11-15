@@ -164,17 +164,40 @@ if [ -f /tmp/neuxon-config/system/mpv/mpv.conf ]; then
 fi
 
 # --------------------------------------------------------------------------
-# 10. Install Custom Preloaded Utilities & Desktop Launchers
+# 10. Install Custom Preloaded Utilities, Self-Healing Daemon & Desktop Widgets
 # --------------------------------------------------------------------------
-echo "[STAGE-03] Installing Neuxon utilities and launchers..."
+echo "[STAGE-03] Installing Neuxon utilities, self-healing supervisor & widgets..."
 
-for util in neuxon-control neuxon-hud neuxon-browser neuxon-btop-gadget neuxon-zram-status neuxon-volume-status; do
+for util in neuxon-doctor \
+            neuxon-launch \
+            neuxon-browser \
+            neuxon-gen-wallpaper \
+            neuxon-sysinfo-widget \
+            neuxon-telemetry-widget \
+            neuxon-net-widget \
+            neuxon-notes-widget \
+            neuxon-matrix-widget \
+            neuxon-control \
+            neuxon-hud \
+            neuxon-btop-gadget \
+            neuxon-zram-status \
+            neuxon-volume-status; do
     if [ -f "${CONFIG_SRC}/${util}" ]; then
         cp "${CONFIG_SRC}/${util}" "/usr/local/bin/${util}"
         chmod 755 "/usr/local/bin/${util}"
         echo "[STAGE-03] Installed /usr/local/bin/${util}"
     fi
 done
+
+# Install wallpaper asset if present, or generate it
+mkdir -p /usr/share/backgrounds
+if [ -f /tmp/neuxon-config/branding/wallpapers/neuxon-binary.png ]; then
+    cp /tmp/neuxon-config/branding/wallpapers/neuxon-binary.png /usr/share/backgrounds/neuxon-binary.png
+    echo "[STAGE-03] Installed /usr/share/backgrounds/neuxon-binary.png"
+elif [ -x /usr/local/bin/neuxon-gen-wallpaper ]; then
+    /usr/local/bin/neuxon-gen-wallpaper >/dev/null 2>&1 || true
+    echo "[STAGE-03] Generated /usr/share/backgrounds/neuxon-binary.png"
+fi
 
 # Install all .desktop application launchers into /usr/share/applications/
 mkdir -p /usr/share/applications
@@ -195,20 +218,29 @@ if [ -f "${CONFIG_SRC}/neuxon-session.sh" ]; then
 else
     cat > /usr/local/bin/neuxon-session.sh << 'SESSIONEOF'
 #!/usr/bin/env bash
+clear
+tput civis 2>/dev/null || true
+
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-mkdir -p "${XDG_RUNTIME_DIR}"
-chmod 0700 "${XDG_RUNTIME_DIR}"
+mkdir -p "${XDG_RUNTIME_DIR}" 2>/dev/null || sudo mkdir -p "${XDG_RUNTIME_DIR}"
+chmod 0700 "${XDG_RUNTIME_DIR}" 2>/dev/null || true
 
 export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTOP=labwc
+export XDG_CURRENT_DESKTOP=wlroots
 export XDG_SESSION_DESKTOP=labwc
-export MESA_GL_VERSION_OVERRIDE=3.3
-export WLR_RENDERER=gles2
+export WLR_NO_HARDWARE_CURSORS=1
+export WLR_DRM_NO_ATOMIC=1
+export WLR_RENDERER=pixman
+export TERM=foot
+
+if [ -x /usr/local/bin/neuxon-doctor ]; then
+    /usr/local/bin/neuxon-doctor || true
+fi
 
 if command -v dbus-run-session &>/dev/null; then
-    exec dbus-run-session -- labwc
+    exec dbus-run-session -- labwc > /tmp/labwc.log 2>&1
 else
-    exec labwc
+    exec labwc > /tmp/labwc.log 2>&1
 fi
 SESSIONEOF
 fi

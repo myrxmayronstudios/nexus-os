@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS - Sysinfo Interactive Desktop Widget (520x250 px)
+# Displays system specs and drops directly into an interactive shell
+# ============================================================================
+set -u
+
+clear
+cat << 'EOF'
+╔════════════════════════════════════════════════════════╗
+║  NEUXON OS // RPi3B+ ARM64 PRECISION LINUX ENVIRONMENT ║
+╠════════════════════════════════════════════════════════╣
+║  CPU : Broadcom BCM2837B0 (Cortex-A53 x4 @ 1.4GHz)     ║
+║  RAM : 1GB LPDDR2 + ZRAM (zstd compressed swap)        ║
+║  GPU : VideoCore IV (vc4-kms-v3d Wayland Driver)       ║
+║  KERN: 64-bit arm64 Linux (Low-Latency Preemption)     ║
+║  COMP: Labwc 16-Bit Obsidian Compositor + Foot         ║
+║  OODA: NeuxonGuard Autonomous Self-Healing Active      ║
+╚════════════════════════════════════════════════════════╝
+ Type 'help' or press Super+D for launcher. Ready.
+EOF
+
+export PS1="\[\033[1;37m\]neuxon@rpi3b+\[\033[0;37m\]:\[\033[1;34m\]~\[\033[0;37m\]$ "
+exec bash --login

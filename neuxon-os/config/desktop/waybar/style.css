@@ -1,12 +1,13 @@
 /* ============================================================================
  * Neuxon OS - Stealth Monochrome Glass Waybar Stylesheet
- * Void Black: #050505 | Frosted Obsidian: rgba(14, 14, 14, 0.86) | Carbon: #141414
- * Specular Hairlines: #2A2A2A (Unfocused) / #FFFFFF (Focused)
- * Typography: JetBrains Mono Nerd Font, Primary #F5F5F5, Muted #7A7A7A
+ * 16-Bit Obsidian Luminance Palette:
+ * Void Obsidian: #060709 | Frosted Matrix: rgba(14, 17, 22, 0.92) | Carbon: #14171C
+ * Specular Hairlines: #262B33 (Unfocused) / #FFFFFF (Focused)
+ * Typography: JetBrains Mono Nerd Font, Primary #F2F4F8, Muted #727A86
  * ============================================================================ */
 
 * {
-    font-family: "JetBrains Mono Nerd Font", "JetBrains Mono", "Hack", monospace;
+    font-family: "JetBrains Mono Nerd Font", "JetBrains Mono", "DejaVu Sans Mono", monospace;
     font-size: 11px;
     font-weight: 500;
     min-height: 0;
@@ -14,78 +15,61 @@
     border-radius: 0;
     margin: 0;
     padding: 0;
-    color: #F5F5F5;
+    color: #F2F4F8;
 }
 
-window#waybar {
-    background-color: rgba(13, 13, 13, 0.88);
-    border: 1px solid #262626;
-    border-radius: 8px;
-    color: #F5F5F5;
+/* Base Top Bar Container */
+window#waybar.top-bar {
+    background-color: rgba(10, 12, 16, 0.94);
+    border: none;
+    border-bottom: 1px solid #20242C;
+    color: #F2F4F8;
 }
 
 /* Tooltips */
 tooltip {
-    background-color: #0E0E0EDB;
+    background-color: rgba(14, 17, 22, 0.96);
     border: 1px solid #FFFFFF;
     border-radius: 6px;
-    color: #F5F5F5;
+    color: #F2F4F8;
     padding: 4px;
 }
 
 tooltip label {
-    color: #F5F5F5;
+    color: #F2F4F8;
     padding: 4px 8px;
 }
 
-/* Quick Launcher Buttons */
-#custom-launcher,
-#custom-term,
-#custom-browser,
-#custom-files,
-#custom-editor,
-#custom-btop,
-#custom-control,
-#custom-hud {
-    background-color: #141414;
-    border: 1px solid #2A2A2A;
-    border-radius: 6px;
-    color: #F5F5F5;
-    padding: 2px 8px;
-    margin: 3px 2px;
-    letter-spacing: 0.3px;
-    font-weight: 600;
-}
-
-#custom-launcher {
-    color: #FFFFFF;
+/* Brand Button */
+#custom-neuxon-brand {
     font-weight: 700;
+    font-size: 11px;
+    color: #FFFFFF;
+    background-color: #14171C;
+    border: 1px solid #262B33;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin: 3px 4px;
+    letter-spacing: 0.5px;
 }
 
-#custom-launcher:hover,
-#custom-term:hover,
-#custom-browser:hover,
-#custom-files:hover,
-#custom-editor:hover,
-#custom-btop:hover,
-#custom-control:hover,
-#custom-hud:hover {
+#custom-neuxon-brand:hover {
     background-color: #FFFFFF;
-    color: #050505;
+    color: #060709;
     border-color: #FFFFFF;
 }
 
 /* Workspaces */
 #workspaces {
-    background-color: #141414;
-    border: 1px solid #2A2A2A;
+    background-color: #14171C;
+    border: 1px solid #262B33;
     border-radius: 6px;
     padding: 0 4px;
     margin: 3px 2px;
 }
 
 #workspaces button {
-    color: #7A7A7A;
+    color: #727A86;
     background-color: transparent;
     padding: 2px 6px;
     margin: 0 1px;
@@ -97,7 +81,7 @@ tooltip label {
 
 #workspaces button:hover {
     color: #FFFFFF;
-    background-color: #2A2A2A;
+    background-color: #262B33;
 }
 
 #workspaces button.active {
@@ -105,36 +89,37 @@ tooltip label {
     font-weight: 700;
 }
 
-/* Clock */
+/* Top Bar Center Clock */
 #clock {
-    background-color: #141414;
-    border: 1px solid #2A2A2A;
+    background-color: #14171C;
+    border: 1px solid #262B33;
     border-radius: 6px;
-    color: #F5F5F5;
-    padding: 2px 12px;
+    color: #F2F4F8;
+    padding: 2px 14px;
     margin: 3px 2px;
     letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
 /* Telemetry Pills */
 #cpu,
-#custom-zram,
 #memory,
 #temperature,
+#custom-zram,
 #network,
 #custom-volume {
-    background-color: #141414;
-    border: 1px solid #2A2A2A;
+    background-color: #14171C;
+    border: 1px solid #262B33;
     border-radius: 6px;
-    color: #F5F5F5;
+    color: #F2F4F8;
     padding: 2px 8px;
     margin: 3px 2px;
 }
 
 #cpu:hover,
-#custom-zram:hover,
 #memory:hover,
 #temperature:hover,
+#custom-zram:hover,
 #network:hover,
 #custom-volume:hover {
     border-color: #FFFFFF;
@@ -142,104 +127,77 @@ tooltip label {
 
 #temperature.critical {
     color: #FFFFFF;
-    background-color: #2A2A2A;
+    background-color: #2E1515;
     border-color: #FFFFFF;
     font-weight: 700;
 }
 
 #network.disconnected {
-    color: #7A7A7A;
+    color: #727A86;
 }
 
 /* System Tray */
 #tray {
-    background-color: #141414;
-    border: 1px solid #2A2A2A;
+    background-color: #14171C;
+    border: 1px solid #262B33;
     border-radius: 6px;
     padding: 2px 6px;
     margin: 3px 2px;
 }
 
 #tray menu {
-    background-color: #0E0E0EDB;
+    background-color: rgba(14, 17, 22, 0.96);
     border: 1px solid #FFFFFF;
     border-radius: 6px;
-    color: #F5F5F5;
+    color: #F2F4F8;
     padding: 4px;
 }
 
 #tray menu menuitem:hover {
     background-color: #FFFFFF;
-    color: #050505;
+    color: #060709;
 }
-
 
 /* ============================================================================
- * macOS-Style Floating Character Dock & Top Bar Extensions
+ * Floating Parabolic Bottom Dock Container
  * ============================================================================ */
 
-window#waybar.top-bar {
-    background-color: rgba(10, 10, 10, 0.92);
-    border: none;
-    border-bottom: 1px solid #262626;
-    border-radius: 0;
-}
-
-#custom-apple {
-    font-weight: 700;
-    color: #FFFFFF;
-    background-color: #141414;
-    border: 1px solid #2A2A2A;
-    border-radius: 6px;
-    padding: 2px 10px;
-    margin: 2px 4px;
-}
-
-#custom-apple:hover {
-    background-color: #FFFFFF;
-    color: #000000;
-    border-color: #FFFFFF;
-}
-
 window#waybar.dock {
-    background-color: rgba(10, 10, 10, 0.94);
-    border: 1px solid #FFFFFF;
-    border-radius: 14px;
-    padding: 2px 8px;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85);
+    background-color: rgba(10, 12, 16, 0.94);
+    border: 1px solid #262B33;
+    border-radius: 12px;
+    padding: 3px 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);
 }
 
-#custom-dock-launcher,
 #custom-dock-browser,
 #custom-dock-term,
-#custom-dock-files,
-#custom-dock-editor,
 #custom-dock-btop,
-#custom-dock-control,
-#custom-dock-hud,
-#custom-dock-trash {
-    background-color: #121212;
-    border: 1px solid #2A2A2A;
+#custom-dock-files,
+#custom-dock-fastfetch,
+#custom-dock-heal,
+#custom-dock-power {
+    background-color: #14171C;
+    border: 1px solid #262B33;
     border-radius: 8px;
-    color: #F5F5F5;
-    padding: 4px 10px;
-    margin: 2px;
+    color: #F2F4F8;
+    padding: 6px 14px;
+    margin: 2px 3px;
     font-weight: 600;
-    transition: all 0.15s ease-in-out;
+    font-size: 11px;
+    transition: all 0.12s ease-in-out;
 }
 
-#custom-dock-launcher:hover,
 #custom-dock-browser:hover,
 #custom-dock-term:hover,
-#custom-dock-files:hover,
-#custom-dock-editor:hover,
 #custom-dock-btop:hover,
-#custom-dock-control:hover,
-#custom-dock-hud:hover,
-#custom-dock-trash:hover {
+#custom-dock-files:hover,
+#custom-dock-fastfetch:hover,
+#custom-dock-heal:hover,
+#custom-dock-power:hover {
     background-color: #FFFFFF;
-    color: #000000;
+    color: #060709;
     border-color: #FFFFFF;
-    margin-top: -4px;
-    padding: 4px 12px;
+    margin-top: -3px;
+    padding: 6px 16px;
 }

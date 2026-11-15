@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS - Fault-Tolerant Universal Application Launcher
+# Intercepts app launches, provides fallback binaries, and guarantees sizing
+# ============================================================================
+set -u
+
+LOGFILE="/tmp/neuxon-heal.log"
+TIMESTAMP() { date +"%Y-%m-%d %H:%M:%S"; }
+
+log_heal() {
+    echo "[$(TIMESTAMP)] [LAUNCH-FALLBACK] $1" >> "${LOGFILE}"
+}
+
+APP="${1:-}"
+shift || true
+
+case "${APP}" in
+    browser|web)
+        if [ -x /usr/local/bin/neuxon-browser ]; then
+            exec /usr/local/bin/neuxon-browser "$@"
+        elif command -v chromium-browser >/dev/null 2>&1; then
+            exec chromium-browser --ozone-platform=wayland "$@"
+        elif command -v chromium >/dev/null 2>&1; then
+            exec chromium --ozone-platform=wayland "$@"
+        elif command -v firefox-esr >/dev/null 2>&1; then
+            exec firefox-esr "$@"
+        else
+            log_heal "No GUI browser installed; spawning Lynx/w3m fallback"
+            foot --app-id=neuxon-browser --window-size-chars=104x32 -e sh -c "if command -v w3m >/dev/null; then w3m https://duckduckgo.com; elif command -v lynx >/dev/null; then lynx https://duckduckgo.com; else echo 'No browser installed. Run: sudo apt install chromium'; exec sh; fi"
+        fi
+        ;;
+
+    terminal|term)
+        if command -v foot >/dev/null 2>&1; then
+            exec foot "$@"
+        elif command -v alacritty >/dev/null 2>&1; then
+            exec alacritty "$@"
+        else
+            log_heal "foot not found, using generic x-terminal-emulator"
+            exec x-terminal-emulator "$@"
+        fi
+        ;;
+
+    btop|monitor)
+        if command -v btop >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-btop --window-size-chars=98x30 -e btop "$@"
+        elif command -v btm >/dev/null 2>&1; then
+            log_heal "btop missing, falling back to bottom (btm)"
+            exec foot --app-id=neuxon-btop --window-size-chars=98x30 -e btm "$@"
+        elif command -v htop >/dev/null 2>&1; then
+            log_heal "btop missing, falling back to htop"
+            exec foot --app-id=neuxon-btop --window-size-chars=98x30 -e htop "$@"
+        else
+            log_heal "btop/htop missing, falling back to top"
+            exec foot --app-id=neuxon-btop --window-size-chars=98x30 -e top "$@"
+        fi
+        ;;
+
+    files|filemanager)
+        if command -v yazi >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-files --window-size-chars=104x32 -e yazi "$@"
+        elif command -v pcmanfm >/dev/null 2>&1; then
+            exec pcmanfm "$@"
+        elif command -v ranger >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-files --window-size-chars=104x32 -e ranger "$@"
+        elif command -v mc >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-files --window-size-chars=104x32 -e mc "$@"
+        else
+            log_heal "No file manager found, falling back to shell explorer"
+            exec foot --app-id=neuxon-files --window-size-chars=104x32 -e sh -c "ls -la; exec bash"
+        fi
+        ;;
+
+    fastfetch|sysinfo)
+        if command -v fastfetch >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "fastfetch; echo ''; exec sh"
+        elif command -v neofetch >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "neofetch; echo ''; exec sh"
+        else
+            log_heal "fastfetch missing, running kernel uname diagnostic"
+            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "uname -a; lscpu; free -h; echo ''; exec sh"
+        fi
+        ;;
+
+    editor|edit)
+        if command -v micro >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e micro "$@"
+        elif command -v hx >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e hx "$@"
+        elif command -v nvim >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e nvim "$@"
+        elif command -v nano >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e nano "$@"
+        else
+            log_heal "micro/hx missing, falling back to vi"
+            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e vi "$@"
+        fi
+        ;;
+
+    doctor|heal)
+        exec foot --app-id=neuxon-heal --window-size-chars=88x24 -e sh -c "/usr/local/bin/neuxon-doctor; echo ''; echo 'Press [Enter] to close.'; read -r _"
+        ;;
+
+    power|exit)
+        exec foot --app-id=neuxon-power --window-size-chars=60x14 -e sh -c "
+            echo '╔════════════════════════════════════════════════════════╗'
+            echo '║          NEUXON OS POWER MANAGEMENT                    ║'
+            echo '╠════════════════════════════════════════════════════════╣'
+            echo '║  [1] Power Off System                                  ║'
+            echo '║  [2] Reboot System                                     ║'
+            echo '║  [3] Exit Wayland Session                              ║'
+            echo '║  [4] Cancel                                            ║'
+            echo '╚════════════════════════════════════════════════════════╝'
+            read -p 'Select option [1-4]: ' opt
+            case \"\$opt\" in
+                1) sudo poweroff ;;
+                2) sudo reboot ;;
+                3) pkill labwc ;;
+                *) exit 0 ;;
+            esac
+        "
+        ;;
+
+    *)
+        # Generic launcher with auto-terminal wrap for CLI tools
+        if [ -z "${APP}" ]; then
+            exec fuzzel
+        fi
+
+        if command -v "${APP}" >/dev/null 2>&1; then
+            # Test if binary is graphical or TUI
+            if ldd "$(command -v "${APP}")" 2>/dev/null | grep -qE "libwayland|libX11|libgtk|libQt"; then
+                exec "${APP}" "$@"
+            else
+                exec foot --app-id="neuxon-${APP}" --window-size-chars=104x32 -e "${APP}" "$@"
+            fi
+        else
+            log_heal "Command '${APP}' not found in PATH"
+            exec foot --app-id="neuxon-err" --window-size-chars=70x12 -e sh -c "echo 'Command not found: ${APP}'; echo 'Press [Enter] to exit.'; read -r _"
+        fi
+        ;;
+esac

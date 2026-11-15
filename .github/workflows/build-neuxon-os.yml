@@ -172,12 +172,14 @@ jobs:
           tag_name: latest
           name: "Neuxon OS — Latest Raspberry Pi 3B+ Release"
           body: |
-            ## Neuxon OS for Raspberry Pi 3 Model B+ (ARM64)
-            - **Windows Hero Stealth Monochrome Wallpaper**
-            - **Zero Mouse Lag:** VideoCore IV KMS 60Hz hardware overlay cursor
-            - **Persistent btop Gadget:** Always-running desktop resource monitor
-            - **Auto-expand Rootfs:** Automatically resizes to 100% of SD card
-            - **Flashable image:** Direct `.img.xz` file for Raspberry Pi Imager
+            ## Neuxon OS for Raspberry Pi 3 Model B+ (ARM64) — 16-Bit Obsidian Edition
+            - **16-Bit Obsidian & Silver Luminance Interface:** High-contrast phosphor silver typography on deep obsidian void.
+            - **Parabolic Gaussian Navigation Dock & Horizon Status Matrix:** Sub-pixel scaling with low-latency Wayland composition.
+            - **Autonomous Self-Healing Supervisor (`NeuxonDoctor / NeuxonGuard`):** Pre-flight boot validation, runtime fault interception, and automatic checkpoint hot-reloading.
+            - **6 Dedicated Architectural Telemetry Widgets:** Borderless system spec, compute matrix, thermal hardware telemetry, network chrono, VFS scratchpad, and kernel dmesg stream.
+            - **VideoCore IV VC4 DRM/KMS Hardware Acceleration:** 60Hz hardware overlay cursor, zstd ZRAM compression, and zero mouse lag.
+            - **Auto-expand Rootfs:** Automatically resizes to 100% of SD card on first boot.
+            - **Flashable Image:** Direct `.img.xz` binary artifact ready for Raspberry Pi Imager and BalenaEtcher.
           files: |
             output/Neuxon-OS-rpi3bplus-arm64.img.xz
             neuxon-os/output/Neuxon-OS-rpi3bplus-arm64.img.xz

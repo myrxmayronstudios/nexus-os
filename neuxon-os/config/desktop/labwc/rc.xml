@@ -9,32 +9,13 @@
 
   <theme>
     <name>Neuxon-Monochrome</name>
-    <cornerRadius>6</cornerRadius>
+    <cornerRadius>0</cornerRadius>
     <buttonOrder>CIM</buttonOrder>
-    <font place="ActiveWindow">
-      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
-      <size>10</size>
-      <slant>normal</slant>
-      <weight>bold</weight>
-    </font>
-    <font place="InactiveWindow">
-      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
-      <size>10</size>
-      <slant>normal</slant>
-      <weight>normal</weight>
-    </font>
-    <font place="MenuItem">
-      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
-      <size>10</size>
-      <slant>normal</slant>
-      <weight>normal</weight>
-    </font>
-    <font place="OnScreenDisplay">
-      <name>JetBrains Mono Nerd Font, JetBrains Mono, monospace</name>
-      <size>10</size>
-      <slant>normal</slant>
-      <weight>bold</weight>
-    </font>
+    <font place="ActiveWindow"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>bold</weight></font>
+    <font place="InactiveWindow"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>normal</weight></font>
+    <font place="MenuHeader"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>bold</weight></font>
+    <font place="MenuItem"><name>JetBrains Mono</name><size>10</size><slant>normal</slant><weight>normal</weight></font>
+    <font place="OnScreenDisplay"><name>JetBrains Mono</name><size>11</size><slant>normal</slant><weight>bold</weight></font>
   </theme>
 
   <decoration>
@@ -47,28 +28,52 @@
   </decoration>
 
   <windowRules>
-    <windowRule identifier="*" type="*">
-      <serverDecoration>yes</serverDecoration>
-      <skipTaskbar>no</skipTaskbar>
+    <windowRule identifier="*" serverDecoration="yes" skipTaskbar="no" />
+
+    <!-- Terminal Widget 1: Sysinfo (Top-Left) -->
+    <windowRule identifier="neuxon-sysinfo" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+      <action name="MoveTo" x="24" y="44" />
+      <action name="ResizeTo" width="520" height="250" />
     </windowRule>
 
-    <!-- Always-running btop desktop gadget rule -->
-    <windowRule identifier="btop-gadget">
-      <windowType>normal</windowType>
-      <serverDecoration>no</serverDecoration>
-      <skipTaskbar>yes</skipTaskbar>
-      <skipWindowSwitcher>yes</skipWindowSwitcher>
-      <ignoreFocusRequest>yes</ignoreFocusRequest>
-      <action name="ToggleAlwaysOnBottom" />
-      <action name="ToggleOmnipresent" />
-      <action name="MoveTo" x="16" y="46" />
+    <!-- Terminal Widget 2: btop System Monitor (Top-Center) -->
+    <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+      <action name="MoveTo" x="564" y="44" />
+      <action name="ResizeTo" width="880" height="560" />
     </windowRule>
 
-    <!-- Floating HUD window rule -->
-    <windowRule identifier="neuxon-hud">
-      <windowType>normal</windowType>
-      <serverDecoration>no</serverDecoration>
+    <!-- Terminal Widget 3: Hardware Telemetry (Middle-Left) -->
+    <windowRule identifier="neuxon-telemetry" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+      <action name="MoveTo" x="24" y="310" />
+      <action name="ResizeTo" width="520" height="294" />
+    </windowRule>
+
+    <!-- Terminal Widget 4: Chrono & Network Matrix (Bottom-Left) -->
+    <windowRule identifier="neuxon-net" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+      <action name="MoveTo" x="24" y="620" />
+      <action name="ResizeTo" width="520" height="250" />
+    </windowRule>
+
+    <!-- Terminal Widget 5: VFS Notes & Checklist (Top-Right) -->
+    <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+      <action name="MoveTo" x="1460" y="44" />
+      <action name="ResizeTo" width="436" height="560" />
+    </windowRule>
+
+    <!-- Terminal Widget 6: Kernel Ring & IPC Matrix (Bottom-Right) -->
+    <windowRule identifier="neuxon-matrix" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+      <action name="MoveTo" x="564" y="620" />
+      <action name="ResizeTo" width="1332" height="250" />
+    </windowRule>
+
+    <!-- Secondary HUD & App Dialog Rules -->
+    <windowRule identifier="neuxon-hud" serverDecoration="no">
       <action name="ToggleAlwaysOnTop" />
+    </windowRule>
+
+    <windowRule identifier="neuxon-control" serverDecoration="yes">
+      <action name="MoveTo" x="360" y="160" />
+      <action name="ResizeTo" width="1200" height="700" />
     </windowRule>
   </windowRules>
 
@@ -101,98 +106,106 @@
   <keyboard>
     <default />
 
-    <!-- Terminal -->
-    <keybind key="Super_L-Return">
+    <!-- Core Terminal Shell -->
+    <keybind key="W-Return">
       <action name="Execute">
-        <command>foot</command>
+        <command>/usr/local/bin/neuxon-launch terminal</command>
       </action>
     </keybind>
 
-    <!-- App Launcher -->
-    <keybind key="Super_L-d">
+    <!-- Application Launcher -->
+    <keybind key="W-d">
       <action name="Execute">
         <command>fuzzel</command>
       </action>
     </keybind>
 
-    <!-- Toggle btop desktop gadget -->
-    <keybind key="Super_L-b">
+    <!-- Toggle btop Monitor -->
+    <keybind key="W-b">
       <action name="Execute">
-        <command>/usr/local/bin/neuxon-btop-gadget</command>
+        <command>/usr/local/bin/neuxon-launch btop</command>
       </action>
     </keybind>
 
     <!-- Neuxon Control Center -->
-    <keybind key="Super_L-c">
+    <keybind key="W-c">
       <action name="Execute">
         <command>foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control</command>
       </action>
     </keybind>
 
-    <!-- Neuxon System HUD -->
-    <keybind key="Super_L-h">
+    <!-- Neuxon HUD Overlay -->
+    <keybind key="W-h">
       <action name="Execute">
         <command>/usr/local/bin/neuxon-hud</command>
       </action>
     </keybind>
 
-    <!-- Lockscreen -->
-    <keybind key="Super_L-l">
+    <!-- Screen Lock -->
+    <keybind key="W-l">
       <action name="Execute">
         <command>swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5</command>
       </action>
     </keybind>
 
-    <!-- Close window -->
-    <keybind key="Super_L-q">
+    <!-- Close Window -->
+    <keybind key="W-q">
       <action name="Close" />
     </keybind>
 
-    <!-- Toggle fullscreen -->
-    <keybind key="Super_L-f">
+    <!-- Fullscreen Toggle -->
+    <keybind key="W-f">
       <action name="ToggleFullscreen" />
     </keybind>
 
     <!-- Window Navigation / Tiling Snap -->
-    <keybind key="Super_L-Left">
+    <keybind key="W-Left">
       <action name="SnapToEdge" direction="left" />
     </keybind>
-    <keybind key="Super_L-Right">
+    <keybind key="W-Right">
       <action name="SnapToEdge" direction="right" />
     </keybind>
-    <keybind key="Super_L-Up">
+    <keybind key="W-Up">
       <action name="ToggleMaximize" />
     </keybind>
-    <keybind key="Super_L-Down">
+    <keybind key="W-Down">
       <action name="Iconify" />
     </keybind>
 
-    <!-- Workspace switching -->
-    <keybind key="Super_L-1">
+    <!-- Window Cycling -->
+    <keybind key="A-Tab">
+      <action name="NextWindow" />
+    </keybind>
+    <keybind key="A-S-Tab">
+      <action name="PreviousWindow" />
+    </keybind>
+
+    <!-- Workspace Navigation (W-1 .. W-4) -->
+    <keybind key="W-1">
       <action name="GoToDesktop" to="1" />
     </keybind>
-    <keybind key="Super_L-2">
+    <keybind key="W-2">
       <action name="GoToDesktop" to="2" />
     </keybind>
-    <keybind key="Super_L-3">
+    <keybind key="W-3">
       <action name="GoToDesktop" to="3" />
     </keybind>
-    <keybind key="Super_L-4">
+    <keybind key="W-4">
       <action name="GoToDesktop" to="4" />
     </keybind>
 
-    <!-- Send to workspace -->
-    <keybind key="Super_L-Shift-1">
-      <action name="SendToDesktop" to="1" />
+    <!-- Send Window to Workspace (W-S-1 .. W-S-4) -->
+    <keybind key="W-S-1">
+      <action name="SendToDesktop" to="1" follow="yes" />
     </keybind>
-    <keybind key="Super_L-Shift-2">
-      <action name="SendToDesktop" to="2" />
+    <keybind key="W-S-2">
+      <action name="SendToDesktop" to="2" follow="yes" />
     </keybind>
-    <keybind key="Super_L-Shift-3">
-      <action name="SendToDesktop" to="3" />
+    <keybind key="W-S-3">
+      <action name="SendToDesktop" to="3" follow="yes" />
     </keybind>
-    <keybind key="Super_L-Shift-4">
-      <action name="SendToDesktop" to="4" />
+    <keybind key="W-S-4">
+      <action name="SendToDesktop" to="4" follow="yes" />
     </keybind>
 
     <!-- Screenshot -->
