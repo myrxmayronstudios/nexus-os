@@ -6,7 +6,6 @@
     "margin-top": 6,
     "margin-left": 10,
     "margin-right": 10,
-
     "modules-left": [
         "custom/launcher",
         "custom/term",
@@ -30,125 +29,108 @@
         "custom/volume",
         "tray"
     ],
-
     "custom/launcher": {
-        "format": "❖ APPS",
+        "format": "\u2756 APPS",
         "tooltip-format": "Open Application Menu (Super+D)",
         "on-click": "fuzzel"
     },
-
     "custom/term": {
-        "format": " TERM",
+        "format": "\uf120 TERM",
         "tooltip-format": "Open Terminal (Super+Return)",
         "on-click": "foot"
     },
-
     "custom/browser": {
-        "format": "🌐 WEB",
+        "format": "\ud83c\udf10 WEB",
         "tooltip-format": "Launch Web Browser (Chromium / Min)",
         "on-click": "/usr/local/bin/neuxon-browser"
     },
-
     "custom/files": {
-        "format": "📁 FILES",
+        "format": "\ud83d\udcc1 FILES",
         "tooltip-format": "Open File Manager (Yazi)",
         "on-click": "foot -e yazi"
     },
-
     "custom/editor": {
-        "format": "📝 EDIT",
+        "format": "\ud83d\udcdd EDIT",
         "tooltip-format": "Open Micro Text Editor",
         "on-click": "foot -e micro"
     },
-
     "custom/btop": {
-        "format": "📊 MON",
+        "format": "\ud83d\udcca MON",
         "tooltip-format": "Toggle Desktop btop Gadget (Super+B)",
         "on-click": "/usr/local/bin/neuxon-btop-gadget"
     },
-
     "custom/control": {
-        "format": "⚙ CTRL",
+        "format": "\u2699 CTRL",
         "tooltip-format": "Neuxon Control Center (Super+C)",
         "on-click": "foot -a neuxon-control -T 'Neuxon Control Center' /usr/local/bin/neuxon-control"
     },
-
     "custom/hud": {
-        "format": "◇ HUD",
+        "format": "\u25c7 HUD",
         "tooltip-format": "Toggle Neuxon System HUD Overlay (Super+H)",
         "on-click": "/usr/local/bin/neuxon-hud"
     },
-
     "wlr/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "format": "{icon}",
         "format-icons": {
-            "1": "◆",
-            "2": "◇",
-            "3": "◇",
-            "4": "◇",
-            "active": "◆",
-            "default": "◇"
+            "1": "\u25c6",
+            "2": "\u25c7",
+            "3": "\u25c7",
+            "4": "\u25c7",
+            "active": "\u25c6",
+            "default": "\u25c7"
         },
         "on-click": "activate"
     },
-
     "clock": {
-        "format": "{:%H:%M:%S  ·  %Y-%m-%d}",
+        "format": "{:%H:%M:%S  \u00b7  %Y-%m-%d}",
         "tooltip-format": "<tt><small>{calendar}</small></tt>",
         "interval": 1
     },
-
     "cpu": {
         "format": "CPU {usage}%",
         "interval": 2,
         "tooltip": true,
         "on-click": "/usr/local/bin/neuxon-btop-gadget"
     },
-
     "custom/zram": {
-        "exec": "bash -c 'if command -v zramctl &>/dev/null; then r=$(zramctl --bytes 2>/dev/null | awk "NR>1 {if (\$4>0) printf \"%.1fx\", \$3/\$4; else print \"1.0x\"}"); echo "ZRAM ${r:-1.0x}"; else echo "ZRAM OK"; fi'",
+        "exec": "/usr/local/bin/neuxon-zram-status",
         "interval": 5,
         "tooltip-format": "ZRAM Memory Compression Ratio",
         "on-click": "/usr/local/bin/neuxon-btop-gadget"
     },
-
     "memory": {
         "format": "RAM {percentage}%",
         "interval": 3,
         "tooltip-format": "RAM: {used:0.2f}GB / {total:0.2f}GB ({percentage}%)",
         "on-click": "/usr/local/bin/neuxon-btop-gadget"
     },
-
     "temperature": {
         "thermal-zone": 0,
-        "format": "{temperatureC}°C",
+        "format": "{temperatureC}\u00b0C",
         "critical-threshold": 75,
-        "format-critical": "! {temperatureC}°C",
+        "format-critical": "! {temperatureC}\u00b0C",
         "interval": 4,
-        "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}°C"
+        "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}\u00b0C"
     },
-
     "network": {
         "interval": 5,
         "format-wifi": "WLAN {signalStrength}%",
         "format-ethernet": "ETH {ifname}",
         "format-disconnected": "OFFLINE",
-        "tooltip-format-wifi": "SSID: {essid}\nIP: {ipaddr}\nStrength: {signalStrength}%",
-        "tooltip-format-ethernet": "Interface: {ifname}\nIP: {ipaddr}",
+        "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Strength: {signalStrength}%",
+        "tooltip-format-ethernet": "Interface: {ifname} | IP: {ipaddr}",
         "on-click": "foot -a neuxon-control /usr/local/bin/neuxon-control"
     },
-
     "custom/volume": {
-        "exec": "bash -c 'if command -v wpctl &>/dev/null; then v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk "{print int(\$2*100)}"); echo "VOL ${v:-50}%"; else echo "VOL 50%"; fi'",
+        "exec": "/usr/local/bin/neuxon-volume-status",
         "interval": 2,
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
         "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
         "tooltip-format": "WirePlumber Audio Volume"
     },
-
     "tray": {
         "icon-size": 13,
         "spacing": 6

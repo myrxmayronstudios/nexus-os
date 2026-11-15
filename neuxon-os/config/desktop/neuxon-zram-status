@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+if command -v zramctl &>/dev/null; then
+    r=$(zramctl --bytes 2>/dev/null | awk 'NR>1 {if ($4>0) printf "%.1fx", $3/$4; else print "1.0x"}')
+    echo "ZRAM ${r:-1.0x}"
+else
+    echo "ZRAM OK"
+fi

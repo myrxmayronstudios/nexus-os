@@ -168,7 +168,7 @@ fi
 # --------------------------------------------------------------------------
 echo "[STAGE-03] Installing Neuxon utilities and launchers..."
 
-for util in neuxon-control neuxon-hud neuxon-browser neuxon-btop-gadget; do
+for util in neuxon-control neuxon-hud neuxon-browser neuxon-btop-gadget neuxon-zram-status neuxon-volume-status; do
     if [ -f "${CONFIG_SRC}/${util}" ]; then
         cp "${CONFIG_SRC}/${util}" "/usr/local/bin/${util}"
         chmod 755 "/usr/local/bin/${util}"
