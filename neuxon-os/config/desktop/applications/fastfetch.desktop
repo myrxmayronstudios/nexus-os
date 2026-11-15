@@ -2,7 +2,7 @@
 Type=Application
 Name=Neuxon System Info
 Comment=Display hardware, kernel, and OS info banner
-Exec=foot -e bash -c "fastfetch; echo; read -p 'Press Enter to exit...'"
+Exec=/usr/local/bin/neuxon-launch fastfetch
 Icon=dialog-information
 Terminal=false
 Categories=System;

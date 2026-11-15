@@ -196,7 +196,21 @@ install_github_release "BurntSushi/ripgrep" "rg" "aarch64-unknown-linux-musl.*\\
 echo "[STAGE-02] Provisioning Development & System Monitoring apps..."
 
 # yazi (terminal file manager)
-install_github_release "yazi-rs/yazi" "yazi" "aarch64-unknown-linux-musl.*\\.zip$"
+install_github_release "sxyazi/yazi" "yazi" "aarch64-unknown-linux-musl.*\\.zip$"
+
+# Resilient direct fallback for yazi in case of API rate limits
+if [ ! -f /usr/local/bin/yazi ]; then
+    echo "[STAGE-02] Fetching yazi via direct fallback URL..."
+    YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-aarch64-unknown-linux-musl.zip"
+    curl -sSL --fail -o /tmp/yazi_fallback.zip "${YAZI_URL}" 2>/dev/null || true
+    if [ -f /tmp/yazi_fallback.zip ]; then
+        unzip -q -o /tmp/yazi_fallback.zip -d /tmp/yazi_fb 2>/dev/null || true
+        find /tmp/yazi_fb -type f -name yazi -perm /111 -exec cp {} /usr/local/bin/yazi \; 2>/dev/null || true
+        chmod 755 /usr/local/bin/yazi 2>/dev/null || true
+        rm -rf /tmp/yazi_fallback.zip /tmp/yazi_fb
+        echo "[STAGE-02] Installed yazi via direct fallback"
+    fi
+fi
 
 # helix (modern modal editor)
 install_github_release "helix-editor/helix" "hx" "aarch64-linux.*\\.tar\\.xz$"
@@ -221,8 +235,16 @@ install_github_release "ClementTsang/bottom" "btm" "aarch64-unknown-linux-musl.*
 # --------------------------------------------------------------------------
 echo "[STAGE-02] Provisioning Media, Networking & Utilities..."
 
-# kew (ultra-lightweight terminal music player)
-install_github_release "ravachol/kew" "kew" "aarch64.*\\.tar\\.gz$"
+# cmus (ultra-lightweight terminal music player) + kew wrapper
+apt-get install -y --no-install-recommends cmus 2>/dev/null || true
+if command -v cmus &>/dev/null; then
+    cat > /usr/local/bin/kew << 'KEWEOF'
+#!/bin/sh
+exec cmus "$@"
+KEWEOF
+    chmod 755 /usr/local/bin/kew
+    echo "[STAGE-02] Created /usr/local/bin/kew wrapper to cmus"
+fi
 
 # croc (encrypted P2P file transfer)
 install_github_release "schollz/croc" "croc" "Linux-ARM64.*\\.tar\\.gz$"
@@ -258,6 +280,16 @@ fi
 if ! command -v fzf &>/dev/null; then
     apt-get install -y --no-install-recommends fzf 2>/dev/null || true
 fi
+
+# Additional core terminal productivity tools
+apt-get install -y --no-install-recommends \
+    mc \
+    ncdu \
+    htop \
+    tree \
+    bc \
+    tmux \
+    w3m 2>/dev/null || true
 
 # --------------------------------------------------------------------------
 # 7. Install Desktop Shortcuts for Preloaded Applications
@@ -342,16 +374,51 @@ Type=Application
 Categories=Development;
 EOF
 
-# Kew Music Player
-cat > /usr/share/applications/kew.desktop << 'EOF'
+# CMUS / Kew Music Player
+cat > /usr/share/applications/cmus.desktop << 'EOF'
 [Desktop Entry]
-Name=Kew Music Player
+Name=C* Music Player (cmus)
 Comment=Lightweight terminal music player
-Exec=foot -T "Kew Music Player" -e kew
+Exec=foot -T "C* Music Player" -e cmus
 Icon=multimedia-audio-player
 Terminal=false
 Type=Application
 Categories=AudioVideo;Audio;Player;
+EOF
+
+cat > /usr/share/applications/kew.desktop << 'EOF'
+[Desktop Entry]
+Name=Music Player (cmus / kew)
+Comment=Lightweight terminal music player
+Exec=/usr/local/bin/neuxon-launch music
+Icon=multimedia-audio-player
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Player;
+EOF
+
+# Midnight Commander
+cat > /usr/share/applications/mc.desktop << 'EOF'
+[Desktop Entry]
+Name=Midnight Commander
+Comment=Dual-pane terminal file manager
+Exec=foot -T "Midnight Commander" -e mc
+Icon=system-file-manager
+Terminal=false
+Type=Application
+Categories=System;FileManager;
+EOF
+
+# NCDU Disk Usage Analyzer
+cat > /usr/share/applications/ncdu.desktop << 'EOF'
+[Desktop Entry]
+Name=Disk Usage Analyzer (ncdu)
+Comment=NCurses disk usage analyzer
+Exec=foot -T "Disk Usage (ncdu)" -e ncdu /
+Icon=utilities-system-monitor
+Terminal=false
+Type=Application
+Categories=System;Utility;
 EOF
 
 # Update desktop database

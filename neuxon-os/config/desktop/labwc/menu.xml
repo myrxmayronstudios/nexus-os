@@ -28,9 +28,9 @@
         <command>/usr/local/bin/neuxon-launch foot</command>
       </action>
     </item>
-    <item label="Web Browser (Chromium)">
+    <item label="Web Browser (Chromium / Min)">
       <action name="Execute">
-        <command>/usr/local/bin/neuxon-launch chromium</command>
+        <command>/usr/local/bin/neuxon-launch browser</command>
       </action>
     </item>
     <item label="App Launcher (Fuzzel)">
@@ -43,6 +43,16 @@
         <command>/usr/local/bin/neuxon-launch yazi</command>
       </action>
     </item>
+    <item label="Dual-Pane Files (Midnight Commander)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch mc</command>
+      </action>
+    </item>
+    <item label="GUI File Manager (PCManFM)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch pcmanfm</command>
+      </action>
+    </item>
     <item label="Micro Text Editor">
       <action name="Execute">
         <command>/usr/local/bin/neuxon-launch micro</command>
@@ -51,6 +61,40 @@
     <item label="Helix Code Editor">
       <action name="Execute">
         <command>/usr/local/bin/neuxon-launch hx</command>
+      </action>
+    </item>
+    <item label="GUI Text Editor (Mousepad)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch mousepad</command>
+      </action>
+    </item>
+
+    <separator />
+
+    <!-- Media & Productivity Applications -->
+    <item label="Music Player (C* Music Player - cmus)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch music</command>
+      </action>
+    </item>
+    <item label="Image Viewer (imv)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch image</command>
+      </action>
+    </item>
+    <item label="PDF &amp; Document Viewer (Zathura)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch zathura</command>
+      </action>
+    </item>
+    <item label="Scientific Calculator (Galculator)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch galculator</command>
+      </action>
+    </item>
+    <item label="Disk Usage Analyzer (ncdu)">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-launch ncdu</command>
       </action>
     </item>
 

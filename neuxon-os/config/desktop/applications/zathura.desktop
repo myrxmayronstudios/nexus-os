@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Document & PDF Viewer (Zathura)
+Comment=Keyboard-centric, fast PDF and document viewer
+Exec=/usr/local/bin/neuxon-launch pdf %F
+Icon=application-pdf
+Terminal=false
+Categories=Office;Viewer;
+Keywords=pdf;document;viewer;reader;zathura;

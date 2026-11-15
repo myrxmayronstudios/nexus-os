@@ -102,18 +102,38 @@ apt-get install -y --no-install-recommends \
 echo "[STAGE-03] Mesa/GPU drivers installed"
 
 # --------------------------------------------------------------------------
-# 7b. Install Chromium Browser & GUI Utilities
+# 7b. Install Chromium Browser, Viewers & Optimized GUI / CLI Utilities
 # --------------------------------------------------------------------------
-echo "[STAGE-03] Installing Chromium browser, GUI file manager, and editor ..."
+echo "[STAGE-03] Installing Chromium browser, GUI file manager, image/PDF viewers & apps..."
 apt-get install -y --no-install-recommends \
     chromium \
     pcmanfm \
-    mousepad 2>/dev/null || \
+    mousepad \
+    imv \
+    zathura \
+    zathura-pdf-poppler \
+    galculator \
+    cmus \
+    mc \
+    ncdu \
+    tree \
+    bc \
+    w3m 2>/dev/null || \
 apt-get install -y --no-install-recommends \
     pcmanfm \
-    mousepad 2>/dev/null || true
+    mousepad \
+    imv \
+    zathura \
+    zathura-pdf-poppler \
+    galculator \
+    cmus \
+    mc \
+    ncdu \
+    tree \
+    bc \
+    w3m 2>/dev/null || true
 
-echo "[STAGE-03] Browser and GUI utilities provisioned" 
+echo "[STAGE-03] Browser and GUI/CLI utilities provisioned" 
 
 # --------------------------------------------------------------------------
 # 8. Set up neuxon user

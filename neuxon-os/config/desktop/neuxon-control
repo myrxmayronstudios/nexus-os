@@ -161,7 +161,7 @@ update_github_apps() {
         "starship/starship"
         "zellij-org/zellij"
         "aristocratos/btop"
-        "yazi-rs/yazi"
+        "sxyazi/yazi"
         "helix-editor/helix"
         "zyedidia/micro"
         "jesseduffield/lazygit"
@@ -174,7 +174,6 @@ update_github_apps() {
         "ClementTsang/bottom"
         "schollz/croc"
         "charmbracelet/gum"
-        "ravachol/kew"
     )
 
     for app in "${apps[@]}"; do

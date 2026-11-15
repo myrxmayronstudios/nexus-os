@@ -2,7 +2,7 @@
 Type=Application
 Name=Helix Modal Editor
 Comment=Post-modern modal text editor built in Rust
-Exec=foot -e hx %F
+Exec=/usr/local/bin/neuxon-launch hx %F
 Icon=accessories-text-editor
 Terminal=false
 Categories=Development;TextEditor;

@@ -101,12 +101,16 @@ Traditional monolithic kernels waste thousands of CPU cycles on synchronous cont
 
 ---
 
-## 6. Live Desktop Widgets
+## 6. Live Desktop Dashboard Widgets (Fixed & Unmovable)
 
-1. **NeuxonRing IPC & Telemetry Matrix:** Real-time spinning isometric ring animation, per-core CPU meters, and `[ HEALTH: 100% / 0 ERRORS ]` badge.
-2. **Chrono & Calendar Matrix:** High-contrast digital clock with UTC sub-second sweep and interactive month calendar navigation (`[◄] [►]`).
-3. **VFS Sticky Pad (`/sys/notes.txt`):** Desktop memo synced directly with the VFS and `SysNotes`.
-4. **Packet & Socket Matrix:** Live scrolling network stream with working `[ Pause ]`, `[ Clear ]`, and `[ Filter: ALL/TCP/UDP ]` controls.
+The desktop surface features 6 permanently anchored, unmovable terminal telemetry widgets (`fixedPosition="yes"`) that form an integrated mission control matrix:
+
+1. **Neuxon Architecture & Subsystems** (`[01]`, 520x250 @ Top-Left): Hardware specifications, exokernel parameters, and interactive shell entry.
+2. **Task Matrix & CPU Compute Clusters** (`[02]`, 880x560 @ Top-Center): Real-time `btop` process tree, per-core compute graphs, and memory allocation.
+3. **Live Hardware & Thermal Telemetry** (`[03]`, 520x294 @ Middle-Left): Zero-flicker sensor telemetry, SoC thermal envelope, ZRAM compression ratio, and CPU throttling status.
+4. **Chrono & Network Telemetry** (`[04]`, 520x250 @ Bottom-Left): High-precision clock, active IP interfaces (`eth0`/`wlan0`), ping latency, and open TCP/UDP sockets.
+5. **Neuxon VFS Scratchpad & Memo** (`[05]`, 436x560 @ Top-Right): Persistent memo pad backed by `~/.local/share/neuxon/notes.txt` with in-place Micro editor integration.
+6. **Kernel Ring & IPC Stream** (`[06]`, 1332x250 @ Bottom-Right): Live `dmesg` ring buffer, lock-free IPC throughput metrics, and context-switch latency.
 
 ---
 

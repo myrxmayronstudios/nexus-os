@@ -25,41 +25,44 @@
   <windowRules>
     <windowRule identifier="*" serverDecoration="yes" skipTaskbar="no" />
 
-    <!-- Terminal Widget 1: Sysinfo (Top-Left) -->
-    <windowRule identifier="neuxon-sysinfo" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+    <!-- Terminal Widget 1: Sysinfo (Top-Left) - Fixed & Unmovable -->
+    <windowRule identifier="neuxon-sysinfo" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
       <action name="MoveTo" x="24" y="44" />
       <action name="ResizeTo" width="520" height="250" />
     </windowRule>
 
-    <!-- Terminal Widget 2: btop System Monitor (Top-Center) -->
-    <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+    <!-- Terminal Widget 2: btop System Monitor (Top-Center) - Fixed & Unmovable -->
+    <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
       <action name="MoveTo" x="564" y="44" />
       <action name="ResizeTo" width="880" height="560" />
     </windowRule>
 
-    <!-- Terminal Widget 3: Hardware Telemetry (Middle-Left) -->
-    <windowRule identifier="neuxon-telemetry" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+    <!-- Terminal Widget 3: Hardware Telemetry (Middle-Left) - Fixed & Unmovable -->
+    <windowRule identifier="neuxon-telemetry" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
       <action name="MoveTo" x="24" y="310" />
       <action name="ResizeTo" width="520" height="294" />
     </windowRule>
 
-    <!-- Terminal Widget 4: Chrono & Network Matrix (Bottom-Left) -->
-    <windowRule identifier="neuxon-net" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+    <!-- Terminal Widget 4: Chrono & Network Matrix (Bottom-Left) - Fixed & Unmovable -->
+    <windowRule identifier="neuxon-net" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
       <action name="MoveTo" x="24" y="620" />
       <action name="ResizeTo" width="520" height="250" />
     </windowRule>
 
-    <!-- Terminal Widget 5: VFS Notes & Checklist (Top-Right) -->
-    <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+    <!-- Terminal Widget 5: VFS Notes & Checklist (Top-Right) - Fixed & Unmovable -->
+    <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
       <action name="MoveTo" x="1460" y="44" />
       <action name="ResizeTo" width="436" height="560" />
     </windowRule>
 
-    <!-- Terminal Widget 6: Kernel Ring & IPC Matrix (Bottom-Right) -->
-    <windowRule identifier="neuxon-matrix" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
+    <!-- Terminal Widget 6: Kernel Ring & IPC Matrix (Bottom-Right) - Fixed & Unmovable -->
+    <windowRule identifier="neuxon-matrix" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
       <action name="MoveTo" x="564" y="620" />
       <action name="ResizeTo" width="1332" height="250" />
     </windowRule>
+
+    <!-- Catch-all for any additional Neuxon desktop widgets -->
+    <windowRule identifier="neuxon-*-widget" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes" />
 
     <!-- Secondary HUD & App Dialog Rules -->
     <windowRule identifier="neuxon-hud" serverDecoration="no">
@@ -69,6 +72,47 @@
     <windowRule identifier="neuxon-control" serverDecoration="yes">
       <action name="MoveTo" x="360" y="160" />
       <action name="ResizeTo" width="1200" height="700" />
+    </windowRule>
+
+    <!-- Optimized Application Placement Rules -->
+    <windowRule identifier="neuxon-files" serverDecoration="yes">
+      <action name="MoveTo" x="420" y="180" />
+      <action name="ResizeTo" width="1080" height="720" />
+    </windowRule>
+
+    <windowRule identifier="neuxon-music" serverDecoration="yes">
+      <action name="MoveTo" x="480" y="240" />
+      <action name="ResizeTo" width="960" height="600" />
+    </windowRule>
+
+    <windowRule identifier="cmus" serverDecoration="yes">
+      <action name="MoveTo" x="480" y="240" />
+      <action name="ResizeTo" width="960" height="600" />
+    </windowRule>
+
+    <windowRule identifier="imv" serverDecoration="yes">
+      <action name="MoveTo" x="380" y="140" />
+      <action name="ResizeTo" width="1160" height="780" />
+    </windowRule>
+
+    <windowRule identifier="org.pwmt.zathura" serverDecoration="yes">
+      <action name="MoveTo" x="380" y="120" />
+      <action name="ResizeTo" width="1160" height="820" />
+    </windowRule>
+
+    <windowRule identifier="galculator" serverDecoration="yes">
+      <action name="MoveTo" x="780" y="300" />
+      <action name="ResizeTo" width="360" height="480" />
+    </windowRule>
+
+    <windowRule identifier="pcmanfm" serverDecoration="yes">
+      <action name="MoveTo" x="420" y="180" />
+      <action name="ResizeTo" width="1080" height="720" />
+    </windowRule>
+
+    <windowRule identifier="mousepad" serverDecoration="yes">
+      <action name="MoveTo" x="460" y="200" />
+      <action name="ResizeTo" width="1000" height="680" />
     </windowRule>
   </windowRules>
 

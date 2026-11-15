@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Disk Usage Analyzer (ncdu)
+Comment=NCurses disk usage analyzer for storage management
+Exec=/usr/local/bin/neuxon-launch ncdu
+Icon=utilities-system-monitor
+Terminal=false
+Categories=System;Utility;
+Keywords=disk;usage;storage;analyzer;ncdu;

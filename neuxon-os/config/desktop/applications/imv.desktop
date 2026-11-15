@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Image Viewer (imv)
+Comment=Lightweight Wayland image viewer
+Exec=/usr/local/bin/neuxon-launch image %F
+Icon=image-viewer
+Terminal=false
+Categories=Graphics;Viewer;
+Keywords=image;photo;picture;viewer;imv;

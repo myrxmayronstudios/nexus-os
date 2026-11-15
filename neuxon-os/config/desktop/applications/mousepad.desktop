@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Mousepad Text Editor
+Comment=Simple and lightweight graphical text editor
+Exec=/usr/local/bin/neuxon-launch mousepad %F
+Icon=accessories-text-editor
+Terminal=false
+Categories=Utility;TextEditor;
+Keywords=text;editor;notes;mousepad;

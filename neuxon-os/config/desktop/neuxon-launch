@@ -16,13 +16,17 @@ APP="${1:-}"
 shift || true
 
 case "${APP}" in
-    browser|web|chromium|chromium-browser|google-chrome)
+    browser|web|chromium|chromium-browser|google-chrome|min)
         if [ -x /usr/local/bin/neuxon-browser ]; then
             exec /usr/local/bin/neuxon-browser "$@"
         elif command -v chromium-browser >/dev/null 2>&1; then
             exec chromium-browser --ozone-platform=wayland "$@"
         elif command -v chromium >/dev/null 2>&1; then
             exec chromium --ozone-platform=wayland "$@"
+        elif command -v min >/dev/null 2>&1; then
+            exec min "$@"
+        elif [ -x /opt/Min/min ]; then
+            exec /opt/Min/min "$@"
         elif command -v firefox-esr >/dev/null 2>&1; then
             exec firefox-esr "$@"
         else
@@ -57,29 +61,116 @@ case "${APP}" in
         fi
         ;;
 
+    btm|bottom)
+        if command -v btm >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-btop --window-size-chars=98x30 -e btm "$@"
+        else
+            exec /usr/local/bin/neuxon-launch btop "$@"
+        fi
+        ;;
+
     files|filemanager|yazi)
         if command -v yazi >/dev/null 2>&1; then
             exec foot --app-id=neuxon-files --window-size-chars=104x32 -e yazi "$@"
+        elif command -v mc >/dev/null 2>&1; then
+            log_heal "yazi missing, falling back to Midnight Commander"
+            exec foot --app-id=neuxon-files --window-size-chars=104x32 -e mc "$@"
         elif command -v pcmanfm >/dev/null 2>&1; then
+            log_heal "yazi missing, falling back to pcmanfm"
             exec pcmanfm "$@"
         elif command -v ranger >/dev/null 2>&1; then
             exec foot --app-id=neuxon-files --window-size-chars=104x32 -e ranger "$@"
-        elif command -v mc >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-files --window-size-chars=104x32 -e mc "$@"
         else
             log_heal "No file manager found, falling back to shell explorer"
             exec foot --app-id=neuxon-files --window-size-chars=104x32 -e sh -c "ls -la; exec bash"
         fi
         ;;
 
+    mc|midnight-commander)
+        if command -v mc >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-files --window-size-chars=104x32 -e mc "$@"
+        else
+            exec /usr/local/bin/neuxon-launch files "$@"
+        fi
+        ;;
+
+    pcmanfm)
+        if command -v pcmanfm >/dev/null 2>&1; then
+            exec pcmanfm "$@"
+        else
+            exec /usr/local/bin/neuxon-launch files "$@"
+        fi
+        ;;
+
+    music|audio|player|cmus|kew)
+        if command -v cmus >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-music --window-size-chars=96x28 -e cmus "$@"
+        elif command -v kew >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-music --window-size-chars=96x28 -e kew "$@"
+        elif command -v mpv >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-music --window-size-chars=80x20 -e mpv --player-operation-mode=pseudo-gui "$@"
+        else
+            log_heal "No dedicated music player found"
+            exec foot --app-id=neuxon-music --window-size-chars=80x16 -e sh -c "echo 'No audio player installed. Run: sudo apt install cmus'; read -r _"
+        fi
+        ;;
+
+    image|photo|viewer|imv)
+        if command -v imv >/dev/null 2>&1; then
+            exec imv "$@"
+        elif command -v feh >/dev/null 2>&1; then
+            exec feh "$@"
+        else
+            log_heal "No image viewer found, falling back to mpv"
+            exec mpv --image-display-duration=inf "$@"
+        fi
+        ;;
+
+    pdf|document|reader|zathura)
+        if command -v zathura >/dev/null 2>&1; then
+            exec zathura "$@"
+        elif command -v evince >/dev/null 2>&1; then
+            exec evince "$@"
+        else
+            log_heal "No PDF viewer found"
+            exec foot --app-id=neuxon-err --window-size-chars=70x12 -e sh -c "echo 'No document viewer installed. Run: sudo apt install zathura'; read -r _"
+        fi
+        ;;
+
+    calc|calculator|galculator)
+        if command -v galculator >/dev/null 2>&1; then
+            exec galculator "$@"
+        elif command -v bc >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-calc --window-size-chars=44x16 -e sh -c "echo '=== Neuxon Calculator (bc) ==='; echo 'Type math expressions (e.g. 1024*768) and press Enter. Ctrl+D to quit.'; echo ''; bc -l"
+        else
+            exec foot --app-id=neuxon-calc --window-size-chars=44x16 -e python3 -q
+        fi
+        ;;
+
+    disk|storage|ncdu)
+        if command -v ncdu >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-ncdu --window-size-chars=100x30 -e ncdu /
+        else
+            exec foot --app-id=neuxon-ncdu --window-size-chars=80x24 -e sh -c "df -h; echo ''; exec sh"
+        fi
+        ;;
+
+    mousepad)
+        if command -v mousepad >/dev/null 2>&1; then
+            exec mousepad "$@"
+        else
+            exec /usr/local/bin/neuxon-launch editor "$@"
+        fi
+        ;;
+
     fastfetch|sysinfo)
         if command -v fastfetch >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "fastfetch; echo ''; exec sh"
+            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "fastfetch; echo ''; echo 'Press [Enter] to exit.'; read -r _"
         elif command -v neofetch >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "neofetch; echo ''; exec sh"
+            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "neofetch; echo ''; echo 'Press [Enter] to exit.'; read -r _"
         else
             log_heal "fastfetch missing, running kernel uname diagnostic"
-            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "uname -a; lscpu; free -h; echo ''; exec sh"
+            exec foot --app-id=neuxon-fastfetch --window-size-chars=96x28 -e sh -c "uname -a; lscpu; free -h; echo ''; echo 'Press [Enter] to exit.'; read -r _"
         fi
         ;;
 
@@ -88,8 +179,8 @@ case "${APP}" in
             exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e micro "$@"
         elif command -v hx >/dev/null 2>&1; then
             exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e hx "$@"
-        elif command -v nvim >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e nvim "$@"
+        elif command -v mousepad >/dev/null 2>&1; then
+            exec mousepad "$@"
         elif command -v nano >/dev/null 2>&1; then
             exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e nano "$@"
         else

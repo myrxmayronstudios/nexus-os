@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=Kew Music Player
+Name=Music Player (cmus / kew)
 Comment=Lightweight terminal music player
-Exec=foot -e kew
+Exec=/usr/local/bin/neuxon-launch music
 Icon=multimedia-audio-player
 Terminal=false
 Categories=AudioVideo;Audio;Player;
-Keywords=music;audio;sound;player;mp3;
+Keywords=music;audio;sound;player;mp3;cmus;kew;

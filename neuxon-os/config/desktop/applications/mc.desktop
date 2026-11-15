@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Midnight Commander (mc)
+Comment=Visual dual-pane terminal file manager
+Exec=/usr/local/bin/neuxon-launch mc
+Icon=system-file-manager
+Terminal=false
+Categories=System;FileManager;
+Keywords=file;manager;explorer;mc;midnight;
