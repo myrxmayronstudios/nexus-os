@@ -156,8 +156,8 @@ FSTAB
 # ---------------------------------------------------------------------------
 log_info "Syncing and unmounting..."
 sync
-umount "${MNT_ROOT}/boot/firmware"
-umount "${MNT_ROOT}"
+umount "${MNT_ROOT}/boot/firmware" 2>/dev/null || true
+umount "${MNT_ROOT}" 2>/dev/null || true
 
 # Run filesystem check and shrink to minimal size
 log_info "Optimizing ext4 filesystem with e2fsck and resize2fs..."
@@ -169,11 +169,29 @@ e2fsck -f -y "${PART_ROOT}" || true
 # 9. Detach loopback
 # ---------------------------------------------------------------------------
 log_info "Detaching loopback device..."
-kpartx -d "${LOOP_DEV}"
-losetup -d "${LOOP_DEV}"
+sync
+if command -v udevadm &>/dev/null; then
+    udevadm settle 2>/dev/null || sleep 1
+else
+    sleep 1
+fi
+
+for i in 1 2 3 4 5; do
+    if kpartx -d "${LOOP_DEV}" 2>/dev/null; then
+        break
+    fi
+    sleep 1
+done
+
+for i in 1 2 3 4 5; do
+    if losetup -d "${LOOP_DEV}" 2>/dev/null; then
+        break
+    fi
+    sleep 1
+done
 LOOP_DEV=""  # prevent double-detach in trap
 
-rm -rf "${MNT_ROOT}" "${MNT_BOOT}"
+rm -rf "${MNT_ROOT}" "${MNT_BOOT}" 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
 # 10. Compress with multi-threaded xz
