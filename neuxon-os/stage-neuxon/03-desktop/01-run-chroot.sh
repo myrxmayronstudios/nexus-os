@@ -27,8 +27,7 @@ apt-get install -y --no-install-recommends \
     seatd \
     xwayland \
     swaybg \
-    swaylock \
-    wlrctl
+    swaylock
 
 echo "[STAGE-03] Labwc and Wayland installed"
 
@@ -90,7 +89,6 @@ apt-get install -y --no-install-recommends \
     libgtk-3-0 \
     python3-gi \
     gir1.2-gtk-3.0 \
-    python3-curses \
     gtk-update-icon-cache
 
 echo "[STAGE-03] Fonts and themes installed"
