@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================================
 # Neuxon OS - Persistent VFS Notes & Checklist Widget (436x560 px)
-# Backed directly by ~/.local/share/neuxon/notes.txt with live editing
+# Backed directly by ~/.local/share/neuxon/notes.txt with live auto-save
 # ============================================================================
 set -u
 
@@ -11,7 +11,7 @@ mkdir -p "${NOTES_DIR}"
 
 if [ ! -f "${NOTES_FILE}" ]; then
     cat > "${NOTES_FILE}" << 'EOF'
-=== NEUXON OS // SYSTEM CHECKLIST ===
+=== NEUXON OS // SYSTEM CHECKLIST & NOTES ===
 [OK] BCM2837B0 ARM64 Kernel 64-bit Verified
 [OK] 16-Bit Obsidian & Silver Compositor Active
 [OK] VideoCore IV vc4-kms-v3d Acceleration Ready
@@ -20,36 +20,44 @@ if [ ! -f "${NOTES_FILE}" ]; then
 WORKSPACE SHORTCUTS:
 • Super + Return : Foot Terminal
 • Super + D      : Fuzzel Application Launcher
-• Super + B      : btop System Monitor
+• Super + B      : Focus btop System Monitor
 • Super + C      : Neuxon Control Center
+• Super + P      : Power Management Dialog
 • Super + Q      : Close Focused Window
 • Super + 1..4   : Switch Workspaces
-• Super + Shift + 1..4: Move Window
 
-VFS MEMO PAD:
-- All changes saved in real-time to notes.txt
-- Press [e] to edit, or [q] to refresh view
+PERSISTENT SCRATCHPAD:
+- Click anywhere with your mouse to focus cursor
+- Edits auto-save immediately to notes.txt
+EOF
+fi
+
+# Ensure user micro settings exist with mouse and autosave enabled
+USER_MICRO_DIR="${HOME}/.config/micro"
+mkdir -p "${USER_MICRO_DIR}"
+if [ ! -f "${USER_MICRO_DIR}/settings.json" ]; then
+    cat > "${USER_MICRO_DIR}/settings.json" << 'EOF'
+{
+    "colorscheme": "simple",
+    "cursorline": true,
+    "mouse": true,
+    "autosave": 1,
+    "scrollbar": false,
+    "statusline": true
+}
 EOF
 fi
 
 clear
 while true; do
-    printf "\033[H"
-    echo "╔══════════════════════════════════════════╗"
-    echo "║  NEUXON OS PERSISTENT NOTES SCRATCHPAD   ║"
-    echo "╠══════════════════════════════════════════╣"
-    head -n 24 "${NOTES_FILE}"
-    echo "╚══════════════════════════════════════════╝"
-    echo " [e] Edit Notes in Micro  |  [r] Refresh view"
-    read -n 1 -t 5 key || true
-    if [ "${key}" = "e" ] || [ "${key}" = "E" ]; then
-        if command -v micro >/dev/null 2>&1; then
-            micro "${NOTES_FILE}"
-        else
-            nano "${NOTES_FILE}"
-        fi
-        clear
-    elif [ "${key}" = "q" ] || [ "${key}" = "Q" ]; then
-        clear
+    if command -v micro >/dev/null 2>&1; then
+        micro "${NOTES_FILE}"
+    elif command -v nano >/dev/null 2>&1; then
+        nano -m "${NOTES_FILE}"
+    elif command -v hx >/dev/null 2>&1; then
+        hx "${NOTES_FILE}"
+    else
+        vi "${NOTES_FILE}" || sleep 2
     fi
+    sleep 0.5
 done

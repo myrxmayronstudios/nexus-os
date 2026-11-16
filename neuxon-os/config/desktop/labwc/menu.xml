@@ -28,7 +28,7 @@
         <command>/usr/local/bin/neuxon-launch foot</command>
       </action>
     </item>
-    <item label="Web Browser (Chromium / Min)">
+    <item label="Web Browser (Chromium)">
       <action name="Execute">
         <command>/usr/local/bin/neuxon-launch browser</command>
       </action>
@@ -87,9 +87,9 @@
         <command>/usr/local/bin/neuxon-launch zathura</command>
       </action>
     </item>
-    <item label="Scientific Calculator (Galculator)">
+    <item label="16-Bit Calculator">
       <action name="Execute">
-        <command>/usr/local/bin/neuxon-launch galculator</command>
+        <command>/usr/local/bin/neuxon-calc</command>
       </action>
     </item>
     <item label="Disk Usage Analyzer (ncdu)">
@@ -101,9 +101,9 @@
     <separator />
 
     <!-- System Telemetry & Utilities -->
-    <item label="Task Matrix (btop)">
+    <item label="Focus Task Matrix (btop Widget)">
       <action name="Execute">
-        <command>/usr/local/bin/neuxon-launch btop</command>
+        <command>/usr/local/bin/btop</command>
       </action>
     </item>
     <item label="System Spec (Fastfetch)">
@@ -130,6 +130,11 @@
     <separator />
 
     <!-- Session Actions -->
+    <item label="⏻ Power &amp; Session Dialog">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-power</command>
+      </action>
+    </item>
     <item label="Lock Screen">
       <action name="Execute">
         <command>swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5</command>

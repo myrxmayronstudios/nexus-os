@@ -14,7 +14,8 @@ fi
 
 CHROMIUM_FLAGS=(
     --ozone-platform=wayland
-    --enable-features=UseOzonePlatform
+    --enable-features=UseOzonePlatform,WaylandWindowDecorations
+    --enable-wayland-ime
     --no-sandbox
     --test-type
     --disable-dev-shm-usage

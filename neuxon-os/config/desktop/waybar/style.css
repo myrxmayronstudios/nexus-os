@@ -1,203 +1,205 @@
 /* ============================================================================
  * Neuxon OS - Stealth Monochrome Glass Waybar Stylesheet
- * 16-Bit Obsidian Luminance Palette:
- * Void Obsidian: #060709 | Frosted Matrix: rgba(14, 17, 22, 0.92) | Carbon: #14171C
- * Specular Hairlines: #262B33 (Unfocused) / #FFFFFF (Focused)
- * Typography: JetBrains Mono Nerd Font, Primary #F2F4F8, Muted #727A86
+ * 16-Bit Obsidian Glassmorphism Palette:
+ * Top Bar & Dock: rgba(8, 10, 14, 0.82)
+ * Hairline Border: 1px solid rgba(168, 178, 193, 0.26)
+ * Inner Highlight: box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08)
+ * Typography: JetBrains Mono 9.5pt (12.6px), Tabular Monospace Numbers
  * ============================================================================ */
 
 * {
     font-family: "JetBrains Mono Nerd Font", "JetBrains Mono", "DejaVu Sans Mono", monospace;
-    font-size: 11px;
+    font-size: 12.6px; /* 9.5pt */
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
     font-weight: 500;
     min-height: 0;
     border: none;
     border-radius: 0;
     margin: 0;
     padding: 0;
-    color: #F2F4F8;
+    color: #dbe2ec;
 }
 
 /* Base Top Bar Container */
 window#waybar.top-bar {
-    background-color: rgba(10, 12, 16, 0.94);
+    background-color: rgba(8, 10, 14, 0.82);
     border: none;
-    border-bottom: 1px solid #20242C;
-    color: #F2F4F8;
+    border-bottom: 1px solid rgba(168, 178, 193, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    color: #dbe2ec;
 }
 
 /* Tooltips */
 tooltip {
-    background-color: rgba(14, 17, 22, 0.96);
-    border: 1px solid #FFFFFF;
+    background-color: rgba(8, 10, 14, 0.95);
+    border: 1px solid rgba(168, 178, 193, 0.40);
     border-radius: 6px;
-    color: #F2F4F8;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
+    color: #ffffff;
     padding: 4px;
 }
 
 tooltip label {
-    color: #F2F4F8;
+    color: #ffffff;
     padding: 4px 8px;
 }
 
 /* Brand Button */
 #custom-neuxon-brand {
     font-weight: 700;
-    font-size: 11px;
-    color: #FFFFFF;
-    background-color: #14171C;
-    border: 1px solid #262B33;
+    font-size: 12.6px;
+    color: #ffffff;
+    background-color: rgba(14, 17, 24, 0.70);
+    border: 1px solid rgba(168, 178, 193, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    padding: 2px 10px;
-    margin: 3px 4px;
+    padding: 1px 10px;
+    margin: 2px 4px;
     letter-spacing: 0.5px;
 }
 
 #custom-neuxon-brand:hover {
-    background-color: #FFFFFF;
-    color: #060709;
-    border-color: #FFFFFF;
+    background-color: #ffffff;
+    color: #080a0e;
+    border-color: #ffffff;
 }
 
 /* Workspaces */
 #workspaces {
-    background-color: #14171C;
-    border: 1px solid #262B33;
-    border-radius: 6px;
-    padding: 0 4px;
-    margin: 3px 2px;
+    background-color: transparent;
+    padding: 0 2px;
+    margin: 2px 2px;
 }
 
 #workspaces button {
-    color: #727A86;
-    background-color: transparent;
-    padding: 2px 6px;
-    margin: 0 1px;
-    border: none;
+    color: #727a86;
+    background-color: rgba(14, 17, 24, 0.70);
+    border: 1px solid rgba(168, 178, 193, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    padding: 1px 8px;
+    margin: 0 2px;
     border-radius: 4px;
-    font-size: 11px;
-    transition: none;
+    font-size: 12px;
+    transition: all 0.1s ease;
 }
 
 #workspaces button:hover {
-    color: #FFFFFF;
-    background-color: #262B33;
+    color: #ffffff;
+    background-color: rgba(42, 50, 66, 0.90);
+    border-color: #ffffff;
 }
 
 #workspaces button.active {
-    color: #FFFFFF;
+    color: #ffffff;
+    background-color: rgba(42, 50, 66, 0.90);
+    border-color: #ffffff;
     font-weight: 700;
 }
 
-/* Top Bar Center Clock */
-#clock {
-    background-color: #14171C;
-    border: 1px solid #262B33;
+/* Center Taskbar / Focused Window Title */
+#taskbar {
+    background-color: rgba(14, 17, 24, 0.70);
+    border: 1px solid rgba(168, 178, 193, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    color: #F2F4F8;
-    padding: 2px 14px;
-    margin: 3px 2px;
-    letter-spacing: 0.5px;
-    font-weight: 600;
+    padding: 1px 12px;
+    margin: 2px 4px;
 }
 
-/* Telemetry Pills */
+#taskbar button {
+    background: transparent;
+    border: none;
+    color: #dbe2ec;
+    padding: 0 6px;
+    font-weight: 500;
+}
+
+#taskbar button.active {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Top Bar Telemetry Pills */
 #cpu,
-#memory,
 #temperature,
-#custom-zram,
+#memory,
 #network,
-#custom-volume {
-    background-color: #14171C;
-    border: 1px solid #262B33;
+#clock {
+    background-color: rgba(14, 17, 24, 0.70);
+    border: 1px solid rgba(168, 178, 193, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    color: #F2F4F8;
-    padding: 2px 8px;
-    margin: 3px 2px;
+    color: #dbe2ec;
+    padding: 1px 8px;
+    margin: 2px 2px;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
 }
 
 #cpu:hover,
-#memory:hover,
 #temperature:hover,
-#custom-zram:hover,
+#memory:hover,
 #network:hover,
-#custom-volume:hover {
-    border-color: #FFFFFF;
+#clock:hover {
+    border-color: #ffffff;
+    color: #ffffff;
 }
 
 #temperature.critical {
-    color: #FFFFFF;
-    background-color: #2E1515;
-    border-color: #FFFFFF;
+    color: #ffffff;
+    background-color: #3d1414;
+    border-color: #ffffff;
     font-weight: 700;
 }
 
 #network.disconnected {
-    color: #727A86;
-}
-
-/* System Tray */
-#tray {
-    background-color: #14171C;
-    border: 1px solid #262B33;
-    border-radius: 6px;
-    padding: 2px 6px;
-    margin: 3px 2px;
-}
-
-#tray menu {
-    background-color: rgba(14, 17, 22, 0.96);
-    border: 1px solid #FFFFFF;
-    border-radius: 6px;
-    color: #F2F4F8;
-    padding: 4px;
-}
-
-#tray menu menuitem:hover {
-    background-color: #FFFFFF;
-    color: #060709;
+    color: #727a86;
 }
 
 /* ============================================================================
- * Floating Parabolic Bottom Dock Container
+ * Floating Bottom Dock Container
  * ============================================================================ */
 
 window#waybar.dock {
-    background-color: rgba(10, 12, 16, 0.94);
-    border: 1px solid #262B33;
-    border-radius: 12px;
-    padding: 3px 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);
+    background-color: rgba(8, 10, 14, 0.82);
+    border: 1px solid rgba(168, 178, 193, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.85);
+    border-radius: 10px;
+    padding: 4px 10px;
 }
 
 #custom-dock-browser,
 #custom-dock-term,
-#custom-dock-btop,
+#custom-dock-calc,
 #custom-dock-files,
-#custom-dock-fastfetch,
+#custom-dock-notes,
 #custom-dock-heal,
 #custom-dock-power {
-    background-color: #14171C;
-    border: 1px solid #262B33;
-    border-radius: 8px;
-    color: #F2F4F8;
-    padding: 6px 14px;
+    background-color: rgba(14, 17, 24, 0.70);
+    border: 1px solid rgba(168, 178, 193, 0.26);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: #dbe2ec;
+    min-width: 96px;
+    height: 34px;
+    min-height: 34px;
+    padding: 0 12px;
     margin: 2px 3px;
     font-weight: 600;
-    font-size: 11px;
+    font-size: 11.5px;
     transition: all 0.12s ease-in-out;
 }
 
 #custom-dock-browser:hover,
 #custom-dock-term:hover,
-#custom-dock-btop:hover,
+#custom-dock-calc:hover,
 #custom-dock-files:hover,
-#custom-dock-fastfetch:hover,
+#custom-dock-notes:hover,
 #custom-dock-heal:hover,
 #custom-dock-power:hover {
-    background-color: #FFFFFF;
-    color: #060709;
-    border-color: #FFFFFF;
-    margin-top: -3px;
-    padding: 6px 16px;
+    background-color: rgba(42, 50, 66, 0.90);
+    color: #ffffff;
+    border-color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 2px 8px rgba(0, 0, 0, 0.6);
 }

@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Galculator
-Comment=Scientific calculator for GNOME and Wayland
-Exec=/usr/local/bin/neuxon-launch calc
+Name=Calculator
+Comment=Neuxon 16-Bit Monochrome Calculator
+Exec=/usr/local/bin/neuxon-calc
 Icon=accessories-calculator
 Terminal=false
 Categories=Utility;Calculator;

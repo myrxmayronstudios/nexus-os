@@ -226,6 +226,10 @@ install_github_release "jesseduffield/lazydocker" "lazydocker" "Linux_arm64.*\\.
 
 # btop (hardware monitor)
 install_github_release "aristocratos/btop" "btop" "aarch64-linux-musl.*\\.tbz$"
+if [ -f /usr/local/bin/btop ]; then
+    mv /usr/local/bin/btop /usr/local/bin/btop.real
+    chmod 755 /usr/local/bin/btop.real
+fi
 
 # bottom (btm lightweight hardware graph)
 install_github_release "ClementTsang/bottom" "btm" "aarch64-unknown-linux-musl.*\\.tar\\.gz$"
@@ -319,11 +323,12 @@ cat > /usr/share/applications/btop.desktop << 'EOF'
 [Desktop Entry]
 Name=BTOP Monitor
 Comment=Resource monitor in monochrome
-Exec=foot -T "BTOP Monitor" -e btop
+Exec=/usr/local/bin/btop
 Icon=utilities-system-monitor
 Terminal=false
 Type=Application
 Categories=System;Monitor;
+NoDisplay=true
 EOF
 
 # Bottom (BTM)

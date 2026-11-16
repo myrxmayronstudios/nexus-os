@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS - btop Desktop Widget Runner (Single-Instance Enforced)
+# ============================================================================
+set -u
+
+LOCKFILE="/tmp/neuxon-btop.lock"
+exec 200>"${LOCKFILE}"
+if ! flock -n 200; then
+    echo "[ NEUXON GUARD ] btop widget is already active."
+    exit 0
+fi
+
+# Locate the real btop binary
+BTOP_BIN=""
+for b in /usr/local/bin/btop.real /usr/bin/btop.real /usr/local/bin/btop-bin /usr/bin/btop; do
+    if [ -x "$b" ] && [ "$b" != "/usr/local/bin/btop" ]; then
+        BTOP_BIN="$b"
+        break
+    fi
+done
+
+if [ -n "${BTOP_BIN}" ]; then
+    exec "${BTOP_BIN}" --utf-force "$@"
+elif command -v btm >/dev/null 2>&1; then
+    exec btm "$@"
+elif command -v htop >/dev/null 2>&1; then
+    exec htop "$@"
+else
+    exec top "$@"
+fi

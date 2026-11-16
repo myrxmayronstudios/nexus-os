@@ -1,40 +1,44 @@
 # ============================================================================
 # Neuxon OS - Stealth Monochrome Glass Labwc Theme
-# Surface: Void Black (#050505), Frosted Obsidian (#0E0E0EDB), Carbon (#141414)
-# Specular Hairlines: #FFFFFF (Active), #2A2A2A (Inactive)
-# Typography: JetBrains Mono Nerd Font, #F5F5F5 (Primary), #7A7A7A (Muted)
+# Surface: Void Black (#080a0e), Frosted Obsidian, Carbon
+# Specular Hairlines: #FFFFFF (Active), #2a3242 (Inactive)
+# Typography: JetBrains Mono Nerd Font, #DBE2EC (Primary), #7A7A7A (Muted)
 # ============================================================================
 
 # Window borders
 border.width: 1
 window.active.border.color: #FFFFFF
-window.inactive.border.color: #2A2A2A
+window.inactive.border.color: #2a3242
 
-# Titlebar backgrounds (Frosted Obsidian glassmorphism)
-window.active.title.bg.color: #0E0E0EDB
-window.inactive.title.bg.color: #050505DB
+# Titlebar backgrounds (Frosted Obsidian glassmorphism matching 0.82 alpha)
+window.active.title.bg.color: #080a0ed1
+window.inactive.title.bg.color: #050508d1
 
 # Titlebar typography
-window.active.label.text.color: #F5F5F5
+window.active.label.text.color: #FFFFFF
 window.inactive.label.text.color: #7A7A7A
 
 # Window buttons (close, maximize, iconify)
-window.active.button.unpressed.image.color: #F5F5F5
+window.active.button.unpressed.image.color: #dbe2ec
 window.inactive.button.unpressed.image.color: #7A7A7A
 window.active.button.pressed.image.color: #FFFFFF
 window.active.button.hover.image.color: #FFFFFF
-window.inactive.button.hover.image.color: #F5F5F5
+window.inactive.button.hover.image.color: #FFFFFF
 
-# Menus (right-click desktop menu)
+# Menus (right-click desktop menu) - EXACT SPECIFICATION
+menu.width.min: 230
+menu.width.max: 320
+menu.items.padding.x: 16
+menu.items.padding.y: 8
 menu.border.width: 1
-menu.border.color: #2A2A2A
-menu.items.bg.color: #0E0E0EDB
-menu.items.text.color: #F5F5F5
-menu.items.active.bg.color: #FFFFFF
-menu.items.active.text.color: #050505
+menu.border.color: #2a3242
+menu.items.bg.color: #080a0ed1
+menu.items.text.color: #dbe2ec
+menu.items.active.bg.color: #ffffff
+menu.items.active.text.color: #080a0e
 
 # On-screen display (workspace switcher, resize popup)
 osd.border.width: 1
 osd.border.color: #FFFFFF
-osd.bg.color: #0E0E0EDB
-osd.label.text.color: #F5F5F5
+osd.bg.color: #080a0ed1
+osd.label.text.color: #FFFFFF

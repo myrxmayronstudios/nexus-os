@@ -31,8 +31,8 @@
       <action name="ResizeTo" width="520" height="250" />
     </windowRule>
 
-    <!-- Terminal Widget 2: btop System Monitor (Top-Center) - Fixed & Unmovable -->
-    <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
+    <!-- Terminal Widget 2: btop System Monitor (Top-Center) - Fixed & Unmovable (Focus allowed) -->
+    <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="no">
       <action name="MoveTo" x="564" y="44" />
       <action name="ResizeTo" width="880" height="560" />
     </windowRule>
@@ -50,7 +50,7 @@
     </windowRule>
 
     <!-- Terminal Widget 5: VFS Notes & Checklist (Top-Right) - Fixed & Unmovable -->
-    <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
+    <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="no">
       <action name="MoveTo" x="1460" y="44" />
       <action name="ResizeTo" width="436" height="560" />
     </windowRule>
@@ -62,7 +62,7 @@
     </windowRule>
 
     <!-- Catch-all for any additional Neuxon desktop widgets -->
-    <windowRule identifier="neuxon-*-widget" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes" />
+    <windowRule identifier="neuxon-*-widget" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" />
 
     <!-- Secondary HUD & App Dialog Rules -->
     <windowRule identifier="neuxon-hud" serverDecoration="no">
@@ -72,6 +72,18 @@
     <windowRule identifier="neuxon-control" serverDecoration="yes">
       <action name="MoveTo" x="360" y="160" />
       <action name="ResizeTo" width="1200" height="700" />
+    </windowRule>
+
+    <!-- Neuxon Calculator Window Rule -->
+    <windowRule identifier="neuxon-calc" serverDecoration="yes">
+      <action name="MoveTo" x="780" y="240" />
+      <action name="ResizeTo" width="380" height="540" />
+    </windowRule>
+
+    <!-- Neuxon Power Management Dialog Rule -->
+    <windowRule identifier="neuxon-power" serverDecoration="yes">
+      <action name="MoveTo" x="720" y="320" />
+      <action name="ResizeTo" width="480" height="420" />
     </windowRule>
 
     <!-- Optimized Application Placement Rules -->
@@ -101,8 +113,8 @@
     </windowRule>
 
     <windowRule identifier="galculator" serverDecoration="yes">
-      <action name="MoveTo" x="780" y="300" />
-      <action name="ResizeTo" width="360" height="480" />
+      <action name="MoveTo" x="780" y="240" />
+      <action name="ResizeTo" width="380" height="540" />
     </windowRule>
 
     <windowRule identifier="pcmanfm" serverDecoration="yes">
@@ -159,10 +171,10 @@
       </action>
     </keybind>
 
-    <!-- Toggle btop Monitor -->
+    <!-- Toggle / Focus btop Desktop Monitor (Single Instance Enforced) -->
     <keybind key="W-b">
       <action name="Execute">
-        <command>/usr/local/bin/neuxon-launch btop</command>
+        <command>/usr/local/bin/btop</command>
       </action>
     </keybind>
 
@@ -170,6 +182,13 @@
     <keybind key="W-c">
       <action name="Execute">
         <command>foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control</command>
+      </action>
+    </keybind>
+
+    <!-- Neuxon Power Management Dialog -->
+    <keybind key="W-p">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-power</command>
       </action>
     </keybind>
 

@@ -27,7 +27,8 @@ apt-get install -y --no-install-recommends \
     seatd \
     xwayland \
     swaybg \
-    swaylock
+    swaylock \
+    wlrctl
 
 echo "[STAGE-03] Labwc and Wayland installed"
 
@@ -87,6 +88,9 @@ apt-get install -y --no-install-recommends \
     papirus-icon-theme \
     adwaita-icon-theme \
     libgtk-3-0 \
+    python3-gi \
+    gir1.2-gtk-3.0 \
+    python3-curses \
     gtk-update-icon-cache
 
 echo "[STAGE-03] Fonts and themes installed"
@@ -200,6 +204,9 @@ for util in neuxon-doctor \
             neuxon-control \
             neuxon-hud \
             neuxon-btop-gadget \
+            neuxon-btop-widget \
+            neuxon-calc \
+            neuxon-power \
             neuxon-zram-status \
             neuxon-volume-status; do
     if [ -f "${CONFIG_SRC}/${util}" ]; then
@@ -208,6 +215,21 @@ for util in neuxon-doctor \
         echo "[STAGE-03] Installed /usr/local/bin/${util}"
     fi
 done
+
+# Install btop global single-instance guard wrapper
+if [ -f /usr/bin/btop ] && [ ! -f /usr/bin/btop.real ]; then
+    mv /usr/bin/btop /usr/bin/btop.real
+    chmod 755 /usr/bin/btop.real
+fi
+if [ -f /usr/local/bin/btop ] && [ ! -f /usr/local/bin/btop.real ]; then
+    mv /usr/local/bin/btop /usr/local/bin/btop.real
+    chmod 755 /usr/local/bin/btop.real
+fi
+if [ -f "${CONFIG_SRC}/btop-wrapper" ]; then
+    cp "${CONFIG_SRC}/btop-wrapper" /usr/local/bin/btop
+    chmod 755 /usr/local/bin/btop
+    echo "[STAGE-03] Installed /usr/local/bin/btop guard wrapper"
+fi
 
 # Install wallpaper asset if present, or generate it
 mkdir -p /usr/share/backgrounds

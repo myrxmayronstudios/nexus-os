@@ -141,7 +141,7 @@ if [ "${1:-}" = "--daemon" ]; then
 
         # Widget 2: btop
         if ! pgrep -f "app-id=neuxon-btop" >/dev/null 2>&1; then
-            foot --app-id=neuxon-btop --window-size-chars=98x30 -e btop >/dev/null 2>&1 &
+            foot --app-id=neuxon-btop --window-size-chars=98x30 -e /usr/local/bin/neuxon-btop-widget >/dev/null 2>&1 &
             log_heal "Supervised relaunch of neuxon-btop widget"
         fi
 

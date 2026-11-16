@@ -53,7 +53,7 @@ fi
 sleep 0.2
 foot --app-id=neuxon-sysinfo --title="[ 01 // NEUXON ARCHITECTURE & SUBSYSTEMS ]" -e /usr/local/bin/neuxon-sysinfo-widget &
 sleep 0.1
-foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e btop &
+foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e /usr/local/bin/neuxon-btop-widget &
 sleep 0.1
 foot --app-id=neuxon-telemetry --title="[ 03 // LIVE HARDWARE & THERMAL TELEMETRY ]" -e /usr/local/bin/neuxon-telemetry-widget &
 sleep 0.1

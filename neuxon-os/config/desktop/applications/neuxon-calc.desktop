@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Calculator
+Comment=Neuxon 16-Bit Monochrome Calculator
+Exec=/usr/local/bin/neuxon-calc
+Icon=accessories-calculator
+Terminal=false
+Categories=Utility;Calculator;
+Keywords=calc;calculator;math;scientific;

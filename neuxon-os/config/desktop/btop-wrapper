@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS - btop Global Single-Instance Guard Wrapper
+# Installed to /usr/local/bin/btop
+# ============================================================================
+set -u
+
+LOCKFILE="/tmp/neuxon-btop.lock"
+
+# Check if desktop btop widget is currently running
+is_running=0
+
+if pgrep -f "app-id=neuxon-btop" >/dev/null 2>&1 || pgrep -f "neuxon-btop-widget" >/dev/null 2>&1; then
+    is_running=1
+elif [ -f "${LOCKFILE}" ]; then
+    # Test file lock non-blockingly
+    if ! (flock -n 200) 200>"${LOCKFILE}"; then
+        is_running=1
+    fi
+fi
+
+if [ "${is_running}" -eq 1 ]; then
+    # Focus existing widget window if GUI/keybind/script
+    if command -v wlrctl >/dev/null 2>&1; then
+        wlrctl toplevel focus app_id:neuxon-btop 2>/dev/null || true
+    fi
+
+    # If executed inside an interactive terminal shell (both stdin & stdout are tty)
+    if [ -t 0 ] && [ -t 1 ]; then
+        echo "[ NEUXON GUARD ] btop is already active as a Desktop Widget (max 1 instance allowed)."
+    fi
+    exit 0
+else
+    # Widget is NOT running: launch it strictly as the desktop widget instance
+    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        exec foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e /usr/local/bin/neuxon-btop-widget "$@"
+    else
+        exec /usr/local/bin/neuxon-btop-widget "$@"
+    fi
+fi

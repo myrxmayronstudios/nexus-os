@@ -10,5 +10,6 @@
     "saveundo": true,
     "syntax": true,
     "mouse": true,
-    "paste": true
+    "paste": true,
+    "autosave": 1
 }

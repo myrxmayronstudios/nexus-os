@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Neuxon OS - Stealth 16-Bit Monochrome Power Management
+Native Wayland GTK3 Dialog with Curses SGR-1006 Fallback.
+Zero dead buttons, full mouse click hitboxes and keyboard bindings.
+"""
+import sys
+import os
+import subprocess
+
+ACTIONS = [
+    {
+        "key": "1",
+        "shortcut": "l",
+        "label": "🔒 Lock Screen",
+        "cmd": "swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5",
+        "bg_class": "action-btn"
+    },
+    {
+        "key": "2",
+        "shortcut": "e",
+        "label": "🚪 Logout Session",
+        "cmd": "pkill -u $USER labwc || systemctl --user stop labwc",
+        "bg_class": "action-btn"
+    },
+    {
+        "key": "3",
+        "shortcut": "r",
+        "label": "🔄 Reboot System",
+        "cmd": "systemctl reboot || sudo reboot",
+        "bg_class": "action-btn"
+    },
+    {
+        "key": "4",
+        "shortcut": "s",
+        "label": "⏻ Power Off",
+        "cmd": "systemctl poweroff || sudo poweroff",
+        "bg_class": "danger-btn"
+    },
+    {
+        "key": "5",
+        "shortcut": "h",
+        "label": "🛠 Heal OS (Doctor)",
+        "cmd": "/usr/local/bin/neuxon-launch doctor",
+        "bg_class": "action-btn"
+    },
+    {
+        "key": "6",
+        "shortcut": "q",
+        "label": "✕ Cancel",
+        "cmd": "exit",
+        "bg_class": "cancel-btn"
+    }
+]
+
+def execute_action(action):
+    cmd = action.get("cmd", "")
+    if cmd == "exit":
+        sys.exit(0)
+    subprocess.Popen(cmd, shell=True)
+    sys.exit(0)
+
+
+def run_gtk():
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk, Gdk
+
+    css_data = b"""
+    window {
+        background-color: rgba(8, 10, 14, 0.94);
+        border: 1px solid rgba(168, 178, 193, 0.26);
+        border-radius: 8px;
+    }
+    .header-box {
+        background-color: rgba(14, 17, 24, 0.90);
+        border: 1px solid rgba(168, 178, 193, 0.22);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        padding: 8px 14px;
+        margin-bottom: 8px;
+    }
+    .header-title {
+        color: #ffffff;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 15px;
+        font-weight: bold;
+    }
+    .header-sub {
+        color: #a8b2c1;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+    }
+    button.power-btn {
+        background-color: rgba(22, 27, 36, 0.85);
+        border: 1px solid rgba(168, 178, 193, 0.24);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        color: #dbe2ec;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        font-weight: 600;
+        min-height: 42px;
+        min-width: 220px;
+        padding: 6px 16px;
+        transition: all 0.1s ease-in-out;
+    }
+    button.power-btn:hover {
+        background-color: rgba(42, 50, 66, 0.95);
+        border-color: #ffffff;
+        color: #ffffff;
+    }
+    button.power-btn:active {
+        background-color: #ffffff;
+        color: #080a0e;
+    }
+    button.danger-btn:hover {
+        background-color: #5a1e1e;
+        border-color: #ffffff;
+        color: #ffffff;
+    }
+    button.cancel-btn {
+        background-color: rgba(14, 17, 24, 0.60);
+        border-color: rgba(168, 178, 193, 0.20);
+        color: #a8b2c1;
+    }
+    """
+
+    style_provider = Gtk.CssProvider()
+    style_provider.load_from_data(css_data)
+    Gtk.StyleContext.add_provider_for_screen(
+        Gdk.Screen.get_default(),
+        style_provider,
+        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    )
+
+    win = Gtk.Window(title="Neuxon Power Management")
+    win.set_wmclass("neuxon-power", "neuxon-power")
+    win.set_default_size(360, 420)
+    win.set_position(Gtk.WindowPosition.CENTER)
+    win.connect("destroy", Gtk.main_quit)
+
+    vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+    vbox.set_margin_top(14)
+    vbox.set_margin_bottom(14)
+    vbox.set_margin_start(14)
+    vbox.set_margin_end(14)
+    win.add(vbox)
+
+    header_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    header_box.get_style_context().add_class("header-box")
+    lbl_title = Gtk.Label(label="⏻ NEUXON OS // SESSION CONTROL", xalign=0.5)
+    lbl_title.get_style_context().add_class("header-title")
+    lbl_sub = Gtk.Label(label="Select an operation or press [1-6] / [Esc]", xalign=0.5)
+    lbl_sub.get_style_context().add_class("header-sub")
+    header_box.pack_start(lbl_title, False, False, 2)
+    header_box.pack_start(lbl_sub, False, False, 2)
+    vbox.pack_start(header_box, False, False, 0)
+
+    for action in ACTIONS:
+        label_text = f"[{action['key']}]  {action['label']}"
+        btn = Gtk.Button(label=label_text)
+        btn.get_style_context().add_class("power-btn")
+        btn.get_style_context().add_class(action["bg_class"])
+        btn.connect("clicked", lambda _, a=action: execute_action(a))
+        vbox.pack_start(btn, False, False, 0)
+
+    def on_key_press(widget, event):
+        val = event.keyval
+        if val in [Gdk.KEY_Escape, Gdk.KEY_q, Gdk.KEY_Q]:
+            sys.exit(0)
+        key_char = chr(val) if 32 <= val <= 126 else ""
+        for action in ACTIONS:
+            if key_char in [action["key"], action["shortcut"], action["shortcut"].upper()]:
+                execute_action(action)
+                return True
+        return False
+
+    win.connect("key-press-event", on_key_press)
+    win.show_all()
+    Gtk.main()
+
+
+def run_curses():
+    import curses
+
+    sys.stdout.write("\033[?1000h\033[?1002h\033[?1006h")
+    sys.stdout.flush()
+
+    def main_curses(stdscr):
+        curses.curs_set(0)
+        curses.mousemask(curses.ALL_MOUSE_EVENTS | curses.REPORT_MOUSE_POSITION)
+        curses.mouseinterval(0)
+        stdscr.nodelay(False)
+        stdscr.keypad(True)
+
+        if curses.has_colors():
+            curses.start_color()
+            curses.use_default_colors()
+
+        while True:
+            stdscr.erase()
+            h, w = stdscr.getmaxyx()
+
+            title = "╔══════════════════════════════════════════╗"
+            sub1  = "║       NEUXON OS POWER MANAGEMENT         ║"
+            sub2  = "╠══════════════════════════════════════════╣"
+            footr = "╚══════════════════════════════════════════╝"
+
+            start_y = max(1, (h - 14) // 2)
+            start_x = max(2, (w - 44) // 2)
+
+            stdscr.addstr(start_y, start_x, title, curses.A_BOLD)
+            stdscr.addstr(start_y + 1, start_x, sub1, curses.A_BOLD)
+            stdscr.addstr(start_y + 2, start_x, sub2, curses.A_BOLD)
+
+            btn_boxes = [] # (x1, y1, x2, y2, action)
+            for i, action in enumerate(ACTIONS):
+                y = start_y + 4 + i
+                text = f"  [{action['key']}] {action['label']}".ljust(42)
+                stdscr.addstr(y, start_x, f"║{text}║")
+                btn_boxes.append((start_x + 1, y, start_x + 42, y, action))
+
+            stdscr.addstr(start_y + 4 + len(ACTIONS), start_x, footr, curses.A_BOLD)
+            help_str = "Click option or press [1-6], Esc/q to cancel"
+            stdscr.addstr(start_y + 6 + len(ACTIONS), max(0, (w - len(help_str)) // 2), help_str, curses.A_DIM)
+            stdscr.refresh()
+
+            ch = stdscr.getch()
+            if ch in [27, ord('q'), ord('Q')]:
+                break
+            elif ch == curses.KEY_MOUSE:
+                try:
+                    _, mx, my, _, bstate = curses.getmouse()
+                    if bstate & (curses.BUTTON1_CLICKED | curses.BUTTON1_PRESSED | curses.BUTTON1_RELEASED):
+                        for bx1, by1, bx2, by2, action in btn_boxes:
+                            if bx1 <= mx <= bx2 and by1 <= my <= by2:
+                                execute_action(action)
+                except Exception:
+                    pass
+            elif ord('1') <= ch <= ord('6'):
+                idx = ch - ord('1')
+                if 0 <= idx < len(ACTIONS):
+                    execute_action(ACTIONS[idx])
+            else:
+                key_char = chr(ch).lower() if 32 <= ch <= 126 else ""
+                for action in ACTIONS:
+                    if key_char == action["shortcut"]:
+                        execute_action(action)
+
+    try:
+        curses.wrapper(main_curses)
+    finally:
+        sys.stdout.write("\033[?1000l\033[?1002l\033[?1006l")
+        sys.stdout.flush()
+
+
+def main():
+    has_display = bool(os.environ.get("WAYLAND_DISPLAY") or os.environ.get("DISPLAY"))
+    if has_display:
+        try:
+            run_gtk()
+            return
+        except Exception:
+            pass
+    run_curses()
+
+
+if __name__ == "__main__":
+    main()

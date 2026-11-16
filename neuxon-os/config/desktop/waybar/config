@@ -3,23 +3,21 @@
         "name": "top-bar",
         "layer": "top",
         "position": "top",
-        "height": 32,
+        "height": 30,
         "spacing": 4,
         "modules-left": [
             "custom/neuxon-brand",
             "wlr/workspaces"
         ],
         "modules-center": [
-            "clock"
+            "wlr/taskbar"
         ],
         "modules-right": [
             "cpu",
-            "memory",
             "temperature",
-            "custom/zram",
+            "memory",
             "network",
-            "custom/volume",
-            "tray"
+            "clock"
         ],
         "custom/neuxon-brand": {
             "format": "❖ NEUXON",
@@ -29,120 +27,102 @@
         "wlr/workspaces": {
             "disable-scroll": true,
             "all-outputs": true,
-            "format": "{icon}",
-            "format-icons": {
-                "1": "◆",
-                "2": "◇",
-                "3": "◇",
-                "4": "◇",
-                "active": "◆",
-                "default": "◇"
-            },
+            "format": "[{name}]",
             "on-click": "activate"
         },
-        "clock": {
-            "format": "{:%H:%M:%S  ·  %Y-%m-%d}",
-            "tooltip-format": "<tt><small>{calendar}</small></tt>",
-            "interval": 1
+        "wlr/taskbar": {
+            "format": "{title}",
+            "max-length": 48,
+            "all-outputs": true,
+            "active-first": true,
+            "icon-size": 0,
+            "on-click": "activate"
         },
         "cpu": {
-            "format": "CPU {usage}%",
+            "format": "[ CPU {usage:2}% ]",
             "interval": 2,
             "tooltip": true,
-            "on-click": "/usr/local/bin/neuxon-launch btop"
-        },
-        "memory": {
-            "format": "RAM {percentage}%",
-            "interval": 3,
-            "tooltip-format": "RAM: {used:0.2f}GB / {total:0.2f}GB ({percentage}%)",
-            "on-click": "/usr/local/bin/neuxon-launch btop"
+            "on-click": "/usr/local/bin/btop"
         },
         "temperature": {
             "thermal-zone": 0,
-            "format": "{temperatureC}°C",
+            "format": "[ TEMP {temperatureC}°C ]",
             "critical-threshold": 75,
-            "format-critical": "! {temperatureC}°C",
+            "format-critical": "[ ! TEMP {temperatureC}°C ]",
             "interval": 4,
             "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}°C"
         },
-        "custom/zram": {
-            "exec": "/usr/local/bin/neuxon-zram-status",
-            "interval": 5,
-            "tooltip-format": "ZRAM Memory Compression Ratio",
-            "on-click": "/usr/local/bin/neuxon-launch btop"
+        "memory": {
+            "format": "[ RAM {used:0.0f}M ]",
+            "interval": 3,
+            "tooltip-format": "RAM: {used:0.2f}GB / {total:0.2f}GB ({percentage}%)",
+            "on-click": "/usr/local/bin/btop"
         },
         "network": {
             "interval": 5,
-            "format-wifi": "WLAN {signalStrength}%",
-            "format-ethernet": "ETH {ifname}",
-            "format-disconnected": "OFFLINE",
+            "format-wifi": "[ NET {signalStrength}% ]",
+            "format-ethernet": "[ NET UP ]",
+            "format-disconnected": "[ NET DOWN ]",
             "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Signal: {signalStrength}%",
             "tooltip-format-ethernet": "Interface: {ifname} | IP: {ipaddr}",
             "on-click": "/usr/local/bin/neuxon-launch control"
         },
-        "custom/volume": {
-            "exec": "/usr/local/bin/neuxon-volume-status",
-            "interval": 2,
-            "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-            "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
-            "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
-            "tooltip-format": "WirePlumber Audio Volume"
-        },
-        "tray": {
-            "icon-size": 13,
-            "spacing": 6
+        "clock": {
+            "format": "[ {:%H:%M:%S} ]",
+            "tooltip-format": "<tt><small>{calendar}</small></tt>",
+            "interval": 1
         }
     },
     {
         "name": "dock",
         "layer": "top",
         "position": "bottom",
-        "height": 48,
+        "height": 46,
         "margin-bottom": 12,
         "spacing": 8,
         "modules-center": [
             "custom/dock-browser",
             "custom/dock-term",
-            "custom/dock-btop",
+            "custom/dock-calc",
             "custom/dock-files",
-            "custom/dock-fastfetch",
+            "custom/dock-notes",
             "custom/dock-heal",
             "custom/dock-power"
         ],
         "custom/dock-browser": {
-            "format": "🌐 Chromium",
+            "format": "🌐 Browser",
             "tooltip-format": "Chromium Web Browser (ARM64 Optimized)",
-            "on-click": "/usr/local/bin/neuxon-launch chromium"
+            "on-click": "/usr/local/bin/neuxon-launch browser"
         },
         "custom/dock-term": {
             "format": ">_ Terminal",
             "tooltip-format": "Foot Terminal Shell (Super+Return)",
-            "on-click": "/usr/local/bin/neuxon-launch foot"
+            "on-click": "/usr/local/bin/neuxon-launch terminal"
         },
-        "custom/dock-btop": {
-            "format": "📊 btop",
-            "tooltip-format": "BTOP System Monitor & Task Matrix",
-            "on-click": "/usr/local/bin/neuxon-launch btop"
+        "custom/dock-calc": {
+            "format": "🖩 Calc",
+            "tooltip-format": "Neuxon Scientific & Programmer Calculator",
+            "on-click": "/usr/local/bin/neuxon-calc"
         },
         "custom/dock-files": {
             "format": "📁 Files",
-            "tooltip-format": "Yazi Terminal File Manager",
-            "on-click": "/usr/local/bin/neuxon-launch yazi"
+            "tooltip-format": "Neuxon File Manager (Yazi / PCManFM)",
+            "on-click": "/usr/local/bin/neuxon-launch files"
         },
-        "custom/dock-fastfetch": {
-            "format": "⚡ Fastfetch",
-            "tooltip-format": "Neuxon Architecture & Kernel Specification",
-            "on-click": "/usr/local/bin/neuxon-launch fastfetch"
+        "custom/dock-notes": {
+            "format": "📝 Notes",
+            "tooltip-format": "Persistent VFS Notes Scratchpad",
+            "on-click": "/usr/local/bin/neuxon-launch notes"
         },
         "custom/dock-heal": {
-            "format": "🛠 Heal OS",
+            "format": "🛠 Heal",
             "tooltip-format": "Neuxon Autonomous Self-Healing Diagnostic",
             "on-click": "/usr/local/bin/neuxon-launch doctor"
         },
         "custom/dock-power": {
             "format": "⏻ Power",
-            "tooltip-format": "Neuxon Power & Control Center",
-            "on-click": "/usr/local/bin/neuxon-launch control"
+            "tooltip-format": "Neuxon Power Management",
+            "on-click": "/usr/local/bin/neuxon-power"
         }
     }
 ]
