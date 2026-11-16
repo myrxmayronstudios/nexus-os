@@ -48,13 +48,13 @@ fi
 
 # If already inside an interactive terminal or foot container, run directly
 if [ -t 0 ]; then
-    exec flock 200 "$REAL_BTOP" --utf-force "$@"
+    exec flock /tmp/neuxon-btop.lock "$REAL_BTOP" --utf-force "$@"
 fi
 
 # If invoked from GUI launcher, dock, or autostart without a terminal
 if [ -n "${WAYLAND_DISPLAY:-}" ]; then
     exec foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e flock /tmp/neuxon-btop.lock "$REAL_BTOP" --utf-force "$@"
 else
-    exec flock 200 "$REAL_BTOP" --utf-force "$@"
+    exec flock /tmp/neuxon-btop.lock "$REAL_BTOP" --utf-force "$@"
 fi
 

@@ -15,14 +15,13 @@
             "custom/ws4"
         ],
         "modules-center": [
-            "wlr/taskbar"
+            "clock"
         ],
         "modules-right": [
             "cpu",
             "temperature",
             "memory",
-            "network",
-            "clock"
+            "network"
         ],
         "custom/neuxon-brand": {
             "format": "❖ NEUXON",
@@ -49,13 +48,10 @@
             "tooltip-format": "Switch to Workspace 4 (Super+4)",
             "on-click": "wtype -M logo -k 4 -m logo 2>/dev/null || true"
         },
-        "wlr/taskbar": {
-            "format": "{title}",
-            "max-length": 48,
-            "all-outputs": true,
-            "active-first": true,
-            "tooltip-format": "{title}",
-            "on-click": "activate"
+        "clock": {
+            "format": "[ {:%a %b %d  ·  %H:%M:%S} ]",
+            "tooltip-format": "<tt><small>{calendar}</small></tt>",
+            "interval": 1
         },
         "cpu": {
             "format": "[ CPU {usage:2}% ]",
@@ -85,11 +81,6 @@
             "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Signal: {signalStrength}%",
             "tooltip-format-ethernet": "Interface: {ifname} | IP: {ipaddr}",
             "on-click": "/usr/local/bin/neuxon-launch control"
-        },
-        "clock": {
-            "format": "[ {:%H:%M:%S} ]",
-            "tooltip-format": "<tt><small>{calendar}</small></tt>",
-            "interval": 1
         }
     },
     {

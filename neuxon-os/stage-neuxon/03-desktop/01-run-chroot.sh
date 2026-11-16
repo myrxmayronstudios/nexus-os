@@ -173,7 +173,7 @@ echo "[STAGE-03] Copying desktop configuration files ..."
 
 CONFIG_SRC="/tmp/neuxon-config/desktop"
 
-for target_dir in /home/neuxon/.config /etc/skel/.config; do
+for target_dir in /home/neuxon/.config /etc/skel/.config /etc/xdg; do
     mkdir -p "${target_dir}"
 
     for mod in labwc waybar fuzzel foot gtk-3.0 gtk-4.0 mako btop swaylock starship zellij helix bottom; do

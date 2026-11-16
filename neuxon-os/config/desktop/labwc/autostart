@@ -45,7 +45,13 @@ foot --app-id=neuxon-btop --window-size-chars=98x30 -e /usr/bin/btop --utf-force
 sleep 0.2
 
 # --- Start Waybar (Top Status Bar & Centered Bottom Dock) with Logging ---
-waybar -c ~/.config/waybar/config -s ~/.config/waybar/style.css > /tmp/waybar.log 2>&1 &
+if [ -f "${HOME}/.config/waybar/config" ]; then
+    waybar -c "${HOME}/.config/waybar/config" -s "${HOME}/.config/waybar/style.css" > /tmp/waybar.log 2>&1 &
+elif [ -f /etc/xdg/waybar/config ]; then
+    waybar -c /etc/xdg/waybar/config -s /etc/xdg/waybar/style.css > /tmp/waybar.log 2>&1 &
+else
+    waybar > /tmp/waybar.log 2>&1 &
+fi
 sleep 0.2
 
 # --- Start Mako (Monochrome Toast Notifications) ---

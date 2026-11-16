@@ -92,35 +92,31 @@ tooltip label {
     border-color: #ffffff;
 }
 
-/* Center Taskbar / Focused Window Title */
-#taskbar {
+/* Center Clock & Date Badge */
+#clock {
     background-color: rgba(14, 16, 21, 0.82);
     border: 1px solid rgba(168, 178, 193, 0.28);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    padding: 1px 12px;
-    margin: 2px 4px;
-}
-
-#taskbar button {
-    background: transparent;
-    border: none;
-    color: #c8d0dc;
-    padding: 0 6px;
-    font-weight: 500;
-}
-
-#taskbar button.active {
     color: #ffffff;
-    font-weight: 700;
+    font-weight: 600;
+    padding: 1px 14px;
+    margin: 2px 4px;
+    letter-spacing: 0.3px;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
+#clock:hover {
+    border-color: #ffffff;
+    background-color: rgba(42, 50, 66, 0.90);
 }
 
 /* Top Bar Telemetry Pills */
 #cpu,
 #temperature,
 #memory,
-#network,
-#clock {
+#network {
     background-color: rgba(14, 16, 21, 0.82);
     border: 1px solid rgba(168, 178, 193, 0.28);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
