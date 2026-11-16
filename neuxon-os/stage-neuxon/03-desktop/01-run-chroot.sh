@@ -91,6 +91,8 @@ apt-get install -y --no-install-recommends \
     gir1.2-gtk-3.0 \
     gtk-update-icon-cache
 
+fc-cache -fv || true
+
 echo "[STAGE-03] Fonts and themes installed"
 
 # --------------------------------------------------------------------------
@@ -120,7 +122,9 @@ apt-get install -y --no-install-recommends \
     ncdu \
     tree \
     bc \
-    w3m 2>/dev/null || \
+    w3m \
+    btop \
+    wtype 2>/dev/null || \
 apt-get install -y --no-install-recommends \
     pcmanfm \
     mousepad \
@@ -133,7 +137,9 @@ apt-get install -y --no-install-recommends \
     ncdu \
     tree \
     bc \
-    w3m 2>/dev/null || true
+    w3m \
+    btop \
+    wtype 2>/dev/null || true
 
 echo "[STAGE-03] Browser and GUI/CLI utilities provisioned" 
 
@@ -215,18 +221,27 @@ for util in neuxon-doctor \
 done
 
 # Install btop global single-instance guard wrapper
-if [ -f /usr/bin/btop ] && [ ! -f /usr/bin/btop.real ]; then
+if [ -f /usr/bin/btop ] && [ ! -L /usr/bin/btop ] && [ ! -f /usr/bin/btop.real ]; then
     mv /usr/bin/btop /usr/bin/btop.real
     chmod 755 /usr/bin/btop.real
 fi
-if [ -f /usr/local/bin/btop ] && [ ! -f /usr/local/bin/btop.real ]; then
+if [ -f /usr/local/bin/btop ] && [ ! -L /usr/local/bin/btop ] && [ ! -f /usr/local/bin/btop.real ]; then
     mv /usr/local/bin/btop /usr/local/bin/btop.real
     chmod 755 /usr/local/bin/btop.real
 fi
+
+# Ensure real btop binary exists at both /usr/bin/btop.real and /usr/local/bin/btop.real
+if [ ! -f /usr/bin/btop.real ] && [ -f /usr/local/bin/btop.real ]; then
+    cp -a /usr/local/bin/btop.real /usr/bin/btop.real
+elif [ -f /usr/bin/btop.real ] && [ ! -f /usr/local/bin/btop.real ]; then
+    cp -a /usr/bin/btop.real /usr/local/bin/btop.real
+fi
+
 if [ -f "${CONFIG_SRC}/btop-wrapper" ]; then
     cp "${CONFIG_SRC}/btop-wrapper" /usr/local/bin/btop
     chmod 755 /usr/local/bin/btop
-    echo "[STAGE-03] Installed /usr/local/bin/btop guard wrapper"
+    ln -sf /usr/local/bin/btop /usr/bin/btop
+    echo "[STAGE-03] Installed /usr/local/bin/btop and symlinked /usr/bin/btop guard wrapper"
 fi
 
 # Install wallpaper asset if present, or generate it

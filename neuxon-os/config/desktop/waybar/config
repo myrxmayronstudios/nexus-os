@@ -4,10 +4,15 @@
         "layer": "top",
         "position": "top",
         "height": 30,
+        "exclusive": true,
+        "passthrough": false,
         "spacing": 4,
         "modules-left": [
             "custom/neuxon-brand",
-            "wlr/workspaces"
+            "custom/ws1",
+            "custom/ws2",
+            "custom/ws3",
+            "custom/ws4"
         ],
         "modules-center": [
             "wlr/taskbar"
@@ -24,18 +29,32 @@
             "tooltip-format": "Neuxon OS (Super+D for App Menu)",
             "on-click": "fuzzel"
         },
-        "wlr/workspaces": {
-            "disable-scroll": true,
-            "all-outputs": true,
-            "format": "[{name}]",
-            "on-click": "activate"
+        "custom/ws1": {
+            "format": "[1]",
+            "tooltip-format": "Switch to Workspace 1 (Super+1)",
+            "on-click": "wtype -M logo -k 1 -m logo 2>/dev/null || true"
+        },
+        "custom/ws2": {
+            "format": "[2]",
+            "tooltip-format": "Switch to Workspace 2 (Super+2)",
+            "on-click": "wtype -M logo -k 2 -m logo 2>/dev/null || true"
+        },
+        "custom/ws3": {
+            "format": "[3]",
+            "tooltip-format": "Switch to Workspace 3 (Super+3)",
+            "on-click": "wtype -M logo -k 3 -m logo 2>/dev/null || true"
+        },
+        "custom/ws4": {
+            "format": "[4]",
+            "tooltip-format": "Switch to Workspace 4 (Super+4)",
+            "on-click": "wtype -M logo -k 4 -m logo 2>/dev/null || true"
         },
         "wlr/taskbar": {
             "format": "{title}",
             "max-length": 48,
             "all-outputs": true,
             "active-first": true,
-            "icon-size": 0,
+            "tooltip-format": "{title}",
             "on-click": "activate"
         },
         "cpu": {
@@ -79,6 +98,8 @@
         "position": "bottom",
         "height": 46,
         "margin-bottom": 12,
+        "exclusive": true,
+        "passthrough": false,
         "spacing": 8,
         "modules-center": [
             "custom/dock-browser",

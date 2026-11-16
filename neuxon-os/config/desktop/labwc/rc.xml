@@ -25,48 +25,59 @@
   <windowRules>
     <windowRule identifier="*" serverDecoration="yes" skipTaskbar="no" />
 
-    <!-- Terminal Widget 1: Sysinfo (Top-Left) - Fixed & Unmovable -->
-    <windowRule identifier="neuxon-sysinfo" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
+    <!-- Terminal Widget 1: Sysinfo (Top-Left) -->
+    <windowRule identifier="neuxon-sysinfo" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
       <action name="MoveTo" x="24" y="44" />
       <action name="ResizeTo" width="520" height="250" />
     </windowRule>
 
-    <!-- Terminal Widget 2: btop System Monitor (Top-Center) - Fixed & Unmovable (Focus allowed) -->
-    <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="no">
+    <!-- Terminal Widget 2: btop System Monitor (Top-Center) -->
+    <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
       <action name="MoveTo" x="564" y="44" />
       <action name="ResizeTo" width="880" height="560" />
     </windowRule>
 
-    <!-- Terminal Widget 3: Hardware Telemetry (Middle-Left) - Fixed & Unmovable -->
-    <windowRule identifier="neuxon-telemetry" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
+    <!-- Terminal Widget 3: Hardware Telemetry (Middle-Left) -->
+    <windowRule identifier="neuxon-telemetry" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
       <action name="MoveTo" x="24" y="310" />
       <action name="ResizeTo" width="520" height="294" />
     </windowRule>
 
-    <!-- Terminal Widget 4: Chrono & Network Matrix (Bottom-Left) - Fixed & Unmovable -->
-    <windowRule identifier="neuxon-net" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
+    <!-- Terminal Widget 4: Chrono & Network Matrix (Bottom-Left) -->
+    <windowRule identifier="neuxon-net" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
       <action name="MoveTo" x="24" y="620" />
       <action name="ResizeTo" width="520" height="250" />
     </windowRule>
 
-    <!-- Terminal Widget 5: VFS Notes & Checklist (Top-Right) - Fixed & Unmovable -->
-    <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="no">
+    <!-- Terminal Widget 5: VFS Notes & Checklist (Top-Right) -->
+    <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
       <action name="MoveTo" x="1460" y="44" />
       <action name="ResizeTo" width="436" height="560" />
     </windowRule>
 
-    <!-- Terminal Widget 6: Kernel Ring & IPC Matrix (Bottom-Right) - Fixed & Unmovable -->
-    <windowRule identifier="neuxon-matrix" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" ignoreFocusRequest="yes">
+    <!-- Terminal Widget 6: Kernel Ring & IPC Matrix (Bottom-Right) -->
+    <windowRule identifier="neuxon-matrix" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
       <action name="MoveTo" x="564" y="620" />
       <action name="ResizeTo" width="1332" height="250" />
     </windowRule>
 
     <!-- Catch-all for any additional Neuxon desktop widgets -->
-    <windowRule identifier="neuxon-*-widget" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" fixedPosition="yes" />
+    <windowRule identifier="neuxon-*-widget" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" />
 
     <!-- Secondary HUD & App Dialog Rules -->
     <windowRule identifier="neuxon-hud" serverDecoration="no">
       <action name="ToggleAlwaysOnTop" />
+    </windowRule>
+
+    <!-- All Opened Apps & Utilities: Guaranteed Movable with Server Decorations -->
+    <windowRule identifier="neuxon-calc" serverDecoration="yes">
+      <action name="MoveTo" x="780" y="240" />
+      <action name="ResizeTo" width="380" height="540" />
+    </windowRule>
+
+    <windowRule identifier="neuxon-power" serverDecoration="yes">
+      <action name="MoveTo" x="720" y="320" />
+      <action name="ResizeTo" width="480" height="420" />
     </windowRule>
 
     <windowRule identifier="neuxon-control" serverDecoration="yes">
@@ -74,58 +85,18 @@
       <action name="ResizeTo" width="1200" height="700" />
     </windowRule>
 
-    <!-- Neuxon Calculator Window Rule -->
-    <windowRule identifier="neuxon-calc" serverDecoration="yes">
-      <action name="MoveTo" x="780" y="240" />
-      <action name="ResizeTo" width="380" height="540" />
-    </windowRule>
-
-    <!-- Neuxon Power Management Dialog Rule -->
-    <windowRule identifier="neuxon-power" serverDecoration="yes">
-      <action name="MoveTo" x="720" y="320" />
-      <action name="ResizeTo" width="480" height="420" />
-    </windowRule>
-
-    <!-- Optimized Application Placement Rules -->
     <windowRule identifier="neuxon-files" serverDecoration="yes">
       <action name="MoveTo" x="420" y="180" />
       <action name="ResizeTo" width="1080" height="720" />
     </windowRule>
 
-    <windowRule identifier="neuxon-music" serverDecoration="yes">
-      <action name="MoveTo" x="480" y="240" />
-      <action name="ResizeTo" width="960" height="600" />
-    </windowRule>
-
-    <windowRule identifier="cmus" serverDecoration="yes">
-      <action name="MoveTo" x="480" y="240" />
-      <action name="ResizeTo" width="960" height="600" />
-    </windowRule>
-
-    <windowRule identifier="imv" serverDecoration="yes">
-      <action name="MoveTo" x="380" y="140" />
-      <action name="ResizeTo" width="1160" height="780" />
-    </windowRule>
-
-    <windowRule identifier="org.pwmt.zathura" serverDecoration="yes">
-      <action name="MoveTo" x="380" y="120" />
-      <action name="ResizeTo" width="1160" height="820" />
-    </windowRule>
-
-    <windowRule identifier="galculator" serverDecoration="yes">
-      <action name="MoveTo" x="780" y="240" />
-      <action name="ResizeTo" width="380" height="540" />
-    </windowRule>
-
-    <windowRule identifier="pcmanfm" serverDecoration="yes">
-      <action name="MoveTo" x="420" y="180" />
-      <action name="ResizeTo" width="1080" height="720" />
-    </windowRule>
-
-    <windowRule identifier="mousepad" serverDecoration="yes">
-      <action name="MoveTo" x="460" y="200" />
-      <action name="ResizeTo" width="1000" height="680" />
-    </windowRule>
+    <windowRule identifier="foot" serverDecoration="yes" />
+    <windowRule identifier="galculator" serverDecoration="yes" />
+    <windowRule identifier="pcmanfm" serverDecoration="yes" />
+    <windowRule identifier="mousepad" serverDecoration="yes" />
+    <windowRule identifier="imv" serverDecoration="yes" />
+    <windowRule identifier="org.pwmt.zathura" serverDecoration="yes" />
+    <windowRule identifier="cmus" serverDecoration="yes" />
   </windowRules>
 
   <focus>
@@ -276,29 +247,15 @@
 
   <mouse>
     <default />
-    <context name="Frame">
-      <mousebind button="Left" action="Press">
-        <action name="Focus" />
-        <action name="Raise" />
-      </mousebind>
-      <mousebind button="Left" action="Drag">
-        <action name="Move" />
-      </mousebind>
-      <mousebind button="Right" action="Drag">
-        <action name="Resize" />
-      </mousebind>
+    <context name="Titlebar">
+      <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
+      <mousebind button="Left" action="Drag"><action name="Move"/></mousebind>
+      <mousebind button="Left" action="DoubleClick"><action name="ToggleMaximize"/></mousebind>
     </context>
-    <context name="TitleBar">
-      <mousebind button="Left" action="Press">
-        <action name="Focus" />
-        <action name="Raise" />
-      </mousebind>
-      <mousebind button="Left" action="Drag">
-        <action name="Move" />
-      </mousebind>
-      <mousebind button="Left" action="DoubleClick">
-        <action name="ToggleMaximize" />
-      </mousebind>
+    <context name="Frame">
+      <mousebind button="A-Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
+      <mousebind button="A-Left" action="Drag"><action name="Move"/></mousebind>
+      <mousebind button="A-Right" action="Drag"><action name="Resize"/></mousebind>
     </context>
     <context name="Root">
       <mousebind button="Right" action="Press">

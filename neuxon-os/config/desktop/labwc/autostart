@@ -17,6 +17,9 @@ fi
 export XCURSOR_THEME="Adwaita"
 export XCURSOR_SIZE=16
 
+# --- Refresh font index for crisp JetBrains Mono rendering ---
+fc-cache -fv > /tmp/fc-cache.log 2>&1 &
+
 # --- Wallpaper Generation & Initialization ---
 if [ ! -f /usr/share/backgrounds/neuxon-binary.png ]; then
     if [ -x /usr/local/bin/neuxon-gen-wallpaper ]; then
@@ -33,14 +36,20 @@ if [ -f /usr/share/backgrounds/neuxon-binary.png ]; then
 elif [ -f /usr/share/backgrounds/neuxon/default.png ]; then
     swaybg -i /usr/share/backgrounds/neuxon/default.png -m fill &
 else
-    swaybg -c '#060709' &
+    swaybg -c '#050508' &
 fi
+sleep 0.3
 
-# --- Start Waybar (Top Status Bar & Centered Bottom Dock) ---
-waybar &
+# --- Embed and Force Live btop Widget on Boot (Immediately After Wallpaper) ---
+foot --app-id=neuxon-btop --window-size-chars=98x30 -e /usr/bin/btop --utf-force &
+sleep 0.2
+
+# --- Start Waybar (Top Status Bar & Centered Bottom Dock) with Logging ---
+waybar -c ~/.config/waybar/config -s ~/.config/waybar/style.css > /tmp/waybar.log 2>&1 &
+sleep 0.2
 
 # --- Start Mako (Monochrome Toast Notifications) ---
-mako &
+mako > /tmp/mako.log 2>&1 &
 
 # --- Start PipeWire / WirePlumber audio subsystem if present ---
 if command -v pipewire &>/dev/null && ! pgrep -x pipewire >/dev/null 2>&1; then
@@ -49,11 +58,9 @@ if command -v pipewire &>/dev/null && ! pgrep -x pipewire >/dev/null 2>&1; then
     wireplumber &
 fi
 
-# --- Launch 6 Large Terminal Widgets ---
+# --- Launch Remaining 5 Large Terminal Widgets ---
 sleep 0.2
 foot --app-id=neuxon-sysinfo --title="[ 01 // NEUXON ARCHITECTURE & SUBSYSTEMS ]" -e /usr/local/bin/neuxon-sysinfo-widget &
-sleep 0.1
-foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e /usr/local/bin/neuxon-btop-widget &
 sleep 0.1
 foot --app-id=neuxon-telemetry --title="[ 03 // LIVE HARDWARE & THERMAL TELEMETRY ]" -e /usr/local/bin/neuxon-telemetry-widget &
 sleep 0.1
