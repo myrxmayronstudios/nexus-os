@@ -1,166 +1,141 @@
 /* ============================================================================
- * Neuxon OS - Stealth Monochrome Glass GTK 3.0 Stylesheet
- * Void Black: #050505 | Frosted Obsidian: rgba(14, 14, 14, 0.86) | Carbon: #141414
- * Specular Hairline: 1px solid #2A2A2A / #FFFFFF
- * Typography: JetBrains Mono Nerd Font, #F5F5F5 (Primary), #7A7A7A (Muted)
+ * Neuxon OS v5.0 - 16-Bit Obsidian GTK 3.0 Stylesheet
+ * Void Base: #050608 | Frosted Panel: rgba(10, 13, 18, 0.82)
+ * Elevated Surface: rgba(18, 22, 30, 0.90) | Hover Pill: rgba(42, 51, 68, 0.92)
+ * Active Focus Border: #CBD5E1 | Text Primary: #F1F5F9 | Text Muted: #94A3B8
  * ============================================================================ */
 
-/* Palette definitions */
-@define-color neuxon_bg #050505;
-@define-color neuxon_obsidian rgba(14, 14, 14, 0.86);
-@define-color neuxon_surface #141414;
-@define-color neuxon_surface_hover #222222;
-@define-color neuxon_border #2A2A2A;
-@define-color neuxon_border_active #FFFFFF;
-@define-color neuxon_fg #F5F5F5;
-@define-color neuxon_fg_muted #7A7A7A;
-@define-color neuxon_highlight #FFFFFF;
-@define-color neuxon_highlight_fg #050505;
+/* Master GTK Theme Colors */
+@define-color theme_base_color #050608;
+@define-color theme_bg_color #0a0d12;
+@define-color theme_fg_color #f1f5f9;
+@define-color theme_selected_bg_color #2a3344;
+@define-color theme_selected_fg_color #ffffff;
+@define-color borders rgba(168, 178, 193, 0.24);
 
 /* Base Window */
 window,
 .background {
-    background-color: @neuxon_bg;
-    color: @neuxon_fg;
-    font-family: "JetBrains Mono Nerd Font", "JetBrains Mono", monospace;
+    background-color: #050608;
+    color: #f1f5f9;
+    font-family: "JetBrains Mono", "DejaVu Sans Mono", monospace;
     font-size: 10pt;
 }
 
 /* Headerbars and Titlebars */
 headerbar,
 .titlebar {
-    background-color: @neuxon_obsidian;
-    border-bottom: 1px solid @neuxon_border;
-    color: @neuxon_fg;
-    min-height: 28px;
+    background-color: rgba(10, 13, 18, 0.82);
+    border-bottom: 1px solid rgba(168, 178, 193, 0.24);
+    color: #f1f5f9;
+    min-height: 32px;
     padding: 0 8px;
-    box-shadow: none;
-    border-radius: 6px 6px 0 0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 headerbar .title {
     font-weight: bold;
-    color: @neuxon_fg;
+    color: #f1f5f9;
 }
 
 headerbar .subtitle {
     font-size: 8.5pt;
-    color: @neuxon_fg_muted;
+    color: #94a3b8;
 }
 
-/* Buttons */
+/* Standard Buttons */
 button {
-    background-color: @neuxon_surface;
-    color: @neuxon_fg;
-    border: 1px solid @neuxon_border;
+    background-color: rgba(18, 22, 30, 0.90);
+    color: #f1f5f9;
+    border: 1px solid rgba(168, 178, 193, 0.24);
     border-radius: 6px;
-    padding: 4px 10px;
-    transition: none;
-    box-shadow: none;
+    padding: 4px 12px;
+    transition: all 0.1s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 button:hover {
-    background-color: @neuxon_surface_hover;
-    border-color: @neuxon_border_active;
+    background-color: rgba(42, 51, 68, 0.92);
+    color: #ffffff;
+    border-color: #cbd5e1;
 }
 
 button:active,
 button:checked {
-    background-color: @neuxon_highlight;
-    color: @neuxon_highlight_fg;
-    border-color: @neuxon_highlight;
+    background-color: #2a3344;
+    color: #ffffff;
+    border-color: #cbd5e1;
 }
 
-button:disabled {
-    background-color: @neuxon_bg;
-    color: @neuxon_fg_muted;
-    border-color: @neuxon_border;
-}
-
-/* Entry / Text Input */
+/* Text Entries and Inputs */
 entry {
-    background-color: @neuxon_surface;
-    color: @neuxon_fg;
-    border: 1px solid @neuxon_border;
+    background-color: #050608;
+    color: #f1f5f9;
+    border: 1px solid rgba(168, 178, 193, 0.24);
     border-radius: 6px;
-    padding: 4px 8px;
-    caret-color: @neuxon_highlight;
+    padding: 6px 10px;
+    caret-color: #f1f5f9;
 }
 
 entry:focus {
-    border-color: @neuxon_border_active;
-    box-shadow: none;
+    border-color: #cbd5e1;
+    box-shadow: 0 0 0 1px #cbd5e1;
+}
+
+/* Menus and Popovers */
+menu,
+.menu,
+popover.background {
+    background-color: rgba(10, 13, 18, 0.95);
+    color: #f1f5f9;
+    border: 1px solid #8a96a8;
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+}
+
+menuitem {
+    color: #f1f5f9;
+    padding: 6px 14px;
+    border-radius: 4px;
+}
+
+menuitem:hover {
+    background-color: rgba(42, 51, 68, 0.92);
+    color: #ffffff;
 }
 
 /* Scrollbars */
-scrollbar {
+scrollbar,
+scrollbar.vertical,
+scrollbar.horizontal {
     background-color: transparent;
     border: none;
 }
 
 scrollbar slider {
-    background-color: @neuxon_border;
-    border-radius: 3px;
+    background-color: rgba(148, 163, 184, 0.3);
+    border-radius: 4px;
     min-width: 6px;
     min-height: 6px;
-    border: none;
 }
 
 scrollbar slider:hover {
-    background-color: @neuxon_fg_muted;
+    background-color: rgba(203, 213, 225, 0.6);
 }
 
-scrollbar slider:active {
-    background-color: @neuxon_highlight;
+/* Views, Lists and Trees */
+treeview,
+textview,
+iconview,
+list,
+row {
+    background-color: #050608;
+    color: #f1f5f9;
 }
 
-/* Menus & Popovers */
-menu,
-popover {
-    background-color: @neuxon_obsidian;
-    color: @neuxon_fg;
-    border: 1px solid @neuxon_border;
-    border-radius: 6px;
-    padding: 4px;
-}
-
-menuitem {
-    padding: 4px 10px;
-    border-radius: 4px;
-    color: @neuxon_fg;
-}
-
-menuitem:hover {
-    background-color: @neuxon_highlight;
-    color: @neuxon_highlight_fg;
-}
-
-/* Notebook / Tabs */
-notebook {
-    background-color: @neuxon_bg;
-}
-
-notebook tab {
-    background-color: @neuxon_surface;
-    color: @neuxon_fg_muted;
-    border: 1px solid @neuxon_border;
-    border-bottom: none;
-    padding: 4px 10px;
-    border-radius: 6px 6px 0 0;
-}
-
-notebook tab:checked {
-    background-color: @neuxon_bg;
-    color: @neuxon_fg;
-    border-color: @neuxon_border;
-    border-top: 2px solid @neuxon_highlight;
-}
-
-/* Tooltips */
-tooltip {
-    background-color: @neuxon_obsidian;
-    color: @neuxon_fg;
-    border: 1px solid @neuxon_border_active;
-    border-radius: 6px;
-    padding: 4px 8px;
+row:selected,
+treeview:selected {
+    background-color: #2a3344;
+    color: #ffffff;
 }

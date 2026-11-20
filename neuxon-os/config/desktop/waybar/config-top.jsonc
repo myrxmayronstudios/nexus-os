@@ -1,0 +1,117 @@
+[
+    {
+        "name": "top-bar",
+        "layer": "top",
+        "position": "top",
+        "height": 34,
+        "exclusive": true,
+        "passthrough": false,
+        "spacing": 4,
+        "modules-left": [
+            "custom/start",
+            "custom/ws1",
+            "custom/ws2",
+            "custom/ws3",
+            "custom/ws4"
+        ],
+        "modules-center": [
+            "wlr/taskbar"
+        ],
+        "modules-right": [
+            "custom/volume",
+            "network",
+            "cpu",
+            "temperature",
+            "memory",
+            "clock",
+            "custom/power"
+        ],
+        "custom/start": {
+            "format": "❖ START",
+            "tooltip-format": "Start Menu (Win or Win+Space)",
+            "on-click": "fuzzel"
+        },
+        "custom/ws1": {
+            "format": "[ 1 ]",
+            "tooltip-format": "Workspace 1 (Win+1)",
+            "on-click": "wtype -M logo -k 1 -m logo 2>/dev/null || true"
+        },
+        "custom/ws2": {
+            "format": "[ 2 ]",
+            "tooltip-format": "Workspace 2 (Win+2)",
+            "on-click": "wtype -M logo -k 2 -m logo 2>/dev/null || true"
+        },
+        "custom/ws3": {
+            "format": "[ 3 ]",
+            "tooltip-format": "Workspace 3 (Win+3)",
+            "on-click": "wtype -M logo -k 3 -m logo 2>/dev/null || true"
+        },
+        "custom/ws4": {
+            "format": "[ 4 ]",
+            "tooltip-format": "Workspace 4 (Win+4)",
+            "on-click": "wtype -M logo -k 4 -m logo 2>/dev/null || true"
+        },
+        "wlr/taskbar": {
+            "format": "{icon} {title}",
+            "icon-size": 16,
+            "max-length": 42,
+            "all-outputs": true,
+            "active-first": true,
+            "tooltip-format": "{title}",
+            "on-click": "activate",
+            "on-click-middle": "close",
+            "on-click-right": "minimize-raise"
+        },
+        "custom/volume": {
+            "exec": "/usr/local/bin/neuxon-volume-status",
+            "return-type": "json",
+            "interval": 2,
+            "format": "{text}",
+            "tooltip": true,
+            "on-click": "/usr/local/bin/neuxon-launch audio",
+            "on-click-right": "/usr/local/bin/neuxon-volume-status toggle-mute",
+            "on-scroll-up": "/usr/local/bin/neuxon-volume-status up",
+            "on-scroll-down": "/usr/local/bin/neuxon-volume-status down"
+        },
+        "network": {
+            "interval": 4,
+            "format-wifi": "[ 📶 {signalStrength}% ]",
+            "format-ethernet": "[ 🌐 ETH ]",
+            "format-disconnected": "[ ⚠ OFFLINE ]",
+            "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Signal: {signalStrength}%",
+            "tooltip-format-ethernet": "Interface: {ifname} | IP: {ipaddr}",
+            "on-click": "/usr/local/bin/neuxon-settings network"
+        },
+        "cpu": {
+            "format": "[ CPU {usage:2}% ]",
+            "interval": 2,
+            "tooltip": true,
+            "on-click": "/usr/local/bin/neuxon-btop-open"
+        },
+        "temperature": {
+            "thermal-zone": 0,
+            "format": "[ TEMP {temperatureC}°C ]",
+            "critical-threshold": 75,
+            "format-critical": "[ ! TEMP {temperatureC}°C ]",
+            "interval": 3,
+            "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}°C",
+            "on-click": "/usr/local/bin/neuxon-btop-open"
+        },
+        "memory": {
+            "format": "[ RAM {used:0.0f}M ]",
+            "interval": 2,
+            "tooltip-format": "RAM: {used:0.2f}GB / {total:0.2f}GB ({percentage}%)",
+            "on-click": "/usr/local/bin/neuxon-btop-open"
+        },
+        "clock": {
+            "format": "[ {:%H:%M | %a %b %d} ]",
+            "interval": 1,
+            "tooltip-format": "<tt><small>{calendar}</small></tt>"
+        },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Power Options (Win+P)",
+            "on-click": "/usr/local/bin/neuxon-power"
+        }
+    }
+]

@@ -89,6 +89,7 @@ apt-get install -y --no-install-recommends \
     libgtk-3-0 \
     python3-gi \
     gir1.2-gtk-3.0 \
+    python3-pil \
     gtk-update-icon-cache
 
 fc-cache -fv || true
@@ -167,7 +168,7 @@ mkdir -p /home/neuxon/.config /etc/skel/.config
 echo "[STAGE-03] User setup complete"
 
 # --------------------------------------------------------------------------
-# 9. Copy desktop configuration files (to /home/neuxon and /etc/skel)
+# 9. Copy desktop configuration files (to /home/neuxon, /etc/skel, /etc/xdg)
 # --------------------------------------------------------------------------
 echo "[STAGE-03] Copying desktop configuration files ..."
 
@@ -184,6 +185,23 @@ for target_dir in /home/neuxon/.config /etc/skel/.config /etc/xdg; do
     done
 done
 
+# Golden default templates for Neuxon Doctor recovery
+mkdir -p /etc/neuxon/defaults/labwc /etc/neuxon/defaults/waybar
+if [ -d "${CONFIG_SRC}/labwc" ]; then
+    cp -r "${CONFIG_SRC}/labwc"/* /etc/neuxon/defaults/labwc/
+fi
+if [ -d "${CONFIG_SRC}/waybar" ]; then
+    cp -r "${CONFIG_SRC}/waybar"/* /etc/neuxon/defaults/waybar/
+fi
+
+# Install local share directory & startpage.html
+mkdir -p /usr/local/share/neuxon /home/neuxon/.local/share/neuxon /etc/skel/.local/share/neuxon
+if [ -f "${CONFIG_SRC}/startpage.html" ]; then
+    cp "${CONFIG_SRC}/startpage.html" /usr/local/share/neuxon/startpage.html
+    cp "${CONFIG_SRC}/startpage.html" /home/neuxon/.local/share/neuxon/startpage.html
+    cp "${CONFIG_SRC}/startpage.html" /etc/skel/.local/share/neuxon/startpage.html
+fi
+
 # Install MPV system configuration
 mkdir -p /etc/mpv
 if [ -f /tmp/neuxon-config/system/mpv/mpv.conf ]; then
@@ -199,6 +217,11 @@ echo "[STAGE-03] Installing Neuxon utilities, self-healing supervisor & widgets.
 for util in neuxon-doctor \
             neuxon-launch \
             neuxon-browser \
+            neuxon-files \
+            neuxon-notes \
+            neuxon-settings \
+            neuxon-btop-open \
+            neuxon-btop-widget \
             neuxon-gen-wallpaper \
             neuxon-sysinfo-widget \
             neuxon-telemetry-widget \
@@ -207,8 +230,6 @@ for util in neuxon-doctor \
             neuxon-matrix-widget \
             neuxon-control \
             neuxon-hud \
-            neuxon-btop-gadget \
-            neuxon-btop-widget \
             neuxon-calc \
             neuxon-power \
             neuxon-zram-status \
@@ -281,15 +302,15 @@ mkdir -p "${XDG_RUNTIME_DIR}" 2>/dev/null || sudo mkdir -p "${XDG_RUNTIME_DIR}"
 chmod 0700 "${XDG_RUNTIME_DIR}" 2>/dev/null || true
 
 export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTOP=wlroots
+export XDG_CURRENT_DESKTOP=labwc:wlroots
 export XDG_SESSION_DESKTOP=labwc
 export WLR_NO_HARDWARE_CURSORS=1
 export WLR_DRM_NO_ATOMIC=1
-export WLR_RENDERER=pixman
+export WLR_RENDERER=gles2
 export TERM=foot
 
 if [ -x /usr/local/bin/neuxon-doctor ]; then
-    /usr/local/bin/neuxon-doctor || true
+    /usr/local/bin/neuxon-doctor --boot-check || true
 fi
 
 if command -v dbus-run-session &>/dev/null; then

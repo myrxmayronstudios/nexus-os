@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - Fault-Tolerant Universal Application Launcher
-# Intercepts app launches, provides fallback binaries, and guarantees sizing
+# Neuxon OS v5.0 - Universal Fault-Tolerant Application Launcher
+# Intercepts app launches, provides graceful fallbacks, and guarantees sizing
 # ============================================================================
 set -u
 
@@ -47,26 +47,32 @@ case "${APP}" in
         ;;
 
     btop|monitor)
-        exec /usr/local/bin/btop "$@"
+        if [ -x /usr/local/bin/neuxon-btop-open ]; then
+            exec /usr/local/bin/neuxon-btop-open "$@"
+        elif [ -x /usr/local/bin/btop ]; then
+            exec /usr/local/bin/btop "$@"
+        else
+            exec /usr/bin/btop "$@"
+        fi
         ;;
 
     btm|bottom)
         if command -v btm >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-btop --window-size-chars=98x30 -e btm "$@"
+            exec foot --app-id=neuxon-btop-float --window-size-chars=98x30 -e btm "$@"
         else
             exec /usr/local/bin/neuxon-launch btop "$@"
         fi
         ;;
 
-    files|filemanager|yazi)
-        if command -v yazi >/dev/null 2>&1; then
+    files|filemanager|pcmanfm|yazi|explorer)
+        if [ -x /usr/local/bin/neuxon-files ]; then
+            exec /usr/local/bin/neuxon-files "$@"
+        elif command -v pcmanfm >/dev/null 2>&1; then
+            exec pcmanfm "$@"
+        elif command -v yazi >/dev/null 2>&1; then
             exec foot --app-id=neuxon-files --window-size-chars=104x32 -e yazi "$@"
         elif command -v mc >/dev/null 2>&1; then
-            log_heal "yazi missing, falling back to Midnight Commander"
             exec foot --app-id=neuxon-files --window-size-chars=104x32 -e mc "$@"
-        elif command -v pcmanfm >/dev/null 2>&1; then
-            log_heal "yazi missing, falling back to pcmanfm"
-            exec pcmanfm "$@"
         elif command -v ranger >/dev/null 2>&1; then
             exec foot --app-id=neuxon-files --window-size-chars=104x32 -e ranger "$@"
         else
@@ -83,11 +89,37 @@ case "${APP}" in
         fi
         ;;
 
-    pcmanfm)
-        if command -v pcmanfm >/dev/null 2>&1; then
-            exec pcmanfm "$@"
+    calc|calculator|galculator)
+        if [ -x /usr/local/bin/neuxon-calc ]; then
+            exec /usr/local/bin/neuxon-calc "$@"
+        elif command -v galculator >/dev/null 2>&1; then
+            exec galculator "$@"
         else
-            exec /usr/local/bin/neuxon-launch files "$@"
+            exec foot --app-id=neuxon-calc --window-size-chars=44x16 -e python3 -q
+        fi
+        ;;
+
+    notes|memo|notepad|editor)
+        if [ -x /usr/local/bin/neuxon-notes ]; then
+            exec /usr/local/bin/neuxon-notes "$@"
+        elif command -v mousepad >/dev/null 2>&1; then
+            exec mousepad "$@"
+        elif command -v micro >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-notes-gui --window-size-chars=104x32 -e micro "$@"
+        elif command -v nano >/dev/null 2>&1; then
+            exec foot --app-id=neuxon-notes-gui --window-size-chars=104x32 -e nano "$@"
+        else
+            exec foot --app-id=neuxon-notes --title="[ 05 // NEUXON VFS SCRATCHPAD & MEMO ]" -e /usr/local/bin/neuxon-notes-widget "$@"
+        fi
+        ;;
+
+    settings|control|control-panel|neuxon-settings|neuxon-control)
+        if [ -x /usr/local/bin/neuxon-settings ]; then
+            exec /usr/local/bin/neuxon-settings "$@"
+        elif [ -x /usr/local/bin/neuxon-control ]; then
+            exec /usr/local/bin/neuxon-control "$@"
+        else
+            exec foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control "$@"
         fi
         ;;
 
@@ -126,33 +158,11 @@ case "${APP}" in
         fi
         ;;
 
-    calc|calculator|galculator)
-        if [ -x /usr/local/bin/neuxon-calc ]; then
-            exec /usr/local/bin/neuxon-calc "$@"
-        elif command -v galculator >/dev/null 2>&1; then
-            exec galculator "$@"
-        else
-            exec foot --app-id=neuxon-calc --window-size-chars=44x16 -e python3 -q
-        fi
-        ;;
-
-    notes|memo)
-        exec foot --app-id=neuxon-notes --title="[ 05 // NEUXON VFS SCRATCHPAD & MEMO ]" -e /usr/local/bin/neuxon-notes-widget "$@"
-        ;;
-
     disk|storage|ncdu)
         if command -v ncdu >/dev/null 2>&1; then
             exec foot --app-id=neuxon-ncdu --window-size-chars=100x30 -e ncdu /
         else
             exec foot --app-id=neuxon-ncdu --window-size-chars=80x24 -e sh -c "df -h; echo ''; exec sh"
-        fi
-        ;;
-
-    mousepad)
-        if command -v mousepad >/dev/null 2>&1; then
-            exec mousepad "$@"
-        else
-            exec /usr/local/bin/neuxon-launch editor "$@"
         fi
         ;;
 
@@ -167,32 +177,8 @@ case "${APP}" in
         fi
         ;;
 
-    editor|edit|micro|hx)
-        if command -v micro >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e micro "$@"
-        elif command -v hx >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e hx "$@"
-        elif command -v mousepad >/dev/null 2>&1; then
-            exec mousepad "$@"
-        elif command -v nano >/dev/null 2>&1; then
-            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e nano "$@"
-        else
-            log_heal "micro/hx missing, falling back to vi"
-            exec foot --app-id=neuxon-editor --window-size-chars=104x32 -e vi "$@"
-        fi
-        ;;
-
-    control|neuxon-control)
-        if [ -x /usr/local/bin/neuxon-control ]; then
-            exec foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control "$@"
-        else
-            log_heal "neuxon-control binary missing, launching power menu"
-            exec foot --app-id=neuxon-control -e /usr/local/bin/neuxon-launch power
-        fi
-        ;;
-
     doctor|heal)
-        exec foot --app-id=neuxon-heal --window-size-chars=88x24 -e sh -c "/usr/local/bin/neuxon-doctor; echo ''; echo 'Press [Enter] to close.'; read -r _"
+        exec foot --app-id=neuxon-heal --window-size-chars=88x24 -e /usr/local/bin/neuxon-doctor --gui
         ;;
 
     power|exit)

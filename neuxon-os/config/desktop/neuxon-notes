@@ -1,0 +1,235 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Neuxon OS v5.0 - Native Monochrome Notes & Text Editor
+Native Python3 + GTK3 GUI with Toolbar, Line/Char count, Word Wrap, and Auto-save.
+Includes terminal curses fallback for non-GUI environments.
+"""
+import sys
+import os
+
+DEFAULT_NOTE_PATH = os.path.expanduser("~/.local/share/neuxon/notes.txt")
+
+def run_gtk():
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk, Gdk, Pango
+
+    os.makedirs(os.path.dirname(DEFAULT_NOTE_PATH), exist_ok=True)
+
+    class NotesWindow(Gtk.Window):
+        def __init__(self, filepath=None):
+            super().__init__(title="Neuxon Notes & Text Editor")
+            self.set_default_size(860, 580)
+            self.set_position(Gtk.WindowPosition.CENTER)
+            self.filepath = filepath or DEFAULT_NOTE_PATH
+
+            # Main Layout
+            vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+            self.add(vbox)
+
+            # Toolbar
+            toolbar = Gtk.Toolbar()
+            toolbar.set_style(Gtk.ToolbarStyle.BOTH_HORIZ)
+            vbox.pack_start(toolbar, False, False, 0)
+
+            btn_new = Gtk.ToolButton()
+            btn_new.set_label("New")
+            btn_new.set_icon_name("document-new")
+            btn_new.connect("clicked", self.on_new)
+            toolbar.insert(btn_new, -1)
+
+            btn_open = Gtk.ToolButton()
+            btn_open.set_label("Open")
+            btn_open.set_icon_name("document-open")
+            btn_open.connect("clicked", self.on_open)
+            toolbar.insert(btn_open, -1)
+
+            btn_save = Gtk.ToolButton()
+            btn_save.set_label("Save (Ctrl+S)")
+            btn_save.set_icon_name("document-save")
+            btn_save.connect("clicked", self.on_save)
+            toolbar.insert(btn_save, -1)
+
+            sep = Gtk.SeparatorToolItem()
+            toolbar.insert(sep, -1)
+
+            self.btn_wrap = Gtk.ToggleToolButton()
+            self.btn_wrap.set_label("Word Wrap")
+            self.btn_wrap.set_active(True)
+            self.btn_wrap.connect("toggled", self.on_wrap_toggled)
+            toolbar.insert(self.btn_wrap, -1)
+
+            # Text Area in ScrolledWindow
+            scrolled = Gtk.ScrolledWindow()
+            scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+            vbox.pack_start(scrolled, True, True, 0)
+
+            self.textview = Gtk.TextView()
+            self.textview.set_wrap_mode(Gtk.WrapMode.WORD)
+            self.textview.set_left_margin(12)
+            self.textview.set_right_margin(12)
+            self.textview.set_top_margin(12)
+            self.textview.set_bottom_margin(12)
+            self.buffer = self.textview.get_buffer()
+            self.buffer.connect("changed", self.on_text_changed)
+            scrolled.add(self.textview)
+
+            # Status Bar
+            self.statusbar = Gtk.Statusbar()
+            vbox.pack_start(self.statusbar, False, False, 0)
+            self.status_ctx = self.statusbar.get_context_id("notes")
+
+            # Key bindings (Ctrl+S, Ctrl+O, Ctrl+N)
+            self.connect("key-press-event", self.on_key_press)
+
+            # Load initial file
+            self.load_file(self.filepath)
+
+        def on_key_press(self, widget, event):
+            ctrl = (event.state & Gdk.ModifierType.CONTROL_MASK)
+            if ctrl:
+                if event.keyval == Gdk.KEY_s:
+                    self.on_save(None)
+                    return True
+                elif event.keyval == Gdk.KEY_o:
+                    self.on_open(None)
+                    return True
+                elif event.keyval == Gdk.KEY_n:
+                    self.on_new(None)
+                    return True
+            return False
+
+        def on_text_changed(self, buffer):
+            chars = buffer.get_char_count()
+            lines = buffer.get_line_count()
+            fname = os.path.basename(self.filepath)
+            msg = f" File: {fname}  |  Lines: {lines}  |  Characters: {chars}  |  Neuxon Obsidian Notes"
+            self.statusbar.pop(self.status_ctx)
+            self.statusbar.push(self.status_ctx, msg)
+
+        def on_wrap_toggled(self, widget):
+            if self.btn_wrap.get_active():
+                self.textview.set_wrap_mode(Gtk.WrapMode.WORD)
+            else:
+                self.textview.set_wrap_mode(Gtk.WrapMode.NONE)
+
+        def on_new(self, widget):
+            self.filepath = DEFAULT_NOTE_PATH
+            self.buffer.set_text("")
+            self.set_title("Neuxon Notes & Text Editor - Untitled")
+
+        def on_open(self, widget):
+            dialog = Gtk.FileChooserDialog(
+                title="Open Text Document",
+                parent=self,
+                action=Gtk.FileChooserAction.OPEN
+            )
+            dialog.add_buttons(
+                Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                Gtk.STOCK_OPEN, Gtk.ResponseType.OK
+            )
+            if dialog.run() == Gtk.ResponseType.OK:
+                self.load_file(dialog.get_filename())
+            dialog.destroy()
+
+        def on_save(self, widget):
+            if not self.filepath:
+                dialog = Gtk.FileChooserDialog(
+                    title="Save Text Document",
+                    parent=self,
+                    action=Gtk.FileChooserAction.SAVE
+                )
+                dialog.add_buttons(
+                    Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                    Gtk.STOCK_SAVE, Gtk.ResponseType.OK
+                )
+                dialog.set_do_overwrite_confirmation(True)
+                if dialog.run() == Gtk.ResponseType.OK:
+                    self.filepath = dialog.get_filename()
+                dialog.destroy()
+
+            if self.filepath:
+                start_iter = self.buffer.get_start_iter()
+                end_iter = self.buffer.get_end_iter()
+                text = self.buffer.get_text(start_iter, end_iter, False)
+                try:
+                    with open(self.filepath, "w", encoding="utf-8") as f:
+                        f.write(text)
+                    self.set_title(f"Neuxon Notes - {os.path.basename(self.filepath)}")
+                except Exception as e:
+                    md = Gtk.MessageDialog(
+                        parent=self,
+                        flags=0,
+                        message_type=Gtk.MessageType.ERROR,
+                        buttons=Gtk.ButtonsType.CLOSE,
+                        text=f"Failed to save file:\n{e}"
+                    )
+                    md.run()
+                    md.destroy()
+
+        def load_file(self, path):
+            self.filepath = path
+            text = ""
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                        text = f.read()
+                except Exception:
+                    pass
+            self.buffer.set_text(text)
+            self.set_title(f"Neuxon Notes - {os.path.basename(path)}")
+
+    # Apply CSS styling
+    css_data = b"""
+    window {
+        background-color: #050608;
+    }
+    toolbar {
+        background-color: rgba(10, 13, 18, 0.85);
+        border-bottom: 1px solid rgba(168, 178, 193, 0.24);
+        padding: 4px;
+    }
+    textview {
+        background-color: #050608;
+        color: #f1f5f9;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11pt;
+    }
+    statusbar {
+        background-color: rgba(18, 22, 30, 0.90);
+        color: #94a3b8;
+        border-top: 1px solid rgba(168, 178, 193, 0.20);
+    }
+    """
+    provider = Gtk.CssProvider()
+    provider.load_from_data(css_data)
+    Gtk.StyleContext.add_provider_for_screen(
+        Gdk.Screen.get_default(),
+        provider,
+        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    )
+
+    filepath = sys.argv[1] if len(sys.argv) > 1 else None
+    win = NotesWindow(filepath)
+    win.connect("destroy", Gtk.main_quit)
+    win.show_all()
+    Gtk.main()
+
+def run_curses():
+    import subprocess
+    target = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_NOTE_PATH
+    os.makedirs(os.path.dirname(DEFAULT_NOTE_PATH), exist_ok=True)
+    for editor in ["micro", "nano", "vi"]:
+        if os.system(f"command -v {editor} >/dev/null 2>&1") == 0:
+            os.execvp(editor, [editor, target])
+    sys.exit(0)
+
+if __name__ == "__main__":
+    if "WAYLAND_DISPLAY" in os.environ or "DISPLAY" in os.environ:
+        try:
+            run_gtk()
+        except Exception as e:
+            run_curses()
+    else:
+        run_curses()

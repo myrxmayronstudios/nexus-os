@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS Desktop Session Launcher
+# Neuxon OS v5.0 - Desktop Session Launcher
 # Platform: Raspberry Pi 3B+ (ARM64 Cortex-A53, VideoCore IV vc4-kms-v3d)
 # ============================================================================
 # Initializes Wayland environment, triggers Neuxon Doctor pre-flight check,
@@ -29,7 +29,7 @@ fi
 
 # --- Wayland Session Type ---
 export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTOP=wlroots
+export XDG_CURRENT_DESKTOP=labwc:wlroots
 export XDG_SESSION_DESKTOP=labwc
 
 # --- Toolkit Wayland Backends ---
@@ -46,16 +46,16 @@ export TERM=foot
 # --- VideoCore IV Workarounds (BCM2837B0 / RPi 3B+) ---
 export WLR_NO_HARDWARE_CURSORS=1
 export WLR_DRM_NO_ATOMIC=1
-export WLR_RENDERER=pixman
+export WLR_RENDERER=gles2
 
 # --- GTK Theme & Cursor ---
 export GTK_THEME=Adwaita:dark
 export XCURSOR_THEME=Adwaita
-export XCURSOR_SIZE=16
+export XCURSOR_SIZE=18
 
 # --- Pre-Flight Autonomous Self-Healing Diagnostic ---
 if [ -x /usr/local/bin/neuxon-doctor ]; then
-    /usr/local/bin/neuxon-doctor || true
+    /usr/local/bin/neuxon-doctor --boot-check || true
 fi
 
 # --- Start Compositor with Clean Log Redirection (No TTY Bleed) ---

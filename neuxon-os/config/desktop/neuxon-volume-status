@@ -1,7 +1,65 @@
 #!/usr/bin/env bash
-if command -v wpctl &>/dev/null; then
-    v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print int($2*100)}')
-    echo "VOL ${v:-50}%"
-else
-    echo "VOL 50%"
-fi
+# ============================================================================
+# Neuxon OS v5.0 - Volume Status & Control Helper
+# ============================================================================
+set -u
+
+ACTION="${1:-status}"
+
+case "$ACTION" in
+    up)
+        if command -v wpctl &>/dev/null; then
+            wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
+        elif command -v amixer &>/dev/null; then
+            amixer -q set Master 5%+
+        fi
+        exit 0
+        ;;
+    down)
+        if command -v wpctl &>/dev/null; then
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+        elif command -v amixer &>/dev/null; then
+            amixer -q set Master 5%-
+        fi
+        exit 0
+        ;;
+    toggle-mute)
+        if command -v wpctl &>/dev/null; then
+            wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+        elif command -v amixer &>/dev/null; then
+            amixer -q set Master toggle
+        fi
+        exit 0
+        ;;
+    status|*)
+        vol=50
+        muted=0
+
+        if command -v wpctl &>/dev/null; then
+            raw=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || true)
+            if [ -n "$raw" ]; then
+                v_float=$(echo "$raw" | awk '{print $2}')
+                vol=$(awk -v v="$v_float" 'BEGIN {print int(v * 100)}')
+                if echo "$raw" | grep -q '\[MUTED\]'; then
+                    muted=1
+                fi
+            fi
+        elif command -v amixer &>/dev/null; then
+            out=$(amixer get Master 2>/dev/null || true)
+            if [ -n "$out" ]; then
+                vol=$(echo "$out" | grep -o "[0-9]*%" | head -n1 | tr -d '%')
+                if echo "$out" | grep -q '\[off\]'; then
+                    muted=1
+                fi
+            fi
+        fi
+
+        vol=${vol:-50}
+
+        if [ "$muted" -eq 1 ]; then
+            printf '{"text": "[ 🔇 MUTE ]", "tooltip": "Audio Muted (Click to open mixer, Right-click to unmute)", "class": "muted"}\n'
+        else
+            printf '{"text": "[ 🔊 %2d%% ]", "tooltip": "Volume: %d%% (Scroll to adjust, Click for mixer, Right-click to mute)", "class": "normal"}\n' "$vol" "$vol"
+        fi
+        ;;
+esac

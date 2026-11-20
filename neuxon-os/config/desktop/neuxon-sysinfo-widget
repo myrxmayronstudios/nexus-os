@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - Sysinfo Interactive Desktop Widget (520x250 px)
-# Displays system specs and drops directly into an interactive shell
+# Neuxon OS v5.0 - Sysinfo & Windows Shortcuts Desktop Widget (520x240 px)
 # ============================================================================
 set -u
 
 clear
 cat << 'EOF'
-╔════════════════════════════════════════════════════════╗
-║  NEUXON OS // RPi3B+ ARM64 PRECISION LINUX ENVIRONMENT ║
-╠════════════════════════════════════════════════════════╣
-║  CPU : Broadcom BCM2837B0 (Cortex-A53 x4 @ 1.4GHz)     ║
-║  RAM : 1GB LPDDR2 + ZRAM (zstd compressed swap)        ║
-║  GPU : VideoCore IV (vc4-kms-v3d Wayland Driver)       ║
-║  KERN: 64-bit arm64 Linux (Low-Latency Preemption)     ║
-║  COMP: Labwc 16-Bit Obsidian Compositor + Foot         ║
-║  OODA: NeuxonGuard Autonomous Self-Healing Active      ║
-╚════════════════════════════════════════════════════════╝
- Type 'help' or press Super+D for launcher. Ready.
+┌────────────────────────────────────────────────────────┐
+│  NEUXON OS v5.0 // RPi3B+ ARM64 OBSIDIAN ENVIRONMENT   │
+├────────────────────────────────────────────────────────┤
+│  ARCH: Cortex-A53 x4 @ 1.4GHz · VideoCore IV VC4 DRM   │
+│  MEM : 1GB LPDDR2 + zstd ZRAM · Labwc Wayland Glass    │
+├────────────────────────────────────────────────────────┤
+│  WINDOWS QUICK SHORTCUTS & DESKTOP NAVIGATION:         │
+│  • [ ❖ Win / Space ] Start Menu   • [ Alt+Tab ] Switch │
+│  • [ ❖ Win + E ] File Explorer    • [ Alt+F4 ] Close   │
+│  • [ ❖ Win + 🠜/🠞 ] Half Snap       • [ Win+D ] Desktop  │
+│  • [ Ctrl+Shift+Esc ] Task Matrix • [ Win+L ] Lock OS  │
+└────────────────────────────────────────────────────────┘
+ Ready. Type any command below or press Win for Start:
 EOF
 
 export PS1="\[\033[1;37m\]neuxon@rpi3b+\[\033[0;37m\]:\[\033[1;34m\]~\[\033[0;37m\]$ "

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEUXON OS // START</title>
+    <style>
+        :root {
+            --void: #050608;
+            --panel: rgba(10, 13, 18, 0.82);
+            --elevated: rgba(18, 22, 30, 0.90);
+            --hover: rgba(42, 51, 68, 0.92);
+            --border: rgba(168, 178, 193, 0.24);
+            --border-active: #CBD5E1;
+            --text-pri: #F1F5F9;
+            --text-sec: #94A3B8;
+            --text-muted: #64748B;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: var(--void);
+            color: var(--text-pri);
+            font-family: "JetBrains Mono", "DejaVu Sans Mono", monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .container {
+            width: 100%;
+            max-width: 780px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 36px 32px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            text-align: center;
+        }
+        .emblem {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+        .tagline {
+            font-size: 11px;
+            color: var(--text-sec);
+            letter-spacing: 1.5px;
+            margin-bottom: 28px;
+            text-transform: uppercase;
+        }
+        .search-box {
+            position: relative;
+            margin-bottom: 32px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--void);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-pri);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+        input[type="text"]:focus {
+            border-color: var(--border-active);
+            box-shadow: 0 0 0 2px rgba(203, 213, 225, 0.2);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: var(--elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 10px;
+            color: var(--text-pri);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.12s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .card:hover {
+            background: var(--hover);
+            border-color: var(--border-active);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+        .card span.icon {
+            font-size: 18px;
+        }
+        .footer {
+            margin-top: 18px;
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emblem">❖ NEUXON OS</div>
+        <div class="tagline">Raspberry Pi 3B+ · 16-Bit Obsidian Environment</div>
+
+        <form action="https://duckduckgo.com/" method="GET" class="search-box">
+            <input type="text" name="q" placeholder="Type to search DuckDuckGo..." autofocus autocomplete="off">
+        </form>
+
+        <div class="grid">
+            <a href="https://github.com" class="card">
+                <span class="icon">🐙</span>
+                <span>GitHub</span>
+            </a>
+            <a href="https://wikipedia.org" class="card">
+                <span class="icon">📖</span>
+                <span>Wikipedia</span>
+            </a>
+            <a href="https://reddit.com" class="card">
+                <span class="icon">💬</span>
+                <span>Reddit</span>
+            </a>
+            <a href="https://youtube.com" class="card">
+                <span class="icon">▶</span>
+                <span>YouTube</span>
+            </a>
+            <a href="https://wiki.archlinux.org" class="card">
+                <span class="icon">📚</span>
+                <span>ArchWiki</span>
+            </a>
+            <a href="https://docs.python.org/3/" class="card">
+                <span class="icon">🐍</span>
+                <span>Python Docs</span>
+            </a>
+            <a href="https://news.ycombinator.com" class="card">
+                <span class="icon">⚡</span>
+                <span>HackerNews</span>
+            </a>
+            <a href="https://raspberrypi.com" class="card">
+                <span class="icon">🍓</span>
+                <span>RPi Foundation</span>
+            </a>
+        </div>
+
+        <div class="footer">
+            ARM64 Cortex-A53 · VideoCore IV vc4-kms-v3d · Labwc Wayland · ZRAM Active
+        </div>
+    </div>
+</body>
+</html>

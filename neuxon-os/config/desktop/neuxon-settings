@@ -1,0 +1,310 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Neuxon OS v5.0 - Settings & Control Center (/usr/local/bin/neuxon-settings)
+Windows-friendly Python3 + GTK3 graphical settings panel with clickable tabs:
+  1. Network & Wi-Fi
+  2. Audio & Volume
+  3. Display & Resolution
+  4. Desktop Widgets
+  5. System Health & Self-Healing
+"""
+import sys
+import os
+import subprocess
+
+def run_gtk():
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk, Gdk
+
+    class SettingsApp(Gtk.Window):
+        def __init__(self, initial_tab=None):
+            super().__init__(title="Neuxon OS // Settings & Control Center")
+            self.set_default_size(920, 620)
+            self.set_position(Gtk.WindowPosition.CENTER)
+
+            main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+            self.add(main_box)
+
+            # Header
+            header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            header.set_property("margin", 16)
+            lbl_title = Gtk.Label()
+            lbl_title.set_markup("<span font='14' weight='bold' color='#FFFFFF'>❖ NEUXON OS // CONTROL CENTER</span>\n<span font='9' color='#94A3B8'>Hardware, Network, Audio, Display and System Health Management</span>")
+            lbl_title.set_xalign(0)
+            header.pack_start(lbl_title, True, True, 0)
+            main_box.pack_start(header, False, False, 0)
+
+            # Notebook Tabs
+            self.notebook = Gtk.Notebook()
+            self.notebook.set_tab_pos(Gtk.PositionType.LEFT)
+            main_box.pack_start(self.notebook, True, True, 8)
+
+            # Tab 1: Network & Wi-Fi
+            self.notebook.append_page(self.create_network_tab(), Gtk.Label(label=" 📶 Network & Wi-Fi "))
+
+            # Tab 2: Audio & Volume
+            self.notebook.append_page(self.create_audio_tab(), Gtk.Label(label=" 🔊 Audio & Sound "))
+
+            # Tab 3: Display & Resolution
+            self.notebook.append_page(self.create_display_tab(), Gtk.Label(label=" 🖥 Display & Resolution "))
+
+            # Tab 4: Desktop Widgets & Theme
+            self.notebook.append_page(self.create_widgets_tab(), Gtk.Label(label=" 🖵 Desktop Widgets "))
+
+            # Tab 5: System Health & Doctor
+            self.notebook.append_page(self.create_health_tab(), Gtk.Label(label=" 🛠 System Health & Doctor "))
+
+            # Status bar
+            self.statusbar = Gtk.Statusbar()
+            main_box.pack_start(self.statusbar, False, False, 0)
+            self.status_ctx = self.statusbar.get_context_id("status")
+            self.statusbar.push(self.status_ctx, " Neuxon OS v5.0 · Ready · Connected to Raspberry Pi 3B+ BCM2837B0")
+
+            if initial_tab == "display":
+                self.notebook.set_current_page(2)
+            elif initial_tab == "network":
+                self.notebook.set_current_page(0)
+
+        def create_network_tab(self):
+            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+            box.set_property("margin", 24)
+
+            title = Gtk.Label()
+            title.set_markup("<span font='11' weight='bold' color='#F1F5F9'>Network Interfaces & Wireless Setup</span>")
+            title.set_xalign(0)
+            box.pack_start(title, False, False, 0)
+
+            desc = Gtk.Label()
+            desc.set_markup("<span font='9.5' color='#94A3B8'>Manage Wi-Fi credentials, wired Ethernet (eth0), DNS, and IP routing settings.</span>")
+            desc.set_xalign(0)
+            box.pack_start(desc, False, False, 0)
+
+            btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            btn_nmtui = Gtk.Button(label="Open Wi-Fi & Connection Manager (nmtui)")
+            btn_nmtui.connect("clicked", lambda w: subprocess.Popen(["foot", "--app-id=neuxon-settings", "-e", "nmtui"]))
+            btn_box.pack_start(btn_nmtui, False, False, 0)
+
+            btn_ip = Gtk.Button(label="Show Current IP Addresses")
+            btn_ip.connect("clicked", self.on_show_ip)
+            btn_box.pack_start(btn_ip, False, False, 0)
+            box.pack_start(btn_box, False, False, 0)
+
+            self.txt_net = Gtk.TextView()
+            self.txt_net.set_editable(False)
+            self.txt_net.set_monospace(True)
+            scrolled = Gtk.ScrolledWindow()
+            scrolled.set_min_content_height(240)
+            scrolled.add(self.txt_net)
+            box.pack_start(scrolled, True, True, 0)
+            self.refresh_net_info()
+
+            return box
+
+        def on_show_ip(self, widget):
+            self.refresh_net_info()
+
+        def refresh_net_info(self):
+            buf = self.txt_net.get_buffer()
+            out = subprocess.getoutput("ip -br addr show 2>/dev/null || ifconfig -a")
+            buf.set_text(f"=== CURRENT NETWORK INTERFACES ===\n\n{out}\n\nDNS Configuration:\n" + subprocess.getoutput("cat /etc/resolv.conf 2>/dev/null"))
+
+        def create_audio_tab(self):
+            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+            box.set_property("margin", 24)
+
+            title = Gtk.Label()
+            title.set_markup("<span font='11' weight='bold' color='#F1F5F9'>Audio Output & Mixer Management</span>")
+            title.set_xalign(0)
+            box.pack_start(title, False, False, 0)
+
+            desc = Gtk.Label()
+            desc.set_markup("<span font='9.5' color='#94A3B8'>Configure 3.5mm headphone jack, HDMI audio stream, and USB soundcards.</span>")
+            desc.set_xalign(0)
+            box.pack_start(desc, False, False, 0)
+
+            btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            btn_mixer = Gtk.Button(label="Open ALSA Audio Mixer")
+            btn_mixer.connect("clicked", lambda w: subprocess.Popen(["foot", "--app-id=neuxon-settings", "-e", "alsamixer"]))
+            btn_box.pack_start(btn_mixer, False, False, 0)
+
+            btn_pavu = Gtk.Button(label="Open Volume / WirePlumber Control")
+            btn_pavu.connect("clicked", lambda w: subprocess.Popen(["pavucontrol"]) if os.system("command -v pavucontrol >/dev/null") == 0 else subprocess.Popen(["foot", "-e", "alsamixer"]))
+            btn_box.pack_start(btn_pavu, False, False, 0)
+            box.pack_start(btn_box, False, False, 0)
+
+            btn_test = Gtk.Button(label="Play Audio Test Chime (Left/Right)")
+            btn_test.connect("clicked", lambda w: subprocess.Popen(["speaker-test", "-t", "sine", "-f", "440", "-c", "2", "-l", "1"]))
+            box.pack_start(btn_test, False, False, 0)
+
+            return box
+
+        def create_display_tab(self):
+            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+            box.set_property("margin", 24)
+
+            title = Gtk.Label()
+            title.set_markup("<span font='11' weight='bold' color='#F1F5F9'>Display, Output & Resolution Controls</span>")
+            title.set_xalign(0)
+            box.pack_start(title, False, False, 0)
+
+            desc = Gtk.Label()
+            desc.set_markup("<span font='9.5' color='#94A3B8'>Hardware VideoCore IV vc4-kms-v3d resolution scaling.</span>")
+            desc.set_xalign(0)
+            box.pack_start(desc, False, False, 0)
+
+            btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+            for res in ["1920x1080@60Hz", "1280x720@60Hz", "1024x768@60Hz"]:
+                btn = Gtk.Button(label=f"Set {res}")
+                btn.connect("clicked", lambda w, r=res: self.set_resolution(r))
+                btn_box.pack_start(btn, False, False, 0)
+            box.pack_start(btn_box, False, False, 0)
+
+            btn_wall = Gtk.Button(label="Re-generate Faded Binary Wallpaper")
+            btn_wall.connect("clicked", self.on_regen_wall)
+            box.pack_start(btn_wall, False, False, 0)
+
+            self.lbl_disp = Gtk.Label()
+            self.lbl_disp.set_xalign(0)
+            box.pack_start(self.lbl_disp, True, True, 0)
+            self.refresh_display_info()
+
+            return box
+
+        def set_resolution(self, res):
+            mode = res.split("@")[0]
+            out = subprocess.getoutput(f"wlr-randr --output HDMI-A-1 --mode {mode} 2>&1 || wlr-randr --output HDMI-1 --mode {mode} 2>&1")
+            self.refresh_display_info()
+            self.statusbar.pop(self.status_ctx)
+            self.statusbar.push(self.status_ctx, f" Requested {res}: {out or 'Applied'}")
+
+        def on_regen_wall(self, widget):
+            subprocess.run(["/usr/local/bin/neuxon-gen-wallpaper"], check=False)
+            subprocess.run(["pkill", "-x", "swaybg"], check=False)
+            subprocess.Popen(["swaybg", "-i", "/usr/share/backgrounds/neuxon-binary.png", "-m", "fill"])
+            self.statusbar.pop(self.status_ctx)
+            self.statusbar.push(self.status_ctx, " Generated new faded binary matrix wallpaper.")
+
+        def refresh_display_info(self):
+            out = subprocess.getoutput("wlr-randr 2>/dev/null || echo 'No wlr-randr available'")
+            self.lbl_disp.set_markup(f"<span font='9' color='#94A3B8'><b>Current VideoCore IV Output Status:</b>\n{out}</span>")
+
+        def create_widgets_tab(self):
+            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+            box.set_property("margin", 24)
+
+            title = Gtk.Label()
+            title.set_markup("<span font='11' weight='bold' color='#F1F5F9'>Desktop Mission Control Widgets</span>")
+            title.set_xalign(0)
+            box.pack_start(title, False, False, 0)
+
+            desc = Gtk.Label()
+            desc.set_markup("<span font='9.5' color='#94A3B8'>Toggle, respawn, or hide the 6 permanent live desktop widgets.</span>")
+            desc.set_xalign(0)
+            box.pack_start(desc, False, False, 0)
+
+            btn_respawn = Gtk.Button(label="Respawn & Re-align All Desktop Widgets")
+            btn_respawn.connect("clicked", self.on_respawn_widgets)
+            box.pack_start(btn_respawn, False, False, 0)
+
+            btn_kill = Gtk.Button(label="Hide All Desktop Widgets (Quiet Desktop Mode)")
+            btn_kill.connect("clicked", self.on_hide_widgets)
+            box.pack_start(btn_kill, False, False, 0)
+
+            btn_restart_bar = Gtk.Button(label="Restart Top Taskbar & Floating Dock (Waybar)")
+            btn_restart_bar.connect("clicked", self.on_restart_bars)
+            box.pack_start(btn_restart_bar, False, False, 0)
+
+            return box
+
+        def on_respawn_widgets(self, widget):
+            subprocess.Popen(["/usr/local/bin/neuxon-doctor", "--respawn-widgets"])
+            self.statusbar.pop(self.status_ctx)
+            self.statusbar.push(self.status_ctx, " Re-aligned all 6 desktop widgets.")
+
+        def on_hide_widgets(self, widget):
+            for app in ["neuxon-sysinfo", "neuxon-btop", "neuxon-telemetry", "neuxon-net", "neuxon-notes", "neuxon-matrix"]:
+                subprocess.run(["pkill", "-f", f"app-id={app}"], check=False)
+            self.statusbar.pop(self.status_ctx)
+            self.statusbar.push(self.status_ctx, " Desktop widgets hidden.")
+
+        def on_restart_bars(self, widget):
+            subprocess.run(["pkill", "-x", "waybar"], check=False)
+            subprocess.Popen(["waybar", "-c", os.path.expanduser("~/.config/waybar/config-top.jsonc"), "-s", os.path.expanduser("~/.config/waybar/style.css")])
+            subprocess.Popen(["waybar", "-c", os.path.expanduser("~/.config/waybar/config-dock.jsonc"), "-s", os.path.expanduser("~/.config/waybar/style.css")])
+            self.statusbar.pop(self.status_ctx)
+            self.statusbar.push(self.status_ctx, " Waybar top bar and floating dock restarted.")
+
+        def create_health_tab(self):
+            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+            box.set_property("margin", 24)
+
+            title = Gtk.Label()
+            title.set_markup("<span font='11' weight='bold' color='#F1F5F9'>Neuxon Self-Healing Diagnostics & Doctor</span>")
+            title.set_xalign(0)
+            box.pack_start(title, False, False, 0)
+
+            desc = Gtk.Label()
+            desc.set_markup("<span font='9.5' color='#94A3B8'>Validate system configurations, XML/JSON integrity, permissions, and ZRAM pools.</span>")
+            desc.set_xalign(0)
+            box.pack_start(desc, False, False, 0)
+
+            btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            btn_run_doc = Gtk.Button(label="Run Neuxon Doctor Full Audit")
+            btn_run_doc.connect("clicked", self.on_run_doctor)
+            btn_box.pack_start(btn_run_doc, False, False, 0)
+            box.pack_start(btn_box, False, False, 0)
+
+            self.txt_health = Gtk.TextView()
+            self.txt_health.set_editable(False)
+            self.txt_health.set_monospace(True)
+            scrolled = Gtk.ScrolledWindow()
+            scrolled.set_min_content_height(240)
+            scrolled.add(self.txt_health)
+            box.pack_start(scrolled, True, True, 0)
+
+            self.on_run_doctor(None)
+            return box
+
+        def on_run_doctor(self, widget):
+            out = subprocess.getoutput("/usr/local/bin/neuxon-doctor")
+            buf = self.txt_health.get_buffer()
+            buf.set_text(out)
+            self.statusbar.pop(self.status_ctx)
+            self.statusbar.push(self.status_ctx, " Neuxon Doctor audit completed.")
+
+    # Apply CSS
+    css = b"""
+    window { background-color: #050608; }
+    notebook { background-color: rgba(10, 13, 18, 0.85); border: 1px solid rgba(168, 178, 193, 0.24); border-radius: 8px; }
+    notebook tab { background-color: rgba(18, 22, 30, 0.90); color: #94a3b8; padding: 10px 16px; border-bottom: 1px solid rgba(168, 178, 193, 0.20); font-weight: bold; }
+    notebook tab:checked { background-color: #2a3344; color: #ffffff; border-color: #cbd5e1; }
+    button { background-color: rgba(18, 22, 30, 0.90); color: #f1f5f9; border: 1px solid rgba(168, 178, 193, 0.24); border-radius: 6px; padding: 6px 14px; }
+    button:hover { background-color: rgba(42, 51, 68, 0.92); color: #ffffff; border-color: #cbd5e1; }
+    textview { background-color: #050608; color: #f1f5f9; font-family: "JetBrains Mono", monospace; font-size: 9.5pt; }
+    statusbar { background-color: rgba(18, 22, 30, 0.90); color: #94a3b8; }
+    """
+    provider = Gtk.CssProvider()
+    provider.load_from_data(css)
+    Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+    tab = sys.argv[1] if len(sys.argv) > 1 else None
+    app = SettingsApp(tab)
+    app.connect("destroy", Gtk.main_quit)
+    app.show_all()
+    Gtk.main()
+
+def run_curses():
+    import subprocess
+    subprocess.Popen(["foot", "--app-id=neuxon-settings", "-e", "nmtui"])
+    sys.exit(0)
+
+if __name__ == "__main__":
+    if "WAYLAND_DISPLAY" in os.environ or "DISPLAY" in os.environ:
+        try:
+            run_gtk()
+        except Exception:
+            run_curses()
+    else:
+        run_curses()

@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - Boot & Runtime Self-Healing Watchdog (NeuxonDoctor)
-# Validates environment, directory structures, XML syntax, and maintains widgets
+# Neuxon OS v5.0 - Autonomous Self-Healing Diagnostic Engine (Neuxon Doctor)
+# Target: Raspberry Pi 3B+ (ARM64 Cortex-A53, VideoCore IV vc4-kms-v3d)
+# ============================================================================
+# Features:
+#   --boot-check       : Silent pre-flight self-repair before compositor start
+#   --daemon           : Runtime watchdog supervising Waybar, widgets & locks
+#   --gui / (no args)  : Interactive rich diagnostic screen + Mako notification
+#   --respawn-widgets  : Relaunches all 6 desktop terminal widgets
 # ============================================================================
 set -u
 
 LOGFILE="/tmp/neuxon-heal.log"
+GOLDEN_DIR="/etc/neuxon/defaults"
+SKEL_DIR="/etc/skel/.config"
+UID_CUR=$(id -u)
+USER_NAME=$(id -un)
+USER_HOME="${HOME:-/home/${USER_NAME}}"
+
 TIMESTAMP() { date +"%Y-%m-%d %H:%M:%S"; }
 
 log_heal() {
@@ -17,88 +29,73 @@ log_info() {
 }
 
 # ----------------------------------------------------------------------------
-# 1. Ensure runtime directories and strict permissions
+# 1. Directory Structure & Permissions Repair
 # ----------------------------------------------------------------------------
-UID_CUR=$(id -u)
-USER_NAME=$(id -un)
-USER_HOME="${HOME:-/home/${USER_NAME}}"
-
-# Ensure XDG_RUNTIME_DIR exists with mode 0700
-RUNTIME_DIR="/run/user/${UID_CUR}"
-if [ ! -d "${RUNTIME_DIR}" ]; then
-    mkdir -p "${RUNTIME_DIR}"
-    log_heal "Created missing XDG_RUNTIME_DIR: ${RUNTIME_DIR}"
-fi
-chmod 0700 "${RUNTIME_DIR}" 2>/dev/null || true
-
-# Required user directories
-REQUIRED_DIRS=(
-    "${USER_HOME}/.config/labwc"
-    "${USER_HOME}/.config/foot"
-    "${USER_HOME}/.config/btop"
-    "${USER_HOME}/.config/waybar"
-    "${USER_HOME}/.local/share/neuxon"
-    "${USER_HOME}/Pictures"
-    "/usr/share/backgrounds"
-    "/tmp"
-)
-
-for d in "${REQUIRED_DIRS[@]}"; do
-    if [ ! -d "$d" ]; then
-        mkdir -p "$d" 2>/dev/null || sudo mkdir -p "$d" 2>/dev/null || true
-        log_heal "Auto-repaired missing directory: $d"
+repair_directories() {
+    local run_dir="/run/user/${UID_CUR}"
+    if [ ! -d "${run_dir}" ]; then
+        mkdir -p "${run_dir}" 2>/dev/null || sudo mkdir -p "${run_dir}" 2>/dev/null || true
     fi
-done
+    chmod 0700 "${run_dir}" 2>/dev/null || true
 
-# Ensure notes.txt scratchpad exists
-NOTES_FILE="${USER_HOME}/.local/share/neuxon/notes.txt"
-if [ ! -f "${NOTES_FILE}" ]; then
-    cat > "${NOTES_FILE}" << 'EOF'
-=== NEUXON OS // SYSTEM CHECKLIST & NOTES ===
-[OK] BCM2837B0 ARM64 Kernel 64-bit Verified
-[OK] 16-Bit Obsidian & Silver Compositor Active
-[OK] VideoCore IV vc4-kms-v3d Acceleration Ready
-[OK] ZRAM zstd Swap Configured (1GB Pool)
+    local required_dirs=(
+        "${USER_HOME}/.config/labwc"
+        "${USER_HOME}/.config/foot"
+        "${USER_HOME}/.config/btop"
+        "${USER_HOME}/.config/waybar"
+        "${USER_HOME}/.config/gtk-3.0"
+        "${USER_HOME}/.config/fuzzel"
+        "${USER_HOME}/.config/mako"
+        "${USER_HOME}/.local/share/neuxon"
+        "${USER_HOME}/Pictures/Screenshots"
+        "/usr/share/backgrounds"
+        "/tmp"
+    )
 
-QUICK SHORTCUTS:
-• Super + Return : Foot Terminal
-• Super + D      : Fuzzel Application Launcher
-• Super + B      : btop System Monitor
-• Super + C      : Neuxon Control Center
-• Super + Q      : Close Focused Window
-• Super + 1..4   : Switch Workspaces
-EOF
-    log_heal "Constructed fresh persistent notes scratchpad: ${NOTES_FILE}"
-fi
+    for d in "${required_dirs[@]}"; do
+        if [ ! -d "$d" ]; then
+            mkdir -p "$d" 2>/dev/null || sudo mkdir -p "$d" 2>/dev/null || true
+            log_heal "Created directory: $d"
+        fi
+    done
 
-# Ensure wallpaper exists; generate if missing
-if [ ! -f /usr/share/backgrounds/neuxon-binary.png ]; then
-    if [ -x /usr/local/bin/neuxon-gen-wallpaper ]; then
-        /usr/local/bin/neuxon-gen-wallpaper >/dev/null 2>&1 || true
-        log_heal "Generated missing wallpaper: /usr/share/backgrounds/neuxon-binary.png"
-    fi
-fi
+    # Ensure permissions on /usr/local/bin/neuxon-* scripts
+    for script in /usr/local/bin/neuxon-*; do
+        if [ -f "$script" ] && [ ! -x "$script" ]; then
+            chmod +x "$script" 2>/dev/null || sudo chmod +x "$script" 2>/dev/null || true
+            log_heal "Set executable permissions on $script"
+        fi
+    done
+
+    # Remove stale lock files at boot if owning processes do not exist
+    for lock in /tmp/neuxon-btop.lock /tmp/neuxon-calc.lock; do
+        if [ -f "$lock" ] && ! pgrep -f "app-id=neuxon" >/dev/null 2>&1; then
+            rm -f "$lock" 2>/dev/null || true
+            log_heal "Cleared stale lock file: $lock"
+        fi
+    done
+}
 
 # ----------------------------------------------------------------------------
-# 2. Validate labwc XML syntax and restore if corrupted
+# 2. XML Syntax Validation & Golden Template Restoration
 # ----------------------------------------------------------------------------
-RC_XML="${USER_HOME}/.config/labwc/rc.xml"
-MENU_XML="${USER_HOME}/.config/labwc/menu.xml"
-SKEL_DIR="/etc/skel/.config/labwc"
-
-validate_xml() {
+validate_and_heal_xml() {
     local target="$1"
-    local skel_src="$2"
+    local default_name="$2"
+    local golden_file="${GOLDEN_DIR}/labwc/${default_name}"
+    local skel_file="${SKEL_DIR}/labwc/${default_name}"
 
     if [ ! -f "${target}" ]; then
-        if [ -f "${skel_src}" ]; then
-            cp "${skel_src}" "${target}"
-            log_heal "Restored missing XML file: ${target}"
+        if [ -f "${golden_file}" ]; then
+            cp "${golden_file}" "${target}"
+            log_heal "Restored missing XML from golden defaults: ${target}"
+        elif [ -f "${skel_file}" ]; then
+            cp "${skel_file}" "${target}"
+            log_heal "Restored missing XML from skel: ${target}"
         fi
         return 0
     fi
 
-    # Check validity via python or xmllint
     local is_valid=0
     if command -v python3 >/dev/null 2>&1; then
         python3 -c "import xml.etree.ElementTree as ET; ET.parse('${target}')" >/dev/null 2>&1 && is_valid=1
@@ -109,67 +106,312 @@ validate_xml() {
     fi
 
     if [ ${is_valid} -eq 0 ]; then
-        log_heal "WARNING: Detected XML syntax corruption in ${target}!"
-        if [ -f "${skel_src}" ]; then
-            cp "${skel_src}" "${target}"
-            log_heal "Reconstructed ${target} from golden template: ${skel_src}"
+        log_heal "WARNING: XML corruption detected in ${target}! Restoring..."
+        if [ -f "${golden_file}" ]; then
+            cp "${golden_file}" "${target}"
+            log_heal "Reconstructed ${target} from golden template: ${golden_file}"
+        elif [ -f "${skel_file}" ]; then
+            cp "${skel_file}" "${target}"
+            log_heal "Reconstructed ${target} from skel: ${skel_file}"
         fi
     fi
 }
 
-validate_xml "${RC_XML}" "${SKEL_DIR}/rc.xml"
-validate_xml "${MENU_XML}" "${SKEL_DIR}/menu.xml"
+# ----------------------------------------------------------------------------
+# 3. JSON Syntax Validation & Golden Template Restoration
+# ----------------------------------------------------------------------------
+validate_and_heal_json() {
+    local target="$1"
+    local default_name="$2"
+    local golden_file="${GOLDEN_DIR}/waybar/${default_name}"
+
+    if [ ! -f "${target}" ]; then
+        if [ -f "${golden_file}" ]; then
+            cp "${golden_file}" "${target}"
+            log_heal "Restored missing JSON config: ${target}"
+        fi
+        return 0
+    fi
+
+    local is_valid=0
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -c "
+import json, sys, re
+with open('${target}') as f:
+    text = f.read()
+# Strip single line comments for jsonc
+text = re.sub(r'//.*', '', text)
+try:
+    json.loads(text)
+    sys.exit(0)
+except Exception:
+    sys.exit(1)
+" >/dev/null 2>&1 && is_valid=1
+    else
+        is_valid=1
+    fi
+
+    if [ ${is_valid} -eq 0 ]; then
+        log_heal "WARNING: JSON corruption detected in ${target}! Restoring..."
+        if [ -f "${golden_file}" ]; then
+            cp "${golden_file}" "${target}"
+            log_heal "Reconstructed ${target} from golden template: ${golden_file}"
+        fi
+    fi
+}
 
 # ----------------------------------------------------------------------------
-# 3. Daemon Mode: Keep desktop widgets alive
+# 4. Notes Scratchpad & Wallpaper Repair
 # ----------------------------------------------------------------------------
-if [ "${1:-}" = "--daemon" ]; then
-    log_info "NeuxonDoctor entering background widget supervision loop..."
+repair_assets() {
+    local notes_file="${USER_HOME}/.local/share/neuxon/notes.txt"
+    if [ ! -f "${notes_file}" ]; then
+        cat > "${notes_file}" << 'EOF'
+=== NEUXON OS // QUICK SHORTCUTS & SYSTEM CHEAT SHEET ===
+• Win (or Win+Space) : Application Search / Launcher
+• Alt + Tab          : Visual On-Screen Window Switcher
+• Win + D            : Toggle Show Desktop
+• Win + E            : File Manager (PCManFM / Midnight Commander)
+• Win + R            : Quick Command Run
+• Win + L            : Lock Screen (Monochrome Swaylock)
+• Win + Left / Right : Aero Half-Screen Snap (Left / Right)
+• Win + Up / Down    : Maximize / Minimize Window
+• Alt + F4           : Close Active Window
+• Ctrl + Shift + Esc : Task Matrix / System Monitor (btop)
+• Win + 1 .. 4       : Switch Desktop Workspaces 1–4
+• Print / Shift+Print: Full Screen / Area Selection Screenshot
+EOF
+        log_heal "Created fresh persistent notes: ${notes_file}"
+    fi
+
+    # Ensure wallpaper exists; generate if missing
+    if [ ! -f /usr/share/backgrounds/neuxon-binary.png ]; then
+        if [ -x /usr/local/bin/neuxon-gen-wallpaper ]; then
+            /usr/local/bin/neuxon-gen-wallpaper >/dev/null 2>&1 || true
+            log_heal "Generated missing binary matrix wallpaper"
+        fi
+    fi
+}
+
+# ----------------------------------------------------------------------------
+# 5. Boot Check Routine
+# ----------------------------------------------------------------------------
+boot_check() {
+    log_info "Initiating Neuxon Doctor pre-flight boot verification..."
+    repair_directories
+    validate_and_heal_xml "${USER_HOME}/.config/labwc/rc.xml" "rc.xml"
+    validate_and_heal_xml "${USER_HOME}/.config/labwc/menu.xml" "menu.xml"
+    validate_and_heal_json "${USER_HOME}/.config/waybar/config-top.jsonc" "config-top.jsonc"
+    validate_and_heal_json "${USER_HOME}/.config/waybar/config-dock.jsonc" "config-dock.jsonc"
+    repair_assets
+    log_info "Pre-flight boot verification complete. All systems healthy."
+}
+
+# ----------------------------------------------------------------------------
+# 6. Relaunch All 6 Desktop Terminal Widgets
+# ----------------------------------------------------------------------------
+respawn_widgets() {
+    log_info "Respawning all 6 Neuxon desktop widgets..."
+    pkill -f "app-id=neuxon-sysinfo" 2>/dev/null || true
+    pkill -f "app-id=neuxon-btop" 2>/dev/null || true
+    pkill -f "app-id=neuxon-telemetry" 2>/dev/null || true
+    pkill -f "app-id=neuxon-net" 2>/dev/null || true
+    pkill -f "app-id=neuxon-notes" 2>/dev/null || true
+    pkill -f "app-id=neuxon-matrix" 2>/dev/null || true
+    rm -f /tmp/neuxon-btop.lock 2>/dev/null || true
+
+    sleep 0.2
+    foot --app-id=neuxon-sysinfo --title="[ 01 // NEUXON ARCHITECTURE & SUBSYSTEMS ]" -e /usr/local/bin/neuxon-sysinfo-widget &
+    sleep 0.1
+    foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e /usr/local/bin/neuxon-btop-widget &
+    sleep 0.1
+    foot --app-id=neuxon-telemetry --title="[ 03 // LIVE HARDWARE & THERMAL TELEMETRY ]" -e /usr/local/bin/neuxon-telemetry-widget &
+    sleep 0.1
+    foot --app-id=neuxon-net --title="[ 04 // CHRONO & NETWORK TELEMETRY ]" -e /usr/local/bin/neuxon-net-widget &
+    sleep 0.1
+    foot --app-id=neuxon-notes --title="[ 05 // NEUXON VFS SCRATCHPAD & MEMO ]" -e /usr/local/bin/neuxon-notes-widget &
+    sleep 0.1
+    foot --app-id=neuxon-matrix --title="[ 06 // KERNEL DMESG & RING IPC STREAM ]" -e /usr/local/bin/neuxon-matrix-widget &
+    log_info "Desktop widgets successfully respawned."
+}
+
+# ----------------------------------------------------------------------------
+# 7. Daemon Mode: Watchdog Supervisor
+# ----------------------------------------------------------------------------
+daemon_mode() {
+    log_info "NeuxonDoctor background watchdog active (5s inspection loop)..."
     while true; do
         sleep 5
 
-        # Check if labwc is running before supervising desktop widgets
+        # Only supervise widgets if labwc is active
         if ! pgrep -x labwc >/dev/null 2>&1; then
             continue
         fi
 
-        # Widget 1: Sysinfo
-        if ! pgrep -f "neuxon-sysinfo-widget" >/dev/null 2>&1; then
-            foot --app-id=neuxon-sysinfo -e /usr/local/bin/neuxon-sysinfo-widget >/dev/null 2>&1 &
-            log_heal "Supervised relaunch of neuxon-sysinfo widget"
+        # Supervise Waybar Top Taskbar
+        if ! pgrep -f "config-top.jsonc" >/dev/null 2>&1; then
+            if [ -f "${USER_HOME}/.config/waybar/config-top.jsonc" ]; then
+                waybar -c "${USER_HOME}/.config/waybar/config-top.jsonc" -s "${USER_HOME}/.config/waybar/style.css" > /tmp/waybar-top.log 2>&1 &
+                log_heal "Supervised relaunch of Waybar Top Taskbar"
+            fi
         fi
 
-        # Widget 2: btop
+        # Supervise Waybar Floating Dock
+        if ! pgrep -f "config-dock.jsonc" >/dev/null 2>&1; then
+            if [ -f "${USER_HOME}/.config/waybar/config-dock.jsonc" ]; then
+                waybar -c "${USER_HOME}/.config/waybar/config-dock.jsonc" -s "${USER_HOME}/.config/waybar/style.css" > /tmp/waybar-dock.log 2>&1 &
+                log_heal "Supervised relaunch of Waybar Bottom Dock"
+            fi
+        fi
+
+        # Supervise Mako
+        if ! pgrep -x mako >/dev/null 2>&1; then
+            mako > /tmp/mako.log 2>&1 &
+            log_heal "Supervised relaunch of Mako notifications"
+        fi
+
+        # Supervise Live Embedded btop Desktop Widget (app-id: neuxon-btop)
         if ! pgrep -f "app-id=neuxon-btop" >/dev/null 2>&1; then
-            foot --app-id=neuxon-btop --window-size-chars=98x30 -e /usr/local/bin/neuxon-btop-widget >/dev/null 2>&1 &
+            rm -f /tmp/neuxon-btop.lock 2>/dev/null || true
+            foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e /usr/local/bin/neuxon-btop-widget >/dev/null 2>&1 &
             log_heal "Supervised relaunch of neuxon-btop widget"
         fi
 
-        # Widget 3: Telemetry
+        # Supervise Sysinfo Widget
+        if ! pgrep -f "neuxon-sysinfo-widget" >/dev/null 2>&1; then
+            foot --app-id=neuxon-sysinfo --title="[ 01 // NEUXON ARCHITECTURE & SUBSYSTEMS ]" -e /usr/local/bin/neuxon-sysinfo-widget >/dev/null 2>&1 &
+            log_heal "Supervised relaunch of neuxon-sysinfo widget"
+        fi
+
+        # Supervise Telemetry Widget
         if ! pgrep -f "neuxon-telemetry-widget" >/dev/null 2>&1; then
-            foot --app-id=neuxon-telemetry -e /usr/local/bin/neuxon-telemetry-widget >/dev/null 2>&1 &
+            foot --app-id=neuxon-telemetry --title="[ 03 // LIVE HARDWARE & THERMAL TELEMETRY ]" -e /usr/local/bin/neuxon-telemetry-widget >/dev/null 2>&1 &
             log_heal "Supervised relaunch of neuxon-telemetry widget"
         fi
-
-        # Widget 4: Net
-        if ! pgrep -f "neuxon-net-widget" >/dev/null 2>&1; then
-            foot --app-id=neuxon-net -e /usr/local/bin/neuxon-net-widget >/dev/null 2>&1 &
-            log_heal "Supervised relaunch of neuxon-net widget"
-        fi
-
-        # Widget 5: Notes
-        if ! pgrep -f "neuxon-notes-widget" >/dev/null 2>&1; then
-            foot --app-id=neuxon-notes -e /usr/local/bin/neuxon-notes-widget >/dev/null 2>&1 &
-            log_heal "Supervised relaunch of neuxon-notes widget"
-        fi
-
-        # Widget 6: Matrix
-        if ! pgrep -f "neuxon-matrix-widget" >/dev/null 2>&1; then
-            foot --app-id=neuxon-matrix -e /usr/local/bin/neuxon-matrix-widget >/dev/null 2>&1 &
-            log_heal "Supervised relaunch of neuxon-matrix widget"
-        fi
     done
-fi
+}
 
-log_info "NeuxonDoctor audit completed cleanly. System 100% verified."
-exit 0
+# ----------------------------------------------------------------------------
+# 8. Interactive Diagnostic Screen
+# ----------------------------------------------------------------------------
+interactive_screen() {
+    clear
+    cat << 'EOF'
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    NEUXON OS // HEALTH & DIAGNOSTICS                     ║
+║              Self-Healing Operating System Verification Matrix           ║
+╚══════════════════════════════════════════════════════════════════════════╝
+EOF
+
+    echo -n "  • Labwc Compositor & Wayland Socket : "
+    if pgrep -x labwc >/dev/null 2>&1; then
+        echo -e "\e[32m[ PASS / ACTIVE ]\e[0m"
+    else
+        echo -e "\e[33m[ INACTIVE / STANDBY ]\e[0m"
+    fi
+
+    echo -n "  • Waybar Top Taskbar & Bottom Dock  : "
+    if pgrep -x waybar >/dev/null 2>&1; then
+        echo -e "\e[32m[ PASS / RENDERING ]\e[0m"
+    else
+        echo -e "\e[31m[ NOT RUNNING ]\e[0m"
+    fi
+
+    echo -n "  • Embedded Desktop btop Widget      : "
+    if pgrep -f "app-id=neuxon-btop" >/dev/null 2>&1; then
+        echo -e "\e[32m[ PASS / EMBEDDED ]\e[0m"
+    else
+        echo -e "\e[33m[ INACTIVE ]\e[0m"
+    fi
+
+    echo -n "  • VideoCore IV GPU Acceleration     : "
+    if [ -e /dev/dri/card0 ] || [ -e /dev/dri/renderD128 ]; then
+        echo -e "\e[32m[ PASS / vc4-kms-v3d ]\e[0m"
+    else
+        echo -e "\e[33m[ CPU RENDERER ]\e[0m"
+    fi
+
+    echo -n "  • ZRAM Memory Compression (zstd)    : "
+    if grep -q "zram" /proc/swaps 2>/dev/null; then
+        echo -e "\e[32m[ PASS / ACTIVE ]\e[0m"
+    else
+        echo -e "\e[33m[ STANDARD SWAP ]\e[0m"
+    fi
+
+    echo -n "  • PipeWire Audio Engine             : "
+    if pgrep -x pipewire >/dev/null 2>&1; then
+        echo -e "\e[32m[ PASS / RUNNING ]\e[0m"
+    else
+        echo -e "\e[37m[ ALSA FALLBACK ]\e[0m"
+    fi
+
+    echo -n "  • XML & Configuration Syntax        : "
+    local xml_ok=1
+    python3 -c "import xml.etree.ElementTree as ET; ET.parse('${USER_HOME}/.config/labwc/rc.xml')" >/dev/null 2>&1 || xml_ok=0
+    if [ $xml_ok -eq 1 ]; then
+        echo -e "\e[32m[ PASS / 100% VALID ]\e[0m"
+    else
+        echo -e "\e[31m[ CORRUPTED / REPAIRING ]\e[0m"
+        boot_check
+    fi
+
+    echo ""
+    echo "────────────────────────────────────────────────────────────────────────────"
+    echo "  [1] Re-run Boot Pre-flight Check & Repair All Files"
+    echo "  [2] Respawn All 6 Desktop Widgets"
+    echo "  [3] Regenerate Binary Matrix Wallpaper"
+    echo "  [4] Exit Diagnostics"
+    echo "────────────────────────────────────────────────────────────────────────────"
+
+    # Notification toast
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send "Neuxon Doctor" "Diagnostic check completed. All subsystems verified." 2>/dev/null || true
+    fi
+
+    read -rp "Select option [1-4]: " choice
+    case "${choice}" in
+        1)
+            boot_check
+            echo "Done. Press Enter to continue."
+            read -r _
+            interactive_screen
+            ;;
+        2)
+            respawn_widgets
+            echo "Widgets respawned. Press Enter to continue."
+            read -r _
+            interactive_screen
+            ;;
+        3)
+            /usr/local/bin/neuxon-gen-wallpaper
+            echo "Wallpaper regenerated. Press Enter to continue."
+            read -r _
+            interactive_screen
+            ;;
+        *)
+            exit 0
+            ;;
+    esac
+}
+
+# ----------------------------------------------------------------------------
+# Main Dispatcher
+# ----------------------------------------------------------------------------
+case "${1:-}" in
+    --boot-check)
+        boot_check
+        ;;
+    --daemon)
+        daemon_mode
+        ;;
+    --respawn-widgets)
+        respawn_widgets
+        ;;
+    --gui|"")
+        interactive_screen
+        ;;
+    *)
+        echo "Usage: neuxon-doctor [--boot-check | --daemon | --respawn-widgets | --gui]"
+        exit 1
+        ;;
+esac

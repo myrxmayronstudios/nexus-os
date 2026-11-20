@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS v5.0 - Smart Movable btop Launcher (/usr/local/bin/neuxon-btop-open)
+# Ensures fixed desktop widget is running, then launches or focuses a movable,
+# resizable floating btop window (app-id: neuxon-btop-float).
+# ============================================================================
+set -u
+
+LOCKFILE_WIDGET="/tmp/neuxon-btop.lock"
+LOCKFILE_FLOAT="/tmp/neuxon-btop-float.lock"
+
+# Locate the real btop binary
+BTOP_BIN=""
+for b in /usr/bin/btop.real /usr/local/bin/btop.real /usr/bin/btop /usr/local/bin/btop; do
+    if [ -x "$b" ] && [ ! -L "$b" ]; then
+        BTOP_BIN="$b"
+        break
+    fi
+done
+
+if [ -z "$BTOP_BIN" ]; then
+    echo "[ NEUXON GUARD ] Error: btop binary not found!" >&2
+    exit 1
+fi
+
+# Step 1: Guarantee the permanent desktop widget is running; respawn if missing
+if ! pgrep -f "app-id=neuxon-btop" >/dev/null 2>&1; then
+    /usr/local/bin/neuxon-btop-widget &
+    sleep 0.2
+fi
+
+# Step 2: Check if a movable floating btop instance is ALREADY open
+if pgrep -f "app-id=neuxon-btop-float" >/dev/null 2>&1; then
+    # Focus existing floating window
+    if command -v wlrctl >/dev/null 2>&1; then
+        wlrctl toplevel focus app_id:neuxon-btop-float 2>/dev/null || true
+    fi
+
+    if [ -t 0 ] && [ -t 1 ]; then
+        echo "[ NEUXON GUARD ] Focused existing Neuxon System Monitor window."
+    fi
+    exit 0
+fi
+
+# Step 3: Launch new movable floating btop instance (max 1 floating instance)
+exec foot --app-id=neuxon-btop-float --title="Neuxon System Monitor (btop)" --window-size-chars=100x32 -e "$BTOP_BIN" --utf-force "$@"

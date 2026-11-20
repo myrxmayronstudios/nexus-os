@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Neuxon OS v5.0 - Universal File Manager Launcher (/usr/local/bin/neuxon-files)
+# Launches GUI file explorer with familiar Windows-like navigation,
+# with seamless fallback to mouse-enabled terminal file managers.
+# ============================================================================
+set -u
+
+TARGET_DIR="${1:-${HOME}}"
+
+# Preferred GUI File Manager with Neuxon GTK3 Theme
+if command -v pcmanfm >/dev/null 2>&1; then
+    exec pcmanfm "$TARGET_DIR"
+elif command -v thunar >/dev/null 2>&1; then
+    exec thunar "$TARGET_DIR"
+elif command -v mc >/dev/null 2>&1; then
+    exec foot --app-id=neuxon-files --title="Neuxon File Manager (Midnight Commander)" --window-size-chars=104x32 -e mc "$TARGET_DIR"
+elif command -v yazi >/dev/null 2>&1; then
+    exec foot --app-id=neuxon-files --title="Neuxon File Manager (Yazi)" --window-size-chars=104x32 -e yazi "$TARGET_DIR"
+else
+    exec foot --app-id=neuxon-files --title="Neuxon File Explorer" --window-size-chars=90x24 -e sh -c "cd '$TARGET_DIR' && ls -lah; exec bash"
+fi

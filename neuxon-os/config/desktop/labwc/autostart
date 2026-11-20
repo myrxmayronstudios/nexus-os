@@ -1,26 +1,38 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - Stealth Monochrome Glass Labwc Autostart
+# Neuxon OS v5.0 - Stealth 16-Bit Obsidian Glass Labwc Autostart
 # Target: Raspberry Pi 3B+ (ARM64 Cortex-A53, VideoCore IV vc4-kms-v3d)
 # ============================================================================
-# Launched automatically by labwc on session start.
-# All processes are backgrounded to avoid blocking compositor startup.
+# Launched automatically by labwc on session startup.
+# All persistent services are backgrounded cleanly to avoid blocking compositor.
 # ============================================================================
 
-# --- Ensure seatd is running (for unprivileged Wayland sessions) ---
+# --- 1. Wait for Wayland display socket to become ready ---
+for _ in $(seq 1 30); do
+    if [ -n "${WAYLAND_DISPLAY:-}" ] && [ -S "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}" ]; then
+        break
+    fi
+    sleep 0.1
+done
+
+# --- 2. Ensure seatd is running (for unprivileged Wayland sessions) ---
 if ! pgrep -x seatd > /dev/null 2>&1; then
     sudo seatd -g video &
-    sleep 0.3
+    sleep 0.2
 fi
 
-# --- Cursor theme and sizing ---
+# --- 3. Cursor theme, font cache & runtime environment ---
 export XCURSOR_THEME="Adwaita"
-export XCURSOR_SIZE=16
-
-# --- Refresh font index for crisp JetBrains Mono rendering ---
+export XCURSOR_SIZE=18
 fc-cache -fv > /tmp/fc-cache.log 2>&1 &
 
-# --- Wallpaper Generation & Initialization ---
+# Ensure user directories and startpage exist
+mkdir -p "${HOME}/.local/share/neuxon" "${HOME}/Pictures/Screenshots"
+if [ ! -f "${HOME}/.local/share/neuxon/startpage.html" ] && [ -f /usr/local/share/neuxon/startpage.html ]; then
+    cp /usr/local/share/neuxon/startpage.html "${HOME}/.local/share/neuxon/startpage.html"
+fi
+
+# --- 4. Wallpaper Generation & Layer-Shell Initialization ---
 if [ ! -f /usr/share/backgrounds/neuxon-binary.png ]; then
     if [ -x /usr/local/bin/neuxon-gen-wallpaper ]; then
         /usr/local/bin/neuxon-gen-wallpaper >/dev/null 2>&1 || true
@@ -36,35 +48,52 @@ if [ -f /usr/share/backgrounds/neuxon-binary.png ]; then
 elif [ -f /usr/share/backgrounds/neuxon/default.png ]; then
     swaybg -i /usr/share/backgrounds/neuxon/default.png -m fill &
 else
-    swaybg -c '#050508' &
+    swaybg -c '#050608' &
 fi
 sleep 0.3
 
-# --- Embed and Force Live btop Widget on Boot (Immediately After Wallpaper) ---
-foot --app-id=neuxon-btop --window-size-chars=98x30 -e /usr/bin/btop --utf-force &
-sleep 0.2
-
-# --- Start Waybar (Top Status Bar & Centered Bottom Dock) with Logging ---
-if [ -f "${HOME}/.config/waybar/config" ]; then
-    waybar -c "${HOME}/.config/waybar/config" -s "${HOME}/.config/waybar/style.css" > /tmp/waybar.log 2>&1 &
-elif [ -f /etc/xdg/waybar/config ]; then
-    waybar -c /etc/xdg/waybar/config -s /etc/xdg/waybar/style.css > /tmp/waybar.log 2>&1 &
+# --- 5. Embed and Force Live btop Widget on Boot (Immediately After Wallpaper) ---
+# Launches strictly as the embedded desktop widget instance (app-id: neuxon-btop)
+if [ -x /usr/local/bin/neuxon-btop-widget ]; then
+    /usr/local/bin/neuxon-btop-widget &
 else
-    waybar > /tmp/waybar.log 2>&1 &
+    foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e /usr/bin/btop --utf-force &
 fi
 sleep 0.2
 
-# --- Start Mako (Monochrome Toast Notifications) ---
+# --- 6. Start Waybar (Top Windows-Familiar Taskbar & Centered Floating Dock) ---
+WAYBAR_STYLE="${HOME}/.config/waybar/style.css"
+[ -f "${WAYBAR_STYLE}" ] || WAYBAR_STYLE="/etc/xdg/waybar/style.css"
+
+if [ -f "${HOME}/.config/waybar/config-top.jsonc" ]; then
+    waybar -c "${HOME}/.config/waybar/config-top.jsonc" -s "${WAYBAR_STYLE}" > /tmp/waybar-top.log 2>&1 &
+fi
+
+if [ -f "${HOME}/.config/waybar/config-dock.jsonc" ]; then
+    waybar -c "${HOME}/.config/waybar/config-dock.jsonc" -s "${WAYBAR_STYLE}" > /tmp/waybar-dock.log 2>&1 &
+fi
+
+# Fallback if separate configs are not used
+if ! pgrep -x waybar >/dev/null 2>&1; then
+    if [ -f "${HOME}/.config/waybar/config" ]; then
+        waybar -c "${HOME}/.config/waybar/config" -s "${WAYBAR_STYLE}" > /tmp/waybar.log 2>&1 &
+    elif [ -f /etc/xdg/waybar/config ]; then
+        waybar -c /etc/xdg/waybar/config -s "${WAYBAR_STYLE}" > /tmp/waybar.log 2>&1 &
+    fi
+fi
+sleep 0.2
+
+# --- 7. Start Mako (Monochrome Toast Notifications) ---
 mako > /tmp/mako.log 2>&1 &
 
-# --- Start PipeWire / WirePlumber audio subsystem if present ---
+# --- 8. Start PipeWire / WirePlumber audio subsystem if present ---
 if command -v pipewire &>/dev/null && ! pgrep -x pipewire >/dev/null 2>&1; then
     pipewire &
     sleep 0.2
     wireplumber &
 fi
 
-# --- Launch Remaining 5 Large Terminal Widgets ---
+# --- 9. Launch Remaining Desktop Widgets ---
 sleep 0.2
 foot --app-id=neuxon-sysinfo --title="[ 01 // NEUXON ARCHITECTURE & SUBSYSTEMS ]" -e /usr/local/bin/neuxon-sysinfo-widget &
 sleep 0.1
@@ -76,10 +105,10 @@ foot --app-id=neuxon-notes --title="[ 05 // NEUXON VFS SCRATCHPAD & MEMO ]" -e /
 sleep 0.1
 foot --app-id=neuxon-matrix --title="[ 06 // KERNEL DMESG & RING IPC STREAM ]" -e /usr/local/bin/neuxon-matrix-widget &
 
-# --- Start Autonomous Self-Healing Daemon ---
+# --- 10. Start Autonomous Self-Healing Daemon Watchdog ---
 /usr/local/bin/neuxon-doctor --daemon &
 
-# --- Import environment into systemd / dbus ---
+# --- 11. Import environment into systemd / dbus ---
 dbus-update-activation-environment --systemd \
     WAYLAND_DISPLAY \
     XDG_CURRENT_DESKTOP \

@@ -1,36 +1,35 @@
 # ============================================================================
-# Neuxon OS - Stealth Monochrome Glass Mako Configuration
-# Position: Top-right | Surface: Frosted Obsidian rgba(14, 14, 14, 0.86)
-# Borders: 1px Specular Hairline (#2A2A2A / #FFFFFF on critical)
+# Neuxon OS v5.0 - Stealth 16-Bit Obsidian Glass Mako Notification Configuration
+# Position: Bottom-right | Action Center Style | 4s Auto-Dismiss
 # ============================================================================
 
-font=JetBrains Mono Nerd Font 10
-background-color=#0E0E0EDB
-text-color=#F5F5F5
-border-color=#2A2A2A
+font=JetBrains Mono 10
+background-color=#0A0D12E6
+text-color=#F1F5F9
+border-color=#8A96A8
 border-size=1
-border-radius=6
-width=340
-height=120
-margin=14
-padding=12
-icons=0
+border-radius=8
+width=360
+height=140
+margin=16
+padding=14
+icons=1
 max-icon-size=32
-default-timeout=5000
+default-timeout=4000
 group-by=summary
 layer=overlay
-anchor=top-right
+anchor=bottom-right
 
 [urgency=low]
-border-color=#2A2A2A
-text-color=#7A7A7A
+border-color=#1E242F
+text-color=#94A3B8
 
 [urgency=normal]
-border-color=#FFFFFF
-text-color=#F5F5F5
+border-color=#8A96A8
+text-color=#F1F5F9
 
 [urgency=critical]
-border-color=#FFFFFF
+border-color=#F87171
 text-color=#FFFFFF
-background-color=#141414EE
+background-color=#180D12F0
 default-timeout=0

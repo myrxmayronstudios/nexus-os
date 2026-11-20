@@ -3,138 +3,175 @@
         "name": "top-bar",
         "layer": "top",
         "position": "top",
-        "height": 30,
+        "height": 34,
         "exclusive": true,
         "passthrough": false,
         "spacing": 4,
         "modules-left": [
-            "custom/neuxon-brand",
+            "custom/start",
             "custom/ws1",
             "custom/ws2",
             "custom/ws3",
             "custom/ws4"
         ],
         "modules-center": [
-            "clock"
+            "wlr/taskbar"
         ],
         "modules-right": [
+            "custom/volume",
+            "network",
             "cpu",
             "temperature",
             "memory",
-            "network"
+            "clock",
+            "custom/power"
         ],
-        "custom/neuxon-brand": {
-            "format": "❖ NEUXON",
-            "tooltip-format": "Neuxon OS (Super+D for App Menu)",
+        "custom/start": {
+            "format": "❖ START",
+            "tooltip-format": "Start Menu (Win or Win+Space)",
             "on-click": "fuzzel"
         },
         "custom/ws1": {
-            "format": "[1]",
-            "tooltip-format": "Switch to Workspace 1 (Super+1)",
+            "format": "[ 1 ]",
+            "tooltip-format": "Workspace 1 (Win+1)",
             "on-click": "wtype -M logo -k 1 -m logo 2>/dev/null || true"
         },
         "custom/ws2": {
-            "format": "[2]",
-            "tooltip-format": "Switch to Workspace 2 (Super+2)",
+            "format": "[ 2 ]",
+            "tooltip-format": "Workspace 2 (Win+2)",
             "on-click": "wtype -M logo -k 2 -m logo 2>/dev/null || true"
         },
         "custom/ws3": {
-            "format": "[3]",
-            "tooltip-format": "Switch to Workspace 3 (Super+3)",
+            "format": "[ 3 ]",
+            "tooltip-format": "Workspace 3 (Win+3)",
             "on-click": "wtype -M logo -k 3 -m logo 2>/dev/null || true"
         },
         "custom/ws4": {
-            "format": "[4]",
-            "tooltip-format": "Switch to Workspace 4 (Super+4)",
+            "format": "[ 4 ]",
+            "tooltip-format": "Workspace 4 (Win+4)",
             "on-click": "wtype -M logo -k 4 -m logo 2>/dev/null || true"
         },
-        "clock": {
-            "format": "[ {:%a %b %d  ·  %H:%M:%S} ]",
-            "tooltip-format": "<tt><small>{calendar}</small></tt>",
-            "interval": 1
+        "wlr/taskbar": {
+            "format": "{icon} {title}",
+            "icon-size": 16,
+            "max-length": 42,
+            "all-outputs": true,
+            "active-first": true,
+            "tooltip-format": "{title}",
+            "on-click": "activate",
+            "on-click-middle": "close",
+            "on-click-right": "minimize-raise"
+        },
+        "custom/volume": {
+            "exec": "/usr/local/bin/neuxon-volume-status",
+            "return-type": "json",
+            "interval": 2,
+            "format": "{text}",
+            "tooltip": true,
+            "on-click": "/usr/local/bin/neuxon-launch audio",
+            "on-click-right": "/usr/local/bin/neuxon-volume-status toggle-mute",
+            "on-scroll-up": "/usr/local/bin/neuxon-volume-status up",
+            "on-scroll-down": "/usr/local/bin/neuxon-volume-status down"
+        },
+        "network": {
+            "interval": 4,
+            "format-wifi": "[ 📶 {signalStrength}% ]",
+            "format-ethernet": "[ 🌐 ETH ]",
+            "format-disconnected": "[ ⚠ OFFLINE ]",
+            "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Signal: {signalStrength}%",
+            "tooltip-format-ethernet": "Interface: {ifname} | IP: {ipaddr}",
+            "on-click": "/usr/local/bin/neuxon-settings network"
         },
         "cpu": {
             "format": "[ CPU {usage:2}% ]",
             "interval": 2,
             "tooltip": true,
-            "on-click": "/usr/local/bin/btop"
+            "on-click": "/usr/local/bin/neuxon-btop-open"
         },
         "temperature": {
             "thermal-zone": 0,
             "format": "[ TEMP {temperatureC}°C ]",
             "critical-threshold": 75,
             "format-critical": "[ ! TEMP {temperatureC}°C ]",
-            "interval": 4,
-            "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}°C"
+            "interval": 3,
+            "tooltip-format": "BCM2837B0 Core Temp: {temperatureC}°C",
+            "on-click": "/usr/local/bin/neuxon-btop-open"
         },
         "memory": {
             "format": "[ RAM {used:0.0f}M ]",
-            "interval": 3,
+            "interval": 2,
             "tooltip-format": "RAM: {used:0.2f}GB / {total:0.2f}GB ({percentage}%)",
-            "on-click": "/usr/local/bin/btop"
+            "on-click": "/usr/local/bin/neuxon-btop-open"
         },
-        "network": {
-            "interval": 5,
-            "format-wifi": "[ NET {signalStrength}% ]",
-            "format-ethernet": "[ NET UP ]",
-            "format-disconnected": "[ NET DOWN ]",
-            "tooltip-format-wifi": "SSID: {essid} | IP: {ipaddr} | Signal: {signalStrength}%",
-            "tooltip-format-ethernet": "Interface: {ifname} | IP: {ipaddr}",
-            "on-click": "/usr/local/bin/neuxon-launch control"
+        "clock": {
+            "format": "[ {:%H:%M | %a %b %d} ]",
+            "interval": 1,
+            "tooltip-format": "<tt><small>{calendar}</small></tt>"
+        },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Power Options (Win+P)",
+            "on-click": "/usr/local/bin/neuxon-power"
         }
     },
     {
         "name": "dock",
         "layer": "top",
         "position": "bottom",
-        "height": 46,
-        "margin-bottom": 12,
-        "exclusive": true,
+        "height": 48,
+        "margin-bottom": 8,
+        "exclusive": false,
         "passthrough": false,
-        "spacing": 8,
+        "spacing": 6,
         "modules-center": [
             "custom/dock-browser",
+            "custom/dock-files",
             "custom/dock-term",
             "custom/dock-calc",
-            "custom/dock-files",
             "custom/dock-notes",
-            "custom/dock-heal",
-            "custom/dock-power"
+            "custom/dock-monitor",
+            "custom/dock-settings",
+            "custom/dock-repair"
         ],
         "custom/dock-browser": {
             "format": "🌐 Browser",
             "tooltip-format": "Chromium Web Browser (ARM64 Optimized)",
-            "on-click": "/usr/local/bin/neuxon-launch browser"
+            "on-click": "/usr/local/bin/neuxon-browser"
+        },
+        "custom/dock-files": {
+            "format": "📁 Files",
+            "tooltip-format": "Neuxon File Manager (Win+E)",
+            "on-click": "/usr/local/bin/neuxon-files"
         },
         "custom/dock-term": {
             "format": ">_ Terminal",
-            "tooltip-format": "Foot Terminal Shell (Super+Return)",
-            "on-click": "/usr/local/bin/neuxon-launch terminal"
+            "tooltip-format": "Foot Terminal Shell (Win+Return)",
+            "on-click": "foot"
         },
         "custom/dock-calc": {
             "format": "🖩 Calc",
             "tooltip-format": "Neuxon Scientific & Programmer Calculator",
             "on-click": "/usr/local/bin/neuxon-calc"
         },
-        "custom/dock-files": {
-            "format": "📁 Files",
-            "tooltip-format": "Neuxon File Manager (Yazi / PCManFM)",
-            "on-click": "/usr/local/bin/neuxon-launch files"
-        },
         "custom/dock-notes": {
             "format": "📝 Notes",
-            "tooltip-format": "Persistent VFS Notes Scratchpad",
-            "on-click": "/usr/local/bin/neuxon-launch notes"
+            "tooltip-format": "Neuxon Notes & Text Editor",
+            "on-click": "/usr/local/bin/neuxon-notes"
         },
-        "custom/dock-heal": {
-            "format": "🛠 Heal",
-            "tooltip-format": "Neuxon Autonomous Self-Healing Diagnostic",
-            "on-click": "/usr/local/bin/neuxon-launch doctor"
+        "custom/dock-monitor": {
+            "format": "📊 Monitor",
+            "tooltip-format": "Neuxon System Monitor (Ctrl+Shift+Esc)",
+            "on-click": "/usr/local/bin/neuxon-btop-open"
         },
-        "custom/dock-power": {
-            "format": "⏻ Power",
-            "tooltip-format": "Neuxon Power Management",
-            "on-click": "/usr/local/bin/neuxon-power"
+        "custom/dock-settings": {
+            "format": "⚙ Settings",
+            "tooltip-format": "Neuxon Settings & Control Center (Win+C)",
+            "on-click": "/usr/local/bin/neuxon-settings"
+        },
+        "custom/dock-repair": {
+            "format": "🛠 Repair",
+            "tooltip-format": "Neuxon Doctor Self-Healing Diagnostics",
+            "on-click": "/usr/local/bin/neuxon-doctor --gui"
         }
     }
 ]

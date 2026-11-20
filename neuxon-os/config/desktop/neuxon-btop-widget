@@ -1,31 +1,36 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - btop Desktop Widget Runner (Single-Instance Enforced)
+# Neuxon OS v5.0 - Embedded Live btop Desktop Widget Runner
+# Guaranteed Strictly Max 1 Fixed Desktop Widget Instance (app-id: neuxon-btop)
 # ============================================================================
 set -u
 
 LOCKFILE="/tmp/neuxon-btop.lock"
-exec 200>"${LOCKFILE}"
-if ! flock -n 200; then
-    echo "[ NEUXON GUARD ] btop widget is already active."
-    exit 0
-fi
 
 # Locate the real btop binary
 BTOP_BIN=""
-for b in /usr/local/bin/btop.real /usr/bin/btop.real /usr/local/bin/btop-bin /usr/bin/btop; do
-    if [ -x "$b" ] && [ "$b" != "/usr/local/bin/btop" ]; then
+for b in /usr/bin/btop.real /usr/local/bin/btop.real /usr/bin/btop /usr/local/bin/btop; do
+    if [ -x "$b" ] && [ ! -L "$b" ]; then
         BTOP_BIN="$b"
         break
     fi
 done
 
-if [ -n "${BTOP_BIN}" ]; then
-    exec "${BTOP_BIN}" --utf-force "$@"
-elif command -v btm >/dev/null 2>&1; then
-    exec btm "$@"
-elif command -v htop >/dev/null 2>&1; then
-    exec htop "$@"
+if [ -z "$BTOP_BIN" ]; then
+    echo "[ NEUXON GUARD ] Error: btop binary not found!" >&2
+    exit 1
+fi
+
+# Acquire non-blocking lock for the desktop widget
+exec 200>"$LOCKFILE"
+if ! flock -n 200; then
+    # Widget is already running
+    exit 0
+fi
+
+# Launch strictly as the embedded desktop widget
+if [ -t 0 ]; then
+    exec flock 200 "$BTOP_BIN" --utf-force "$@"
 else
-    exec top "$@"
+    exec foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e flock "$LOCKFILE" "$BTOP_BIN" --utf-force "$@"
 fi

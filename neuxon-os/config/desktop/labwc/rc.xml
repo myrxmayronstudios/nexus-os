@@ -23,94 +23,123 @@
   </theme>
 
   <windowRules>
+    <!-- Default: All user application windows get server decorations and taskbar presence -->
     <windowRule identifier="*" serverDecoration="yes" skipTaskbar="no" />
 
-    <!-- Terminal Widget 1: Sysinfo (Top-Left) -->
+    <!-- ==================================================================== -->
+    <!-- PERMANENT DESKTOP WIDGETS (Locked background cards, no window chrome)-->
+    <!-- ==================================================================== -->
+
+    <!-- Desktop Widget 1: System Info & Shortcut Cheat Sheet (Top-Left) -->
     <windowRule identifier="neuxon-sysinfo" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
-      <action name="MoveTo" x="24" y="44" />
-      <action name="ResizeTo" width="520" height="250" />
+      <action name="MoveTo" x="24" y="48" />
+      <action name="ResizeTo" width="520" height="240" />
     </windowRule>
 
-    <!-- Terminal Widget 2: btop System Monitor (Top-Center) -->
+    <!-- Desktop Widget 2: Embedded Live btop System Matrix (Top-Center) -->
     <windowRule identifier="neuxon-btop" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
-      <action name="MoveTo" x="564" y="44" />
+      <action name="MoveTo" x="560" y="48" />
       <action name="ResizeTo" width="880" height="560" />
     </windowRule>
 
-    <!-- Terminal Widget 3: Hardware Telemetry (Middle-Left) -->
+    <!-- Desktop Widget 3: Live Hardware & Thermal Telemetry (Middle-Left) -->
     <windowRule identifier="neuxon-telemetry" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
-      <action name="MoveTo" x="24" y="310" />
-      <action name="ResizeTo" width="520" height="294" />
+      <action name="MoveTo" x="24" y="304" />
+      <action name="ResizeTo" width="520" height="300" />
     </windowRule>
 
-    <!-- Terminal Widget 4: Chrono & Network Matrix (Bottom-Left) -->
+    <!-- Desktop Widget 4: Chrono, Network & Latency Matrix (Bottom-Left) -->
     <windowRule identifier="neuxon-net" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
       <action name="MoveTo" x="24" y="620" />
-      <action name="ResizeTo" width="520" height="250" />
+      <action name="ResizeTo" width="520" height="240" />
     </windowRule>
 
-    <!-- Terminal Widget 5: VFS Notes & Checklist (Top-Right) -->
+    <!-- Desktop Widget 5: VFS Notes & Persistent Scratchpad (Top-Right) -->
     <windowRule identifier="neuxon-notes" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
-      <action name="MoveTo" x="1460" y="44" />
+      <action name="MoveTo" x="1460" y="48" />
       <action name="ResizeTo" width="436" height="560" />
     </windowRule>
 
-    <!-- Terminal Widget 6: Kernel Ring & IPC Matrix (Bottom-Right) -->
+    <!-- Desktop Widget 6: Kernel Ring & IPC Matrix (Bottom-Right) -->
     <windowRule identifier="neuxon-matrix" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes">
-      <action name="MoveTo" x="564" y="620" />
-      <action name="ResizeTo" width="1332" height="250" />
+      <action name="MoveTo" x="560" y="620" />
+      <action name="ResizeTo" width="1336" height="240" />
     </windowRule>
 
-    <!-- Catch-all for any additional Neuxon desktop widgets -->
+    <!-- Catch-all for any auxiliary desktop widgets -->
     <windowRule identifier="neuxon-*-widget" serverDecoration="no" skipTaskbar="yes" skipWindowSwitcher="yes" />
 
-    <!-- Secondary HUD & App Dialog Rules -->
-    <windowRule identifier="neuxon-hud" serverDecoration="no">
-      <action name="ToggleAlwaysOnTop" />
+    <!-- ==================================================================== -->
+    <!-- MOVABLE USER APPLICATIONS (100% Movable with Active Titlebars)       -->
+    <!-- ==================================================================== -->
+
+    <!-- Smart Floating Btop (Opened intentionally by user from Dock/Menu/Keybind) -->
+    <windowRule identifier="neuxon-btop-float" serverDecoration="yes" skipTaskbar="no" skipWindowSwitcher="no">
+      <action name="MoveTo" x="640" y="180" />
+      <action name="ResizeTo" width="900" height="560" />
     </windowRule>
 
-    <!-- All Opened Apps & Utilities: Guaranteed Movable with Server Decorations -->
-    <windowRule identifier="neuxon-calc" serverDecoration="yes">
+    <!-- Native Monochrome Calculator -->
+    <windowRule identifier="neuxon-calc" serverDecoration="yes" skipTaskbar="no">
       <action name="MoveTo" x="780" y="240" />
       <action name="ResizeTo" width="380" height="540" />
     </windowRule>
 
-    <windowRule identifier="neuxon-power" serverDecoration="yes">
-      <action name="MoveTo" x="720" y="320" />
-      <action name="ResizeTo" width="480" height="420" />
+    <!-- Neuxon Settings & Control Center -->
+    <windowRule identifier="neuxon-settings" serverDecoration="yes" skipTaskbar="no">
+      <action name="MoveTo" x="460" y="160" />
+      <action name="ResizeTo" width="920" height="620" />
+    </windowRule>
+    <windowRule identifier="neuxon-control" serverDecoration="yes" skipTaskbar="no">
+      <action name="MoveTo" x="460" y="160" />
+      <action name="ResizeTo" width="920" height="620" />
     </windowRule>
 
-    <windowRule identifier="neuxon-control" serverDecoration="yes">
-      <action name="MoveTo" x="360" y="160" />
-      <action name="ResizeTo" width="1200" height="700" />
+    <!-- Neuxon GUI Notes / Text Editor -->
+    <windowRule identifier="neuxon-notes-gui" serverDecoration="yes" skipTaskbar="no">
+      <action name="MoveTo" x="500" y="200" />
+      <action name="ResizeTo" width="860" height="580" />
     </windowRule>
 
-    <windowRule identifier="neuxon-files" serverDecoration="yes">
+    <!-- File Manager -->
+    <windowRule identifier="neuxon-files" serverDecoration="yes" skipTaskbar="no">
       <action name="MoveTo" x="420" y="180" />
       <action name="ResizeTo" width="1080" height="720" />
     </windowRule>
 
-    <windowRule identifier="foot" serverDecoration="yes" />
-    <windowRule identifier="galculator" serverDecoration="yes" />
-    <windowRule identifier="pcmanfm" serverDecoration="yes" />
-    <windowRule identifier="mousepad" serverDecoration="yes" />
-    <windowRule identifier="imv" serverDecoration="yes" />
-    <windowRule identifier="org.pwmt.zathura" serverDecoration="yes" />
-    <windowRule identifier="cmus" serverDecoration="yes" />
+    <!-- Neuxon Power Management Modal -->
+    <windowRule identifier="neuxon-power" serverDecoration="yes" skipTaskbar="no">
+      <action name="MoveTo" x="720" y="320" />
+      <action name="ResizeTo" width="480" height="380" />
+    </windowRule>
+
+    <!-- General Standard Applications -->
+    <windowRule identifier="foot" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="chromium" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="chromium-browser" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="pcmanfm" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="mousepad" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="galculator" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="imv" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="org.pwmt.zathura" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="cmus" serverDecoration="yes" skipTaskbar="no" />
+    <windowRule identifier="pavucontrol" serverDecoration="yes" skipTaskbar="no" />
   </windowRules>
 
+  <!-- Windows-style click-to-focus and raise-on-click -->
   <focus>
-    <followMouse>yes</followMouse>
-    <followMouseRequiresMovement>yes</followMouseRequiresMovement>
-    <raiseOnFocus>no</raiseOnFocus>
+    <followMouse>no</followMouse>
+    <raiseOnFocus>yes</raiseOnFocus>
   </focus>
 
+  <!-- Aero-style edge snapping -->
   <snapping>
-    <range>4</range>
+    <range>10</range>
     <topMaximize>yes</topMaximize>
     <notifyClient>always</notifyClient>
   </snapping>
 
+  <!-- 4 Workspaces -->
   <desktops number="4">
     <popupTime>0</popupTime>
     <names>
@@ -125,69 +154,95 @@
     <popupShow>Never</popupShow>
   </resize>
 
+  <!-- ==================================================================== -->
+  <!-- FAMILIAR GLOBAL KEYBOARD SHORTCUTS (Strict Labwc W/A/C/S Modifiers)   -->
+  <!-- ==================================================================== -->
   <keyboard>
     <default />
 
-    <!-- Core Terminal Shell -->
+    <!-- Win+Space or Win: Start Menu / Searchable App Launcher (Fuzzel) -->
+    <keybind key="W-space">
+      <action name="Execute">
+        <command>fuzzel</command>
+      </action>
+    </keybind>
+
+    <!-- Core Terminal Shell (Win+Return) -->
     <keybind key="W-Return">
       <action name="Execute">
         <command>/usr/local/bin/neuxon-launch terminal</command>
       </action>
     </keybind>
 
-    <!-- Application Launcher -->
-    <keybind key="W-d">
+    <!-- File Explorer (Win+E) -->
+    <keybind key="W-e">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-files</command>
+      </action>
+    </keybind>
+
+    <!-- Quick Run / Command Launcher (Win+R) -->
+    <keybind key="W-r">
       <action name="Execute">
         <command>fuzzel</command>
       </action>
     </keybind>
 
-    <!-- Toggle / Focus btop Desktop Monitor (Single Instance Enforced) -->
-    <keybind key="W-b">
-      <action name="Execute">
-        <command>/usr/local/bin/btop</command>
-      </action>
+    <!-- Toggle Show Desktop (Win+D) -->
+    <keybind key="W-d">
+      <action name="ToggleShowDesktop" />
     </keybind>
 
-    <!-- Neuxon Control Center -->
-    <keybind key="W-c">
-      <action name="Execute">
-        <command>foot -a neuxon-control -T "Neuxon Control Center" /usr/local/bin/neuxon-control</command>
-      </action>
-    </keybind>
-
-    <!-- Neuxon Power Management Dialog -->
-    <keybind key="W-p">
-      <action name="Execute">
-        <command>/usr/local/bin/neuxon-power</command>
-      </action>
-    </keybind>
-
-    <!-- Neuxon HUD Overlay -->
-    <keybind key="W-h">
-      <action name="Execute">
-        <command>/usr/local/bin/neuxon-hud</command>
-      </action>
-    </keybind>
-
-    <!-- Screen Lock -->
+    <!-- Screen Lock (Win+L) -->
     <keybind key="W-l">
       <action name="Execute">
         <command>swaylock -f -c 050505 --ring-color FFFFFF --inside-color 0E0E0E --line-color 2A2A2A --text-color F5F5F5</command>
       </action>
     </keybind>
 
-    <!-- Close Window -->
+    <!-- Launch / Focus System Monitor (Ctrl+Shift+Esc & Win+B) -->
+    <keybind key="C-S-Escape">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-btop-open</command>
+      </action>
+    </keybind>
+    <keybind key="W-b">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-btop-open</command>
+      </action>
+    </keybind>
+
+    <!-- Settings & Control Center (Win+C) -->
+    <keybind key="W-c">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-settings</command>
+      </action>
+    </keybind>
+
+    <!-- Power Management Dialog (Win+P) -->
+    <keybind key="W-p">
+      <action name="Execute">
+        <command>/usr/local/bin/neuxon-power</command>
+      </action>
+    </keybind>
+
+    <!-- Close Window (Alt+F4 & Win+Q) -->
+    <keybind key="A-F4">
+      <action name="Close" />
+    </keybind>
     <keybind key="W-q">
       <action name="Close" />
     </keybind>
 
-    <!-- Fullscreen Toggle -->
+    <!-- Fullscreen Toggle (F11 & Win+F) -->
+    <keybind key="F11">
+      <action name="ToggleFullscreen" />
+    </keybind>
     <keybind key="W-f">
       <action name="ToggleFullscreen" />
     </keybind>
 
-    <!-- Window Navigation / Tiling Snap -->
+    <!-- Aero Half-Screen Snap & Maximize (Win+Arrows) -->
     <keybind key="W-Left">
       <action name="SnapToEdge" direction="left" />
     </keybind>
@@ -201,7 +256,7 @@
       <action name="Iconify" />
     </keybind>
 
-    <!-- Window Cycling -->
+    <!-- Window Switcher (Alt+Tab / Alt+Shift+Tab) -->
     <keybind key="A-Tab">
       <action name="NextWindow" />
     </keybind>
@@ -209,7 +264,7 @@
       <action name="PreviousWindow" />
     </keybind>
 
-    <!-- Workspace Navigation (W-1 .. W-4) -->
+    <!-- Workspace Navigation (Win+1 .. Win+4) -->
     <keybind key="W-1">
       <action name="GoToDesktop" to="1" />
     </keybind>
@@ -223,7 +278,7 @@
       <action name="GoToDesktop" to="4" />
     </keybind>
 
-    <!-- Send Window to Workspace (W-S-1 .. W-S-4) -->
+    <!-- Send Window to Workspace (Win+Shift+1 .. Win+Shift+4) -->
     <keybind key="W-S-1">
       <action name="SendToDesktop" to="1" follow="yes" />
     </keybind>
@@ -237,42 +292,46 @@
       <action name="SendToDesktop" to="4" follow="yes" />
     </keybind>
 
-    <!-- Screenshot -->
+    <!-- Screenshots: Full Screen (Print) & Interactive Area (Shift+Print) -->
     <keybind key="Print">
       <action name="Execute">
-        <command>sh -c "grim ~/Pictures/screenshot_$(date +%Y%m%d_%H%M%S).png &amp;&amp; notify-send 'Screenshot captured'"</command>
+        <command>sh -c "mkdir -p ~/Pictures/Screenshots &amp;&amp; grim ~/Pictures/Screenshots/screenshot_$(date +%Y%m%d_%H%M%S).png &amp;&amp; notify-send 'Screenshot' 'Full screenshot saved to ~/Pictures/Screenshots/'"</command>
+      </action>
+    </keybind>
+    <keybind key="S-Print">
+      <action name="Execute">
+        <command>sh -c "mkdir -p ~/Pictures/Screenshots &amp;&amp; f=~/Pictures/Screenshots/area_$(date +%Y%m%d_%H%M%S).png &amp;&amp; grim -g \"$(slurp)\" \"$f\" &amp;&amp; wl-copy &lt; \"$f\" &amp;&amp; notify-send 'Screenshot' 'Area selection copied to clipboard'"</command>
       </action>
     </keybind>
   </keyboard>
 
+  <!-- ==================================================================== -->
+  <!-- INTUITIVE MOUSE & TITLEBAR HANDLING                                  -->
+  <!-- ==================================================================== -->
   <mouse>
     <default />
+
+    <!-- Titlebar Interaction -->
     <context name="Titlebar">
       <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
       <mousebind button="Left" action="Drag"><action name="Move"/></mousebind>
       <mousebind button="Left" action="DoubleClick"><action name="ToggleMaximize"/></mousebind>
+      <mousebind button="Right" action="Press"><action name="ShowMenu" menu="client-menu"/></mousebind>
     </context>
     <context name="TitleBar">
       <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
       <mousebind button="Left" action="Drag"><action name="Move"/></mousebind>
       <mousebind button="Left" action="DoubleClick"><action name="ToggleMaximize"/></mousebind>
+      <mousebind button="Right" action="Press"><action name="ShowMenu" menu="client-menu"/></mousebind>
     </context>
     <context name="Title">
       <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
       <mousebind button="Left" action="Drag"><action name="Move"/></mousebind>
       <mousebind button="Left" action="DoubleClick"><action name="ToggleMaximize"/></mousebind>
+      <mousebind button="Right" action="Press"><action name="ShowMenu" menu="client-menu"/></mousebind>
     </context>
-    <context name="Frame">
-      <mousebind button="A-Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
-      <mousebind button="A-Left" action="Drag"><action name="Move"/></mousebind>
-      <mousebind button="A-Right" action="Drag"><action name="Resize"/></mousebind>
-    </context>
-    <context name="Client">
-      <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
-      <mousebind button="A-Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
-      <mousebind button="A-Left" action="Drag"><action name="Move"/></mousebind>
-      <mousebind button="A-Right" action="Drag"><action name="Resize"/></mousebind>
-    </context>
+
+    <!-- Window Buttons -->
     <context name="Close">
       <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/><action name="Close"/></mousebind>
     </context>
@@ -282,6 +341,24 @@
     <context name="Iconify">
       <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/><action name="Iconify"/></mousebind>
     </context>
+
+    <!-- Window Borders & Frame Resizing -->
+    <context name="Frame">
+      <mousebind button="Left" action="Drag"><action name="Resize"/></mousebind>
+      <mousebind button="A-Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
+      <mousebind button="A-Left" action="Drag"><action name="Move"/></mousebind>
+      <mousebind button="A-Right" action="Drag"><action name="Resize"/></mousebind>
+    </context>
+
+    <!-- Client Area (Alt+Drag window movement without hunting for titlebar) -->
+    <context name="Client">
+      <mousebind button="Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
+      <mousebind button="A-Left" action="Press"><action name="Focus"/><action name="Raise"/></mousebind>
+      <mousebind button="A-Left" action="Drag"><action name="Move"/></mousebind>
+      <mousebind button="A-Right" action="Drag"><action name="Resize"/></mousebind>
+    </context>
+
+    <!-- Desktop Background Right-Click Menu -->
     <context name="Root">
       <mousebind button="Right" action="Press">
         <action name="ShowMenu" menu="root-menu" />

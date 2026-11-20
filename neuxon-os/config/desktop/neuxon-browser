@@ -1,48 +1,45 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - Web Browser Launcher (Chromium / Min Browser)
-# Specifically tuned for Raspberry Pi 3B+ (1GB RAM + ZRAM, vc4-kms-v3d Wayland)
+# Neuxon OS v5.0 - Chromium Web Browser Launcher
+# Hardware-tuned for Raspberry Pi 3B+ (1GB LPDDR2, vc4-kms-v3d Wayland)
 # ============================================================================
 set -u
 
-CHROMIUM_BIN=""
-if command -v chromium-browser >/dev/null 2>&1; then
-    CHROMIUM_BIN="chromium-browser"
-elif command -v chromium >/dev/null 2>&1; then
-    CHROMIUM_BIN="chromium"
+STARTPAGE="${HOME}/.local/share/neuxon/startpage.html"
+if [ ! -f "$STARTPAGE" ]; then
+    mkdir -p "${HOME}/.local/share/neuxon"
+    if [ -f /usr/local/share/neuxon/startpage.html ]; then
+        cp /usr/local/share/neuxon/startpage.html "$STARTPAGE"
+    fi
 fi
 
+URL="${1:-file://${STARTPAGE}}"
+shift || true
+
+# RPi3B+ Wayland flags
 CHROMIUM_FLAGS=(
     --ozone-platform=wayland
-    --enable-features=UseOzonePlatform,WaylandWindowDecorations
-    --enable-wayland-ime
+    --enable-features=UseOzonePlatform
     --no-sandbox
     --test-type
     --disable-dev-shm-usage
     --disable-background-networking
     --process-per-site
     --force-dark-mode
-    --enable-gpu-rasterization
-    --enable-zero-copy
-    --disable-gpu-driver-bug-workarounds
-    --disk-cache-dir=/tmp/chromium-cache
-    --disk-cache-size=33554432
+    --enable-smooth-scrolling
+    --password-store=basic
 )
 
-if [ -n "${CHROMIUM_BIN}" ]; then
-    exec "${CHROMIUM_BIN}" "${CHROMIUM_FLAGS[@]}" "$@"
-elif command -v min >/dev/null 2>&1; then
-    exec min "$@"
-elif [ -x /opt/Min/min ]; then
-    exec /opt/Min/min "$@"
-elif command -v firefox-esr >/dev/null 2>&1; then
-    exec firefox-esr "$@"
-else
-    echo "No supported GUI browser found. Falling back to terminal browser..."
-    if command -v w3m >/dev/null 2>&1; then
-        exec w3m https://duckduckgo.com
-    elif command -v lynx >/dev/null 2>&1; then
-        exec lynx https://duckduckgo.com
+for bin in chromium-browser chromium google-chrome; do
+    if command -v "$bin" >/dev/null 2>&1; then
+        exec "$bin" "${CHROMIUM_FLAGS[@]}" "$URL" "$@"
     fi
-    exit 1
+done
+
+# Fallback: text browser inside foot
+if command -v w3m >/dev/null 2>&1; then
+    exec foot --app-id=neuxon-browser -e w3m "$URL"
+else
+    echo "No browser installed. Run: sudo apt install chromium"
+    read -r _
 fi

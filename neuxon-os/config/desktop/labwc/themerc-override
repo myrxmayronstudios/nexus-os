@@ -1,44 +1,51 @@
 # ============================================================================
-# Neuxon OS - Stealth Monochrome Glass Labwc Theme
-# 16-Bit Palette: Void Base #050508, Panel Surface #0E1015 (82% opacity: #0E1015D1)
-# Hairlines: Active #A8B2C1, Inactive #1E222B
-# Typography: JetBrains Mono Nerd Font, Primary #E2E8F0, Muted #8A96A8
+# Neuxon OS v5.0 - 16-Bit Obsidian Glass Labwc Theme
+# Master Palette:
+#   Void Base:           #050608
+#   Frosted Glass Panel: rgba(10, 13, 18, 0.82) -> #0A0D12D1
+#   Elevated Surface:    rgba(18, 22, 30, 0.90) -> #12161EE6
+#   Hover / Active Pill: rgba(42, 51, 68, 0.92) -> #2A3344EB
+#   Active Focus Border: #CBD5E1
+#   Subtle Hairline:     #1E222B
+#   Text Primary:        #F1F5F9
+#   Text Secondary:      #94A3B8
+#   Text Muted:          #64748B
 # ============================================================================
 
 # Window borders
 border.width: 1
-window.active.border.color: #A8B2C1
+window.active.border.color: #CBD5E1
 window.inactive.border.color: #1E222B
 
 # Titlebar backgrounds (82% alpha translucent obsidian)
-window.active.title.bg.color: #0E1015D1
-window.inactive.title.bg.color: #050508D1
+window.active.title.bg.color: #0A0D12D1
+window.inactive.title.bg.color: #050608D1
 
 # Titlebar typography
-window.active.label.text.color: #E2E8F0
-window.inactive.label.text.color: #8A96A8
+window.active.label.text.color: #F1F5F9
+window.inactive.label.text.color: #94A3B8
 
 # Window buttons (close, maximize, iconify)
-window.active.button.unpressed.image.color: #C8D0DC
-window.inactive.button.unpressed.image.color: #8A96A8
+window.active.button.unpressed.image.color: #CBD5E1
+window.inactive.button.unpressed.image.color: #64748B
 window.active.button.pressed.image.color: #FFFFFF
 window.active.button.hover.image.color: #FFFFFF
-window.inactive.button.hover.image.color: #FFFFFF
+window.inactive.button.hover.image.color: #CBD5E1
 
-# Menus (right-click desktop menu) - EXACT SPECIFICATION
-menu.width.min: 230
-menu.width.max: 320
+# Menus (right-click desktop menu) - Windows-style readable padding
+menu.width.min: 240
+menu.width.max: 340
 menu.items.padding.x: 16
 menu.items.padding.y: 8
 menu.border.width: 1
-menu.border.color: #1E222B
-menu.items.bg.color: #0E1015D1
-menu.items.text.color: #E2E8F0
-menu.items.active.bg.color: #1E222B
+menu.border.color: #8A96A8
+menu.items.bg.color: #0A0D12EA
+menu.items.text.color: #F1F5F9
+menu.items.active.bg.color: #2A3344EB
 menu.items.active.text.color: #FFFFFF
 
-# On-screen display (workspace switcher, resize popup)
+# On-screen display (Alt-Tab window switcher, resize indicator)
 osd.border.width: 1
-osd.border.color: #A8B2C1
-osd.bg.color: #0E1015D1
-osd.label.text.color: #E2E8F0
+osd.border.color: #CBD5E1
+osd.bg.color: #0A0D12EA
+osd.label.text.color: #F1F5F9

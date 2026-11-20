@@ -1,60 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Neuxon OS - btop Global Single-Instance Guard Wrapper (/usr/local/bin/btop)
-# Enforces strictly 1 btop instance (desktop widget) system-wide.
+# Neuxon OS v5.0 - Global btop Wrapper (/usr/local/bin/btop)
+# Delegates to smart dual-mode launcher (fixed widget + movable floating window).
 # ============================================================================
 set -u
 
-# Resolve the real btop binary
-REAL_BTOP=""
-if [ -x "/usr/bin/btop.real" ]; then
-    REAL_BTOP="/usr/bin/btop.real"
-elif [ -x "/usr/local/bin/btop.real" ]; then
-    REAL_BTOP="/usr/local/bin/btop.real"
-elif [ -x "/usr/bin/btop" ]; then
-    REAL_BTOP="/usr/bin/btop"
-elif [ -x "/usr/local/bin/btop" ]; then
-    REAL_BTOP="/usr/local/bin/btop"
-fi
-
-# Acquire non-blocking file lock to detect running instance
-exec 200>/tmp/neuxon-btop.lock
-
-is_running=0
-if ! flock -n 200; then
-    is_running=1
-elif pgrep -x btop.real >/dev/null 2>&1; then
-    is_running=1
-fi
-
-if [ "$is_running" -eq 1 ]; then
-    # Focus existing widget window if GUI/keybind/script
-    if command -v wlrctl >/dev/null 2>&1; then
-        wlrctl toplevel focus app_id:neuxon-btop 2>/dev/null || true
-    fi
-
-    # If executed inside an interactive terminal shell (both stdin & stdout are tty)
-    if [ -t 0 ] && [ -t 1 ]; then
-        echo "[ NEUXON GUARD ] btop is already active as a Desktop Widget (max 1 instance allowed)."
-    fi
-    exit 0
-fi
-
-# Widget is NOT running: launch it holding the lock
-if [ -z "$REAL_BTOP" ]; then
-    echo "[ NEUXON GUARD ] Error: real btop binary not found!" >&2
-    exit 1
-fi
-
-# If already inside an interactive terminal or foot container, run directly
-if [ -t 0 ]; then
-    exec flock /tmp/neuxon-btop.lock "$REAL_BTOP" --utf-force "$@"
-fi
-
-# If invoked from GUI launcher, dock, or autostart without a terminal
-if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-    exec foot --app-id=neuxon-btop --title="[ 02 // TASK MATRIX & CPU COMPUTE CLUSTERS ]" --window-size-chars=98x30 -e flock /tmp/neuxon-btop.lock "$REAL_BTOP" --utf-force "$@"
-else
-    exec flock /tmp/neuxon-btop.lock "$REAL_BTOP" --utf-force "$@"
-fi
-
+exec /usr/local/bin/neuxon-btop-open "$@"

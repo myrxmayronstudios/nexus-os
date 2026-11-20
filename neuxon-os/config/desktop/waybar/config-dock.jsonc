@@ -1,0 +1,62 @@
+[
+    {
+        "name": "dock",
+        "layer": "top",
+        "position": "bottom",
+        "height": 48,
+        "margin-bottom": 8,
+        "exclusive": false,
+        "passthrough": false,
+        "spacing": 6,
+        "modules-center": [
+            "custom/dock-browser",
+            "custom/dock-files",
+            "custom/dock-term",
+            "custom/dock-calc",
+            "custom/dock-notes",
+            "custom/dock-monitor",
+            "custom/dock-settings",
+            "custom/dock-repair"
+        ],
+        "custom/dock-browser": {
+            "format": "🌐 Browser",
+            "tooltip-format": "Chromium Web Browser (ARM64 Optimized)",
+            "on-click": "/usr/local/bin/neuxon-browser"
+        },
+        "custom/dock-files": {
+            "format": "📁 Files",
+            "tooltip-format": "Neuxon File Manager (Win+E)",
+            "on-click": "/usr/local/bin/neuxon-files"
+        },
+        "custom/dock-term": {
+            "format": ">_ Terminal",
+            "tooltip-format": "Foot Terminal Shell (Win+Return)",
+            "on-click": "foot"
+        },
+        "custom/dock-calc": {
+            "format": "🖩 Calc",
+            "tooltip-format": "Neuxon Scientific & Programmer Calculator",
+            "on-click": "/usr/local/bin/neuxon-calc"
+        },
+        "custom/dock-notes": {
+            "format": "📝 Notes",
+            "tooltip-format": "Neuxon Notes & Text Editor",
+            "on-click": "/usr/local/bin/neuxon-notes"
+        },
+        "custom/dock-monitor": {
+            "format": "📊 Monitor",
+            "tooltip-format": "Neuxon System Monitor (Ctrl+Shift+Esc)",
+            "on-click": "/usr/local/bin/neuxon-btop-open"
+        },
+        "custom/dock-settings": {
+            "format": "⚙ Settings",
+            "tooltip-format": "Neuxon Settings & Control Center (Win+C)",
+            "on-click": "/usr/local/bin/neuxon-settings"
+        },
+        "custom/dock-repair": {
+            "format": "🛠 Repair",
+            "tooltip-format": "Neuxon Doctor Self-Healing Diagnostics",
+            "on-click": "/usr/local/bin/neuxon-doctor --gui"
+        }
+    }
+]
